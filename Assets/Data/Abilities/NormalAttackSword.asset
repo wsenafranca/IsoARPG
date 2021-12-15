@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d20ffe767f84dcb9af2419a2327303c, type: 3}
+  m_Name: NormalAttackSword
+  m_EditorClassIdentifier: 
+  displayName: Normal Attack
+  displayDescription: Swing the sword to slash the enemy. Can cause poison.
+  icon: {fileID: 0}
+  cost:
+    attribute: 2
+    cost: 0
+  cooldown: 0.1
+  effects:
+  - effect: {fileID: 11400000, guid: 830d0cafa31bde844800567e26f96cc9, type: 2}
+    probability: 0
+  range: 1.5
+  damageBonus: 1
+  animatorStateName: Base Layer.NormalAttackSword
+  duration: 1
+  weaponIndex: 0

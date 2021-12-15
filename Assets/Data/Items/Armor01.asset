@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455ee0ddd5aa405e9a1d819350cedb83, type: 3}
+  m_Name: Armor01
+  m_EditorClassIdentifier: 
+  displayName: Leather Armor
+  displayDescription: A simple armor made of leather
+  itemSlotPrefab: {fileID: 3870449665704532578, guid: 005eac5c062099f469d7b1dace389ee4, type: 3}
+  price: 5
+  width: 2
+  height: 2
+  category: 1
+  visualItemPrefab:
+  - slot: 3
+    prefab: {fileID: 2408456044825643719, guid: 931b44be2fd57ca478cc687ef36659f9, type: 3}
+  - slot: 4
+    prefab: {fileID: 6012348869132710084, guid: 8573e722dda86a2459831ecc6ebaded9, type: 3}
+  - slot: 7
+    prefab: {fileID: 8743206347766044249, guid: f4adc4ce68bceec4bae767e3ab96a226, type: 3}
+  attachItemPrefab: {fileID: 0}
+  type: 4
+  rarity: 0
+  requirements:
+  - attribute: 2
+    value: 5
+  level: []
+  bonus:
+  - attribute: 8
+    minValue: 5
+    maxValue: 10
+    modifer: 0
+  effects: []
+  grantedAbilities: []

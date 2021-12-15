@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455ee0ddd5aa405e9a1d819350cedb83, type: 3}
+  m_Name: Sword01
+  m_EditorClassIdentifier: 
+  displayName: Short Sword
+  displayDescription: A simple made short sword.
+  itemSlotPrefab: {fileID: 2654632086693795933, guid: c070c9ce78d00724ea846431b7d5fa7c, type: 3}
+  price: 20
+  width: 1
+  height: 3
+  category: 1
+  visualItemPrefab: []
+  attachItemPrefab: {fileID: 654663887510326346, guid: e815e41170ea3b947b09f80f7a0a75e0, type: 3}
+  type: 0
+  rarity: 0
+  requirements:
+  - attribute: 2
+    value: 5
+  level:
+  - level: 1
+    probability: 0.3
+  - level: 2
+    probability: 0.1
+  bonus:
+  - attribute: 6
+    minValue: 3
+    maxValue: 5
+    modifer: 0
+  - attribute: 7
+    minValue: 7
+    maxValue: 10
+    modifer: 0
+  - attribute: 11
+    minValue: 0.1
+    maxValue: 0.15
+    modifer: 1
+  grantedAbilities: []
