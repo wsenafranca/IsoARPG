@@ -157,17 +157,14 @@ namespace Controller
         
         public void OnEquip(EquipmentItemInstance item, EquipmentSlot slot)
         {
-            abilitySystem.AddEffect(item);
         }
         
         public void OnUnEquip(EquipmentItemInstance item, EquipmentSlot slot)
         {
-            abilitySystem.RemoveEffect(item);
         }
 
         private void OnGUI()
         {
-            GUI.Label(new Rect(10, 10, 250, 250), abilitySystem.attributeSet.DumpData());
         }
     }
 }

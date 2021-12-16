@@ -144,14 +144,14 @@ namespace UI
             
             BringToFront();
             _visualItem.StartRotateMesh();
-            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController(), _item, eventData.position, eventData.enterEventCamera);
+            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController().gameObject, _item, eventData.position, eventData.enterEventCamera);
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
             SendToBack();
             _visualItem.StopRotateMesh();
-            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController(), null, eventData.position, eventData.enterEventCamera);
+            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController().gameObject, null, eventData.position, eventData.enterEventCamera);
         }
     }
 }

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
-using AbilitySystem;
-using InventorySystem;
+using AttributeSystem;
 using Item;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using Attribute = AbilitySystem.Attribute;
+using Attribute = AttributeSystem.Attribute;
 
 namespace UI
 {
@@ -20,20 +19,20 @@ namespace UI
         private TextMeshProUGUI _itemName;
         private RawImage _itemIcon;
         private TextMeshProUGUI _itemInstanceInfo;
-        private TextMeshProUGUI _equipmentStats;
+        private TextMeshProUGUI _equipmentAdditiveModifier;
         private TextMeshProUGUI _equipmentRequirements;
-        private TextMeshProUGUI _itemDescription;
         private TextMeshProUGUI _itemEffects;
+        private TextMeshProUGUI _itemDescription;
 
         private void Awake()
         {
             _itemName = transform.Find("Header").transform.Find("ItemName").GetComponent<TextMeshProUGUI>();
             _itemIcon = transform.Find("Header").transform.Find("ItemIcon").GetComponent<RawImage>();
             _itemInstanceInfo = transform.Find("ItemInstanceInfo").GetComponent<TextMeshProUGUI>();
-            _equipmentStats = transform.Find("EquipmentStats").GetComponent<TextMeshProUGUI>();
+            _equipmentAdditiveModifier = transform.Find("EquipmentAdditiveModifier").GetComponent<TextMeshProUGUI>();
             _equipmentRequirements = transform.Find("EquipmentRequirements").GetComponent<TextMeshProUGUI>();
-            _itemDescription = transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>();
             _itemEffects = transform.Find("ItemEffects").GetComponent<TextMeshProUGUI>();
+            _itemDescription = transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>();
             
             gameObject.SetActive(false);
             
@@ -45,7 +44,7 @@ namespace UI
             gameObject.SetActive(false);
         }
         
-        public void ShowItem(InventoryController inventory, ItemInstance item, Vector2 screenPosition, Camera cam)
+        public void ShowItem(GameObject obj, ItemInstance item, Vector2 screenPosition, Camera cam)
         {
             if (item == null)
             {
@@ -56,10 +55,10 @@ namespace UI
             _itemName.text = GetItemName(item);
             _itemIcon.texture = GetIcon(item);
             _itemInstanceInfo.text = GetItemInstanceInfo(item as EquipmentItemInstance);
-            _equipmentStats.text = GetEquipmentStats(item as EquipmentItemInstance);
-            _equipmentRequirements.text = GetEquipmentsRequirements(inventory, item);
+            _equipmentAdditiveModifier.text = GetEquipmentAdditiveModifier(item as EquipmentItemInstance);
+            _equipmentRequirements.text = GetEquipmentsRequirements(obj, item);
+            _itemEffects.text = "";
             _itemDescription.text = GetItemDescription(item);
-            _itemEffects.text = GetItemEffect(item);
 
             foreach (var text in GetComponentsInChildren<TextMeshProUGUI>())
             {
@@ -156,56 +155,84 @@ namespace UI
             return text;
         }
 
-        private static string GetEquipmentStats(EquipmentItemInstance item)
+        private static string GetEquipmentAdditiveModifier(EquipmentItemInstance item)
         {
             if (item == null) return "";
 
             var text = "";
 
-            var minAttackBonus = item.bonus.Find((bonus) => bonus.attribute == Attribute.MinAttackPower && bonus.modifier is EffectModifier.Additive);
-            var maxAttackBonus = item.bonus.Find((bonus) => bonus.attribute == Attribute.MinAttackPower && bonus.modifier is EffectModifier.Additive);
+            var minAttackBonus = item.additiveModifiers.Find(modifier => modifier.attribute == Attribute.MinAttackPower);
+            var maxAttackBonus = item.additiveModifiers.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
             if (minAttackBonus.value > 0 && maxAttackBonus.value > 0)
             {
                 text += $"Attack Power: {minAttackBonus.value}~{maxAttackBonus.value}\n";
             }
             
-            foreach (var bonus in item.bonus.Where(bonus => bonus.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
+            foreach (var modifier in item.additiveModifiers.Where(modifier => modifier.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
             {
-                var sign = bonus.value < 0 ? '-' : '+';
-                var color = ColorUtility.ToHtmlStringRGBA(bonus.value < 0 ? Color.red : Color.cyan);
-                if (bonus.modifier == EffectModifier.Multiplicative)
+                if(modifier.value == 0) continue;
+                
+                var sign = modifier.value < 0 ? '-' : '+';
+                var color = ColorUtility.ToHtmlStringRGBA(modifier.value < 0 ? Color.red : Color.cyan);
+                
+                switch (modifier.attribute)
                 {
-                    text += $"{ObjectNames.NicifyVariableName(bonus.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(bonus.value)*100}%</color>\n";
-                }
-                else
-                {
-                    text += $"{ObjectNames.NicifyVariableName(bonus.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(bonus.value)}</color>\n";
+                    case Attribute.MaxHealth:
+                    case Attribute.MaxMana:
+                    case Attribute.MaxEnergyShield:
+                    case Attribute.MinAttackPower:
+                    case Attribute.MaxAttackPower:
+                    case Attribute.AttackSpeed:
+                    case Attribute.DefensePower:
+                        text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{modifier.value}</color>\n";
+                        break;
+                    case Attribute.HitRate:
+                    case Attribute.EvasionRate:
+                    case Attribute.BlockRate:
+                    case Attribute.CriticalHitRate:
+                    case Attribute.CriticalHitDamage:
+                    case Attribute.SkillDamage:
+                        text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(modifier.value / 100.0f)}%</color>\n";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             
             return text;
         }
 
-        private static string GetEquipmentsRequirements(InventoryController inventory, ItemInstance item)
+        private static string GetEquipmentsRequirements(GameObject obj, ItemInstance item)
         {
-            if (inventory == null || item == null) return "";
+            var primaryAttribute = obj.GetComponent<PrimaryAttributeSet>();
+            
+            if (primaryAttribute == null || item == null) return "";
 
             var text = "";
 
-            for (var i = 0; i < Enum.GetNames(typeof(Attribute)).Length; i++)
+            for (var i = 0; i < Enum.GetNames(typeof(EquipmentRequirement)).Length; i++)
             {
-                var attr = (Attribute)i;
-                var ownerValue = inventory.abilitySystem.attributeSet[attr].GetCurrentValue();
-                var equipValue = item.GetItemBase<EquipmentItem>().GetRequirements(attr);
+                var req = (EquipmentRequirement)i;
+                var ownerValue = req switch
+                {
+                    EquipmentRequirement.Level => primaryAttribute.currentLevel,
+                    EquipmentRequirement.Strength => primaryAttribute.currentStrength,
+                    EquipmentRequirement.Stamina => primaryAttribute.currentStamina,
+                    EquipmentRequirement.Dexterity => primaryAttribute.currentDexterity,
+                    EquipmentRequirement.Intelligence => primaryAttribute.currentIntelligence,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+                
+                var equipValue = item.GetItemBase<EquipmentItem>().GetRequirements(req);
                 if(equipValue == 0) continue;
                 
                 if (ownerValue < equipValue)
                 {
-                    text += $"<color=red>Required {attr}: {equipValue} (Lacks: {equipValue - ownerValue})</color>\n";
+                    text += $"<color=red>Required {req}: {equipValue} (Lacks: {equipValue - ownerValue})</color>\n";
                 }
                 else
                 {
-                    text += $"Required {attr}: {equipValue}\n";
+                    text += $"Required {req}: {equipValue}\n";
                 }
             }
             
@@ -215,11 +242,6 @@ namespace UI
         private static string GetItemDescription(ItemInstance item)
         {
             return item.itemBase.displayDescription;
-        }
-        
-        private static string GetItemEffect(ItemInstance item)
-        {
-            return item == null ? "" : item.GetItemBase<EquipmentItem>().effects.Aggregate("", (current, effect) => current + (effect.displayDescription + "\n"));
         }
     }
 }

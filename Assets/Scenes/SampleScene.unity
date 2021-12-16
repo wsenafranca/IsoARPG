@@ -1937,7 +1937,7 @@ GameObject:
   - component: {fileID: 447123118}
   - component: {fileID: 447123117}
   m_Layer: 5
-  m_Name: EquipmentStatsSeparator
+  m_Name: EquipmentAdditiveModifierSeparator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4928,7 +4928,7 @@ GameObject:
   - component: {fileID: 1110368657}
   - component: {fileID: 1110368656}
   m_Layer: 5
-  m_Name: EquipmentStats
+  m_Name: EquipmentAdditiveModifier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8127,6 +8127,7 @@ GameObject:
   - component: {fileID: 2061347261}
   - component: {fileID: 2061347263}
   - component: {fileID: 2061347264}
+  - component: {fileID: 2061347265}
   m_Layer: 7
   m_Name: NPC
   m_TagString: Untagged
@@ -10019,26 +10020,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9011453517348f785e629bb5ad4a477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attributeSet:
-    attributes:
-    - baseValue: 100
-    - baseValue: 0
-    - baseValue: 1
-    - baseValue: 1
-    - baseValue: 1
-    - baseValue: 1
-    - baseValue: 0
-    - baseValue: 0
-    - baseValue: 0.256
-    - baseValue: 1
-    - baseValue: 0.111
-    - baseValue: 0
-    - baseValue: 0
-    - baseValue: 0.126
-    - baseValue: 3
-    - baseValue: 30
+  attributeSet: {fileID: 0}
   abilities: []
   damageLocation: {fileID: 1588765882}
+--- !u!114 &2061347265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690118997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb1bbc3824a4362807b8b0728912a5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attributes:
+  - attribute: 0
+    value:
+      baseValue: 100
+  - attribute: 3
+    value:
+      baseValue: 5
+  - attribute: 4
+    value:
+      baseValue: 8
+  - attribute: 7
+    value:
+      baseValue: 5
 --- !u!1 &2093012176
 GameObject:
   m_ObjectHideFlags: 0
@@ -12698,7 +12707,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 2
+  m_Speed: 5
   m_Acceleration: 2000
   avoidancePriority: 50
   m_AngularSpeed: 640
@@ -12752,24 +12761,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9011453517348f785e629bb5ad4a477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attributeSet:
-    attributes:
-    - baseValue: 1
-    - baseValue: 0
-    - baseValue: 100
-    - baseValue: 50
-    - baseValue: 5
-    - baseValue: 10
-    - baseValue: 0
-    - baseValue: 0
-    - baseValue: 0.232
-    - baseValue: 1
-    - baseValue: 0.522
-    - baseValue: 0.206
-    - baseValue: 0
-    - baseValue: 0.171
-    - baseValue: 5
-    - baseValue: 0
+  attributeSet: {fileID: 0}
   abilities:
   - {fileID: 11400000, guid: 553efaf6b18ac9540a5bbfece1891bfd, type: 2}
   - {fileID: 11400000, guid: 3d9fbdf3c852bbb438d8ee1abc795b5b, type: 2}
@@ -12789,7 +12781,7 @@ MonoBehaviour:
   attributes:
   - attribute: 0
     value:
-      baseValue: 0
+      baseValue: 1
   - attribute: 1
     value:
       baseValue: 0
@@ -12835,10 +12827,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5ba3a7f44f448e88d34c5bc300c7269, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strength: 10
-  stamina: 10
-  dexterity: 10
-  intelligence: 10
+  strength: 32
+  stamina: 32
+  dexterity: 32
+  intelligence: 32
+  currentLevel: 0
 --- !u!222 &5350386508571903283
 CanvasRenderer:
   m_ObjectHideFlags: 0

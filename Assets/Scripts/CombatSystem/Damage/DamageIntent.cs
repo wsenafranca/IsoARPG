@@ -2,10 +2,17 @@
 
 namespace CombatSystem.Damage
 {
-    public class DamageIntent
+    public enum DamageTarget
+    {
+        Health,
+        Mana,
+        MagicShield
+    }
+    
+    public struct DamageIntent
     {
         public GameObject source;
         public DamageFlags flags;
-        public float skillDamage;
+        public DamageTarget damageTarget;
     }
 }

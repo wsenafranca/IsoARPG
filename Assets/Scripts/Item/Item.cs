@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using AbilitySystem;
+using AttributeSystem;
 using UnityEngine;
-using Attribute = AbilitySystem.Attribute;
 
 namespace Item
 {
@@ -44,36 +42,28 @@ namespace Item
         public Transform ring1;
         public Transform ring2;
     }
-    
-    [Serializable]
-    public struct EquipmentItemRequirement
-    {
-        public Attribute attribute;
-        public int value;
-    }
-    
-    [Serializable]
-    public struct EquipmentItemBonus
-    {
-        public EffectModifier modifier;
-        public Attribute attribute;
-        public float value;
-    }
-
-    [Serializable]
-    public struct EquipmentItemBonusRange
-    {
-        public Attribute attribute;
-        public float minValue;
-        public float maxValue;
-        public EffectModifier modifer;
-    }
 
     [Serializable]
     public struct EquipmentLevelRange
     {
         public int level;
         public float probability;
+    }
+
+    public enum EquipmentRequirement
+    {
+        Level,
+        Strength,
+        Stamina,
+        Dexterity,
+        Intelligence
+    }
+
+    [Serializable]
+    public struct EquipmentRequirementData
+    {
+        public EquipmentRequirement requirement;
+        public int value;
     }
     
     public enum EquipmentType
@@ -151,9 +141,10 @@ namespace Item
     }
     
     [Serializable]
-    public class EquipmentItemInstance : ItemInstance, IEffectSource
+    public class EquipmentItemInstance : ItemInstance
     {
-        public List<EquipmentItemBonus> bonus;
+        public List<AdditiveModifierData> additiveModifiers;
+        public List<MultiplicativeModifierData> multiplicativeModifiers;
         public int level;
         public EquipmentItemInstanceRarity rarity;
         public byte durability = 255;
@@ -167,24 +158,5 @@ namespace Item
             EquipmentItemInstanceRarity.Unique => GameAsset.instance.uniqueItem,
             _ => throw new ArgumentOutOfRangeException()
         };
-        
-        public void OnAddEffect(AbilitySystemComponent target) { }
-
-        public void OnAddStack(AbilitySystemComponent target, int stack) { }
-
-        public void OnApplyEffect(AbilitySystemComponent target)
-        {
-            foreach (var b in bonus)
-            {
-                target.ApplyEffectModifier(this, b.modifier, b.attribute, b.value);
-            }
-        }
-
-        public void OnRemoveEffect(AbilitySystemComponent target) { }
-
-        public float GetPeriod() => IEffectSource.NoPeriodic;
-        public float GetDuration() => IEffectSource.InfinityDuration;
-        public int GetMaxStack() => 0;
-        public bool GetResetTimeOnStack() => false;
     }
 }

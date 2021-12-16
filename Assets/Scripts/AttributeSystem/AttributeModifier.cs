@@ -25,7 +25,7 @@ namespace AttributeSystem
     [Serializable]
     public class MultiplicativeAttributeModifier : BaseAttributeModifier<float>
     {
-        public MultiplicativeAttributeModifier(float baseValue = 0, object source = null) : base(baseValue, source) {}
+        public MultiplicativeAttributeModifier(float baseValue, object source) : base(baseValue, source) {}
         public MultiplicativeAttributeModifier() : this(0, null) {}
     }
 }

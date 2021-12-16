@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using CombatSystem.Damage;
 using Controller;
 using Item;
 using TargetSystem;
@@ -11,7 +12,6 @@ namespace AbilitySystem.Abilities
     public class MeleeAttackAbility : AbilityBase
     {
         public float range;
-        public float damageBonus;
         public string animatorStateName;
         public float duration = 0.5f;
         public int weaponIndex;
@@ -59,9 +59,7 @@ namespace AbilitySystem.Abilities
             }
 
             _intent.damageTarget = DamageTarget.Health;
-            _intent.damageBonus = damageBonus;
-            _intent.source = source;
-            _intent.effects = GetAvailableEffects();
+            _intent.source = source.gameObject;
             
             weaponMelee.SetDamageIntent(_intent);
             

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using AbilitySystem;
+using AttributeSystem;
 using Item;
 using UnityEngine;
 using UnityEngine.Events;
@@ -175,7 +175,35 @@ namespace InventorySystem
 
         public bool CheckRequirements(EquipmentItemInstance item)
         {
-            return item is { itemBase: EquipmentItem equipBase } && equipBase.requirements.All(req => abilitySystem.attributeSet[req.attribute].GetCurrentValue() >= req.value);
+            var primaryAttributes = GetComponent<PrimaryAttributeSet>();
+            if (!primaryAttributes) return false;
+
+            if (primaryAttributes.currentLevel < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Level))
+            {
+                return false;
+            }
+            
+            if (primaryAttributes.currentStrength < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Strength))
+            {
+                return false;
+            }
+
+            if (primaryAttributes.currentStamina < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Stamina))
+            {
+                return false;
+            }
+            
+            if (primaryAttributes.currentDexterity < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Dexterity))
+            {
+                return false;
+            }
+            
+            if (primaryAttributes.currentIntelligence < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Intelligence))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool TryGetEmptySlot(ItemInstance item, out EquipmentSlot slot)

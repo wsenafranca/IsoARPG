@@ -1,5 +1,4 @@
 ﻿using System;
-using AbilitySystem.Effects;
 
 namespace AbilitySystem.Abilities
 {
@@ -7,7 +6,7 @@ namespace AbilitySystem.Abilities
     {
         Health,
         Mana,
-        MagicShield,
+        EnergyShield,
         Gold
     }
     
@@ -16,13 +15,6 @@ namespace AbilitySystem.Abilities
     {
         public AbilityCostResource resource;
         public int cost;
-    }
-
-    [Serializable]
-    public struct AbilityEffect
-    {
-        public EffectBase effect;
-        public float probability;
     }
 
     public enum AbilityActivateResult : byte

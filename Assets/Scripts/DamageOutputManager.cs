@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using AbilitySystem;
+using CombatSystem.Damage;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -57,7 +58,7 @@ public class DamageOutputManager : MonoBehaviour
     public void ShowDamage(Vector3 location, DamageInfo damage)
     {
         Color color;
-        if(damage.isCritical)
+        if(damage.criticalHit)
         {
             color = Color.yellow;
         }
@@ -72,7 +73,7 @@ public class DamageOutputManager : MonoBehaviour
             };
         }
 
-        ShowText(location, Mathf.CeilToInt(-damage.damage).ToString(), color);
+        ShowText(location, (-damage.value).ToString(), color);
     }
 
     public void ShowText(Vector3 location, string text, Color color)

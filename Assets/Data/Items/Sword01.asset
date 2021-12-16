@@ -24,24 +24,13 @@ MonoBehaviour:
   type: 0
   rarity: 0
   requirements:
-  - attribute: 2
+  - requirement: 1
     value: 5
   level:
   - level: 1
     probability: 0.3
   - level: 2
     probability: 0.1
-  bonus:
-  - attribute: 6
-    minValue: 3
-    maxValue: 5
-    modifer: 0
-  - attribute: 7
-    minValue: 7
-    maxValue: 10
-    modifer: 0
-  - attribute: 11
-    minValue: 0.1
-    maxValue: 0.15
-    modifer: 1
+  additiveModifiers: []
+  multiplicativeModifiers: []
   grantedAbilities: []

@@ -12,7 +12,9 @@ namespace AttributeSystem
         private readonly List<MultiplicativeAttributeModifier> _multiplicativeList = new();
 
         private int _currentValue;
-        private bool _needUpdate;
+        private bool _needUpdate = true;
+        
+        public AttributeValue() : this(0) {}
         
         public AttributeValue(int baseValue = 0) : base(baseValue)
         {
@@ -27,7 +29,7 @@ namespace AttributeSystem
                 _needUpdate = false;
 
                 var sumAdditive = _additiveList.Sum(modifier => modifier.baseValue);
-                var sumMultiplicative = _multiplicativeList.Sum(modifier=>modifier.baseValue);
+                var sumMultiplicative = 1 + _multiplicativeList.Sum(modifier=>modifier.baseValue);
 
                 _currentValue = Mathf.FloorToInt((baseValue + sumAdditive) * sumMultiplicative);
                 

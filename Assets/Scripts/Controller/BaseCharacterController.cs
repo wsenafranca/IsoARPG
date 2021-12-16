@@ -15,7 +15,7 @@ namespace Controller
 
         public bool isNavigation => agent.pathPending || agent.remainingDistance > agent.stoppingDistance;
         public bool isPlayingAnimation { get; private set; }
-        public bool isAlive => abilitySystem.attributeSet.GetHealth() > 0;
+        public bool isAlive => abilitySystem.attributeSet.health > 0;
 
         private Quaternion _targetRotation;
         public bool isLookingAtTarget => Mathf.Abs(_targetRotation.eulerAngles.y - transform.eulerAngles.y) > 1;
@@ -33,13 +33,11 @@ namespace Controller
 
         protected virtual void OnEnable()
         {
-            abilitySystem.attributeSet.OnAttributeChanged += OnAttributeChanged;
             _targetRotation = transform.rotation;
         }
 
         protected virtual void OnDisable()
         {
-            abilitySystem.attributeSet.OnAttributeChanged -= OnAttributeChanged;
         }
 
         protected virtual void Update()
@@ -98,14 +96,6 @@ namespace Controller
         public void StopAnimation()
         {
             isPlayingAnimation = false;
-        }
-    
-        protected virtual void OnAttributeChanged(Attribute attribute, AttributeValue value)
-        {
-            if (attribute == Attribute.MoveSpeed)
-            {
-                agent.speed = value.GetCurrentValue();
-            }
         }
     }
 }

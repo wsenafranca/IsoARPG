@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using AbilitySystem.Abilities;
+using AttributeSystem;
+using CombatSystem.Damage;
 using UnityEngine;
 
 namespace AbilitySystem
 {
+    [RequireComponent(typeof(AttributeSet))]
     public class AbilitySystemComponent : MonoBehaviour
-    { 
+    {
+        [HideInInspector]
         public AttributeSet attributeSet;
         
         [SerializeField]
@@ -15,18 +19,7 @@ namespace AbilitySystem
 
         [SerializeField] private Transform damageLocation;
         
-        private readonly List<EffectData> _effects = new();
         private readonly Queue<DamageInfo> _damages = new();
-
-        private EffectAggregator[] _effectAggregators;
-
-        public event Action<DamageInfo> OnReceivedDamage;
-        public event Action<DamageInfo> OnEnergyShieldBreak;
-        
-        public event Action<IEffectSource, float> OnEffectAdd;
-        public event Action<IEffectSource, float, int> OnEffectStack;
-        public event Action<IEffectSource> OnEffectApplied;
-        public event Action<IEffectSource> OnEffectRemove;
         
         public event Action<AbilityBase, float> OnAbilityActivated;
         public event Action<AbilityBase> OnAbilityDeactivated;
@@ -35,92 +28,16 @@ namespace AbilitySystem
 
         private void Awake()
         {
-            _effectAggregators = new EffectAggregator[AttributeSet.numAttributes];
-            for (var i = 0; i < _effectAggregators.Length; i++)
-            {
-                _effectAggregators[i] = new EffectAggregator();
-            }
-        }
-
-        private void Start()
-        {
-            attributeSet.Init();
-            attributeSet.Restore();
+            attributeSet = GetComponent<AttributeSet>();
         }
 
         private void LateUpdate()
         {
-            _effects.RemoveAll(OnApplyEffect);
-
-            for (var attribute = 0; attribute < AttributeSet.numAttributes; attribute++)
-            {
-                _effectAggregators[attribute].CalculateAttributeValue(attributeSet, (Attribute)attribute);
-            }
-
             while (_damages.TryDequeue(out var damage))
             {
                 OnApplyDamage(damage);
             }
         }
-        
-        public void AddEffect(IEffectSource effect)
-        {
-            var data = _effects.Find((data) => data.effect == effect);
-            
-            if (data == null)
-            {
-                data = new EffectData(effect);
-                _effects.Add(data);
-                
-                effect.OnAddEffect(this);
-                OnEffectAdd?.Invoke(effect, data.creationTime);
-            }
-            else if(data.AddStack())
-            {
-                effect.OnAddStack(this, data.stack);
-                OnEffectStack?.Invoke(effect, data.creationTime, data.stack);
-            }
-        }
-
-        private bool OnApplyEffect(EffectData data)
-        {
-            if (data.IsEffectReady())
-            {
-                data.effect.OnApplyEffect(this);
-                OnEffectApplied?.Invoke(data.effect);
-                return false;
-            }
-
-            if (data.isValid) return false;
-            
-            RemoveEffect(data.effect);
-            return true;
-        }
-
-        public void RemoveEffect(IEffectSource effect)
-        {
-            foreach (var aggregator in _effectAggregators)
-            {
-                aggregator.RemoveEffect(effect);
-            }
-            
-            effect.OnRemoveEffect(this);
-            OnEffectRemove?.Invoke(effect);
-        }
-
-        public void ApplyEffectModifier(IEffectSource effect, EffectModifier modifier, Attribute attribute, float value)
-        {
-            _effectAggregators[(int)attribute].AddEffect(effect, modifier, value);;
-        }
-
-        public void ApplyAdditiveEffect(IEffectSource effect, Attribute attribute, float value) =>
-            ApplyEffectModifier(effect, EffectModifier.Additive, attribute, value);
-        
-        public void ApplyMultiplicativeEffect(IEffectSource effect, Attribute attribute, float scale) => 
-            ApplyEffectModifier(effect, EffectModifier.Multiplicative, attribute, scale);
-
-        public void ApplyOverrideEffect(IEffectSource effect, Attribute attribute, float value) => 
-            ApplyEffectModifier(effect, EffectModifier.Override, attribute, value);
         
         public int IndexOfAbility<T>() where T : AbilityBase
         {
@@ -189,11 +106,6 @@ namespace AbilitySystem
 
         public void ApplyDamage(DamageIntent intent)
         {
-            ApplyDamage(DamageExecution.CalculateDamage(intent, this));
-            foreach (var effect in intent.effects)
-            {
-                AddEffect(effect);
-            }
         }
 
         public void ApplyDamage(DamageInfo damage)
@@ -203,60 +115,22 @@ namespace AbilitySystem
         
         private void OnApplyDamage(DamageInfo damage)
         {
-            if (damage.isBlocked)
+            if (damage.blockedHit)
             {
                 DamageOutputManager.instance.ShowText(damageLocation.position, "Block", Color.white);
                 return;
             }
             
-            if (damage.isMiss)
+            if (damage.missedHit)
             {
                 DamageOutputManager.instance.ShowText(damageLocation.position, "Miss", Color.gray);
                 return;
             }
 
-            if (damage.isCritical)
+            if (damage.criticalHit)
             {
                 DamageOutputManager.instance.ShowText(damageLocation.position, "Critical", Color.yellow);
             }
-            
-            float appliedDamage;
-            switch (damage.damageTarget)
-            {
-                case DamageTarget.Health:
-                case DamageTarget.MagicShield:
-                    if (attributeSet.GetMagicShield() > 0 && !damage.ignoreMagicShield && damage.damage > 0)
-                    {
-                        damage.damageTarget = DamageTarget.MagicShield;
-                        appliedDamage = attributeSet.GetMagicShield() - damage.damage;
-                        attributeSet.SetMagicShield(appliedDamage);
-                        DamageOutputManager.instance.ShowDamage(damageLocation.position, damage);
-                        
-                        if (appliedDamage <= 0)
-                        {
-                            DamageOutputManager.instance.ShowText(damageLocation.position, "Break", Color.cyan);
-                            OnEnergyShieldBreak?.Invoke(damage);
-                        
-                            // shield was broken and the rest of damage will be sent back to health
-                            damage.damage += appliedDamage;
-                        }
-                    }
-                    if (attributeSet.GetMagicShield() <= 0 && damage.damage != 0)
-                    {
-                        damage.damageTarget = DamageTarget.Health;
-                        appliedDamage = attributeSet.GetHealth() - damage.damage;
-                        attributeSet.SetHealth(appliedDamage);
-                        DamageOutputManager.instance.ShowDamage(damageLocation.position, damage);
-                    }
-                    break;
-                case DamageTarget.Mana:
-                    appliedDamage = attributeSet.GetMana() - damage.damage;
-                    attributeSet.SetMana(appliedDamage);
-                    DamageOutputManager.instance.ShowDamage(damageLocation.position, damage);
-                    break;
-            }
-            
-            OnReceivedDamage?.Invoke(damage);
         }
     }
 }

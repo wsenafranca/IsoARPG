@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AbilitySystem;
+using CombatSystem.Damage;
 using UnityEngine;
 
 namespace Item

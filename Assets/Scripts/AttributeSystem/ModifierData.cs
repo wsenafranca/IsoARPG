@@ -6,13 +6,29 @@ namespace AttributeSystem
     public struct AdditiveModifierData
     {
         public Attribute attribute;
-        public AdditiveAttributeModifier value;
+        public int value;
     }
     
     [Serializable]
     public struct MultiplicativeModifierData
     {
         public Attribute attribute;
-        public AdditiveAttributeModifier value;
+        public float value;
+    }
+
+    [Serializable]
+    public struct AdditiveModifierDataRange
+    {
+        public Attribute attribute;
+        public int minValue;
+        public int maxValue;
+    }
+    
+    [Serializable]
+    public struct MultiplicativeModifierDataRange
+    {
+        public Attribute attribute;
+        public float minValue;
+        public float maxValue;
     }
 }

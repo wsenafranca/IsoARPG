@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AbilitySystem;
 using AbilitySystem.Abilities;
-using AbilitySystem.Effects;
+using AttributeSystem;
 using UnityEngine;
-using Attribute = AbilitySystem.Attribute;
 using Random = UnityEngine.Random;
 
 namespace Item
@@ -22,21 +20,20 @@ namespace Item
 
         public EquipmentItemRarity rarity;
         
-        public List<EquipmentItemRequirement> requirements;
+        public List<EquipmentRequirementData> requirements;
 
         public List<EquipmentLevelRange> level;
 
-        public List<EquipmentItemBonusRange> bonus;
-        
-        public List<EffectBase> effects;
+        public List<AdditiveModifierDataRange> additiveModifiers;
+        public List<MultiplicativeModifierDataRange> multiplicativeModifiers;
         
         public List<AbilityBase> grantedAbilities;
 
         public bool isWeapon => type is EquipmentType.OneHandWeapon or EquipmentType.TwoHandWeapon;
 
-        public int GetRequirements(Attribute attribute)
+        public int GetRequirements(EquipmentRequirement requirement)
         {
-            return requirements.Where(req => req.attribute == attribute).Select(req => req.value).FirstOrDefault();
+            return requirements.Where(req => req.requirement == requirement).Select(req => req.value).FirstOrDefault();
         }
         
         public override ItemInstance CreateItemInstance()
@@ -69,39 +66,17 @@ namespace Item
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            var bonusList = new List<EquipmentItemBonus>();
-            foreach (var b in bonus)
-            {
-                var minValue = Mathf.Min(b.minValue, b.maxValue);
-                var maxValue = Mathf.Max(b.minValue, b.maxValue);
-                var value = Mathf.Lerp(minValue, maxValue, a);
-                switch (b.attribute)
-                {
-                    case Attribute.MaxHealth:
-                    case Attribute.MaxMana:
-                    case Attribute.Strength:
-                    case Attribute.Stamina:
-                    case Attribute.Dexterity:
-                    case Attribute.Intelligence:
-                    case Attribute.MinAttackPower:
-                    case Attribute.MaxAttackPower:
-                    case Attribute.AttackSpeed:
-                    case Attribute.MaxEnergyShield:
-                        value = b.modifer == EffectModifier.Multiplicative ? value : Mathf.CeilToInt(value);
-                        break;
-                    case Attribute.DefensePower:
-                    case Attribute.EvasionRate:
-                    case Attribute.CriticalHitRate:
-                    case Attribute.CriticalHitDamage:
-                    case Attribute.BlockRate:
-                    case Attribute.MoveSpeed:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                bonusList.Add(new EquipmentItemBonus {attribute = b.attribute, modifier = b.modifer, value = value});
-            }
+            var additiveModifierList = (from mod in additiveModifiers 
+                let minValue = Mathf.Min(mod.minValue, mod.maxValue) 
+                let maxValue = Mathf.Max(mod.minValue, mod.maxValue) 
+                let value = Mathf.FloorToInt(Mathf.Lerp(minValue, maxValue, a)) 
+                select new AdditiveModifierData { attribute = mod.attribute, value = value }).ToList();
+            
+            var multiplicativeModifierList = (from mod in multiplicativeModifiers 
+                let minValue = Mathf.Min(mod.minValue, mod.maxValue) 
+                let maxValue = Mathf.Max(mod.minValue, mod.maxValue) 
+                let value = Mathf.FloorToInt(Mathf.Lerp(minValue, maxValue, a)) 
+                select new MultiplicativeModifierData { attribute = mod.attribute, value = value }).ToList();
 
             var p = Random.value;
             var itemLevel = (from i in level.OrderByDescending((i => i.probability)) where i.probability > p select i.level).FirstOrDefault();
@@ -110,7 +85,8 @@ namespace Item
             {
                 guid = Guid.NewGuid(),
                 itemBase = this,
-                bonus = bonusList,
+                additiveModifiers = additiveModifierList,
+                multiplicativeModifiers = multiplicativeModifierList,
                 level = itemLevel,
                 rarity =  r
             };

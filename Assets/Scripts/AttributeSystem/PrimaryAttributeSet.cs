@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AttributeSystem
 {
@@ -20,13 +19,14 @@ namespace AttributeSystem
 
         private AttributeSet _attributeSet;
 
-        private int currentStrength
+        [HideInInspector]
+        public int currentLevel;
+        
+        public int currentStrength
         {
             get => strength;
             set
             {
-                if (value == strength) return;
-
                 strength = value;
                 if (_attributeSet.TryGetAttribute(Attribute.MinAttackPower, out var minAttack))
                 {
@@ -42,13 +42,11 @@ namespace AttributeSystem
             }
         }
         
-        private int currentStamina
+        public int currentStamina
         {
             get => stamina;
             set
             {
-                if (value == stamina) return;
-
                 stamina = value;
                 if (_attributeSet.TryGetAttribute(Attribute.MaxHealth, out var maxHealth))
                 {
@@ -68,13 +66,11 @@ namespace AttributeSystem
             }
         }
         
-        private int currentDexterity
+        public int currentDexterity
         {
             get => dexterity;
             set
             {
-                if (value == dexterity) return;
-
                 dexterity = value;
                 if (_attributeSet.TryGetAttribute(Attribute.AttackSpeed, out var attackSpeed))
                 {
@@ -94,13 +90,11 @@ namespace AttributeSystem
             }
         }
         
-        private int currentIntelligence
+        public int currentIntelligence
         {
             get => intelligence;
             set
             {
-                if (value == intelligence) return;
-
                 intelligence = value;
                 if (_attributeSet.TryGetAttribute(Attribute.MaxMana, out var maxMana))
                 {
