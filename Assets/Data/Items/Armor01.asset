@@ -32,25 +32,31 @@ MonoBehaviour:
   requirements:
   - requirement: 2
     value: 5
-  level: []
-  statsAdditiveModifiers:
-  - attribute: 7
-    minValue: 2
-    maxValue: 5
-  statsMultiplicativeModifiers:
-  - attribute: 9
-    minValue: 0.01
-    maxValue: 0.03
-  bonusAdditiveModifiers:
+  level:
+  - level: 1
+    probability: 0.5
+  - level: 2
+    probability: 0.25
+  - level: 3
+    probability: 0.125
+  attributes:
+  - attribute: 8
+    value:
+      baseValue: 5
+  additiveModifiers:
   - bonus:
-      attribute: 7
-      minValue: 1
+      attribute: 8
+      minValue: 2
       maxValue: 10
-    probability: 0.2
+    probability: 0.5
   - bonus:
-      attribute: 9
-      minValue: 1
-      maxValue: 10
-    probability: 0.2
-  bonusMultiplicativeModifiers: []
-  grantedAbilities: []
+      attribute: 10
+      minValue: 5
+      maxValue: 15
+    probability: 0.5
+  multiplicativeModifiers:
+  - bonus:
+      attribute: 8
+      minValue: 0.1
+      maxValue: 0.2
+    probability: 0.25

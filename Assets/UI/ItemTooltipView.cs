@@ -149,14 +149,12 @@ namespace UI
             var text = $"Type: {ObjectNames.NicifyVariableName(item.GetItemBase<EquipmentItem>().equipmentType.ToString())}\n";
             
             text += $"Rarity: <color=#{ColorUtility.ToHtmlStringRGBA(item.itemColor)}>{item.rarity}</color>\n";
-            if (item.durability > 50)
+            text += item.durability switch
             {
-                text += $"{item.durability}/255";
-            }
-            else
-            {
-                text += $"Durability: <color=red>{item.durability}/255</color>";
-            }
+                > 50 => $"Durability: {item.durability}/255",
+                > 25 => $"Durability: <color=#ffff00ff>{item.durability}</color>/255",
+                _ => $"Durability: <color=red>{item.durability}</color>/255"
+            };
 
             return text;
         }
@@ -167,23 +165,33 @@ namespace UI
 
             var text = "";
 
-            var minAttackBonus = item.statsAdditiveModifiers.Find(modifier => modifier.attribute == Attribute.MinAttackPower);
-            var maxAttackBonus = item.statsAdditiveModifiers.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
-            if (minAttackBonus.value > 0 && maxAttackBonus.value > 0)
+            var minAttackAttribute = item.attributes.Find(modifier => modifier.attribute == Attribute.MinAttackPower);
+            var maxAttackAttribute = item.attributes.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
+            if (minAttackAttribute.value != null && maxAttackAttribute.value != null)
             {
-                text += $"Attack Power: {minAttackBonus.value}~{maxAttackBonus.value}\n";
+                var minAttackBonus = minAttackAttribute.value.currentValue - minAttackAttribute.value.baseValue;
+                var maxAttackBonus = maxAttackAttribute.value.currentValue - maxAttackAttribute.value.baseValue;
+                
+                var minAttackSign = minAttackBonus < 0 ? '-' : '+';
+                var maxAttackSign = maxAttackBonus < 0 ? '-' : '+';
+                
+                var minAttackColor = ColorUtility.ToHtmlStringRGBA(minAttackBonus < 0 ? Color.red : Color.green);
+                var maxAttackColor = ColorUtility.ToHtmlStringRGBA(maxAttackBonus < 0 ? Color.red : Color.green);
+
+                var minAttackText = $"{minAttackAttribute.value.baseValue}" + (minAttackBonus != 0 ? $" <color=#{minAttackColor}>({minAttackSign}{minAttackBonus})</color>" : "");
+                var maxAttackText = $"{maxAttackAttribute.value.baseValue}" + (maxAttackBonus != 0 ? $" <color=#{maxAttackColor}>({maxAttackSign}{maxAttackBonus})</color>" : "");
+                
+                text += $"Attack Power: {minAttackText}~{maxAttackText}\n";
             }
             
-            foreach (var modifier in item.statsAdditiveModifiers.Where(modifier => modifier.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
+            foreach (var attribute in item.attributes.Where(attribute => attribute.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
             {
-                if(modifier.value == 0) continue;
-                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: {modifier.value}\n";
-            }
-            
-            foreach (var modifier in item.statsMultiplicativeModifiers)
-            {
-                if(modifier.value == 0) continue;
-                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: {Mathf.FloorToInt(modifier.value * 100.0f)}%\n";
+                if(attribute.value.currentValue == 0) continue;
+                var attributeBonus = attribute.value.currentValue - attribute.value.baseValue;
+                var attributeSign = attributeBonus < 0 ? '-' : '+';
+                var attributeColor = ColorUtility.ToHtmlStringRGBA(attributeBonus < 0 ? Color.red : Color.green);
+                var attributeText = $"{attribute.value.baseValue}" + (attributeBonus != 0 ? $" <color=#{attributeColor}>({attributeSign}{attributeBonus})</color>" : "");
+                text += $"{ObjectNames.NicifyVariableName(attribute.attribute.ToString())}: {attributeText}\n";
             }
             
             return text;
@@ -195,22 +203,22 @@ namespace UI
 
             var text = "";
             
-            foreach (var modifier in item.bonusAdditiveModifiers)
+            foreach (var modifier in item.additiveModifiers)
             {
                 if(modifier.value == 0) continue;
                 
                 var sign = modifier.value < 0 ? '-' : '+';
-                var color = ColorUtility.ToHtmlStringRGBA(item.itemColor);
+                var color = ColorUtility.ToHtmlStringRGBA(modifier.value < 0 ? Color.red : Color.cyan);
                 
                 text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.Abs(modifier.value)}</color>\n";
             }
             
-            foreach (var modifier in item.bonusMultiplicativeModifiers)
+            foreach (var modifier in item.multiplicativeModifiers)
             {
                 if(modifier.value == 0) continue;
                 
                 var sign = modifier.value < 0 ? '-' : '+';
-                var color = ColorUtility.ToHtmlStringRGBA(item.itemColor);
+                var color = ColorUtility.ToHtmlStringRGBA(modifier.value < 0 ? Color.red : Color.cyan);
                 
                 text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(Mathf.Abs(modifier.value) * 100.0f)}%</color>\n";
             }

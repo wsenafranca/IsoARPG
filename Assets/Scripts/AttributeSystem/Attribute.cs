@@ -5,6 +5,7 @@
         MaxHealth,
         MaxMana,
         MaxEnergyShield,
+        AttackPower,
         MinAttackPower,
         MaxAttackPower,
         AttackSpeed,

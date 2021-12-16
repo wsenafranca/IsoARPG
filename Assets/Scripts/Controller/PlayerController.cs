@@ -140,12 +140,12 @@ namespace Controller
 
         private void OnWeaponBeginAttack(int weaponIndex)
         {
-            
+            if(_weaponMelee[weaponIndex]) _weaponMelee[weaponIndex].BeginAttack(gameObject);
         }
 
         private void OnWeaponEndAttack(int weaponIndex)
         {
-            //inventory.GetWeaponMeleeController(weaponIndex)?.EndAttack();
+            if(_weaponMelee[weaponIndex]) _weaponMelee[weaponIndex].EndAttack();
         }
 
         public void OnAddItem(IInventoryItem item, int x, int y)
@@ -162,7 +162,15 @@ namespace Controller
             var equipment = (EquipmentItemInstance)item;
             if (equipment == null) return;
 
-            foreach (var modifier in equipment.statsAdditiveModifiers)
+            foreach (var attribute in equipment.attributes)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                {
+                    value.AddModifier(new AdditiveAttributeModifier(attribute.value.currentValue, equipment));
+                }
+            }
+            
+            foreach (var modifier in equipment.additiveModifiers)
             {
                 if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
@@ -170,23 +178,7 @@ namespace Controller
                 }
             }
             
-            foreach (var modifier in equipment.statsMultiplicativeModifiers)
-            {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
-                {
-                    value.AddModifier(new MultiplicativeAttributeModifier(modifier.value, equipment));
-                }
-            }
-            
-            foreach (var modifier in equipment.bonusAdditiveModifiers)
-            {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
-                {
-                    value.AddModifier(new AdditiveAttributeModifier(modifier.value, equipment));
-                }
-            }
-            
-            foreach (var modifier in equipment.bonusMultiplicativeModifiers)
+            foreach (var modifier in equipment.multiplicativeModifiers)
             {
                 if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
@@ -229,7 +221,15 @@ namespace Controller
             var equipment = (EquipmentItemInstance)item;
             if (equipment == null) return;
             
-            foreach (var modifier in equipment.statsAdditiveModifiers)
+            foreach (var attribute in equipment.attributes)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                {
+                    value.RemoveAllModifier(equipment);
+                }
+            }
+            
+            foreach (var modifier in equipment.additiveModifiers)
             {
                 if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
@@ -237,23 +237,7 @@ namespace Controller
                 }
             }
             
-            foreach (var modifier in equipment.statsMultiplicativeModifiers)
-            {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
-                {
-                    value.RemoveAllModifier(equipment);
-                }
-            }
-            
-            foreach (var modifier in equipment.bonusAdditiveModifiers)
-            {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
-                {
-                    value.RemoveAllModifier(equipment);
-                }
-            }
-            
-            foreach (var modifier in equipment.bonusMultiplicativeModifiers)
+            foreach (var modifier in equipment.multiplicativeModifiers)
             {
                 if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
@@ -265,13 +249,13 @@ namespace Controller
             {
                 case EquipmentSlot.MainHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    inventory.TryGetAttachedParts(slot, out _);
                     _weaponMelee[0] = null;
                     break;
                 }
                 case EquipmentSlot.OffHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    inventory.TryGetAttachedParts(slot, out _);
                     _weaponMelee[1] = null;
                     break;
                 }

@@ -9,11 +9,10 @@ namespace Item
     [Serializable]
     public class EquipmentItemInstance : ItemInstance, IInventoryEquipmentItem
     {
-        public List<AdditiveAttributeModifierData> statsAdditiveModifiers;
-        public List<MultiplicativeAttributeModifierData> statsMultiplicativeModifiers;
+        public List<AttributeData> attributes;
         
-        public List<AdditiveAttributeModifierData> bonusAdditiveModifiers;
-        public List<MultiplicativeAttributeModifierData> bonusMultiplicativeModifiers;
+        public List<AdditiveAttributeModifierData> additiveModifiers;
+        public List<MultiplicativeAttributeModifierData> multiplicativeModifiers;
         
         public int level;
         public EquipmentItemInstanceRarity rarity;

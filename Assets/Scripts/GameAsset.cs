@@ -25,7 +25,7 @@ public class GameAsset : MonoBehaviour
     [Header("Attributes")]
     public Color health = Color.red;
     public Color mana = Color.blue;
-    public Color magicShield = Color.cyan;
+    public Color energyShield = Color.cyan;
     
     [Header("Hit")]
     public Color criticalHit = Color.yellow;

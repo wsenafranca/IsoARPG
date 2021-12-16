@@ -57,6 +57,9 @@ namespace Item
             GetComponent<Collider>().enabled = true;
 
             position.y += 0.1f;
+            var delta = Random.insideUnitCircle;
+            position.x += delta.x;
+            position.z += delta.y;
             transform.SetPositionAndRotation(position, Quaternion.Euler(-90, 0.0f, 0.0f));
         }
         

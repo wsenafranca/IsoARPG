@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using AttributeSystem;
 
 namespace Item
@@ -31,14 +30,14 @@ namespace Item
     }
     
     [Serializable]
-    public struct EquipmentItemAdditiveAttributeModifierBonusData
+    public struct EquipmentItemAdditiveAttributeModifierProbabilityData
     {
         public AdditiveAttributeModifierDataRange bonus;
         public float probability;
     }
     
     [Serializable]
-    public struct EquipmentItemMultiplicativeAttributeModifierBonusData
+    public struct EquipmentItemMultiplicativeAttributeModifierProbabilityData
     {
         public MultiplicativeAttributeModifierDataRange bonus;
         public float probability;

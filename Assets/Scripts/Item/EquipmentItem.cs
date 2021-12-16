@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AbilitySystem.Abilities;
 using AttributeSystem;
 using InventorySystem;
 using UnityEngine;
@@ -25,16 +24,11 @@ namespace Item
 
         public List<EquipmentItemLevelRange> level;
 
-        [Header("Stats")]
-        public List<AdditiveAttributeModifierDataRange> statsAdditiveModifiers;
-        public List<MultiplicativeAttributeModifierDataRange> statsMultiplicativeModifiers;
+        public List<AttributeData> attributes;
         
-        [Header("Bonus")]
-        public List<EquipmentItemAdditiveAttributeModifierBonusData> bonusAdditiveModifiers;
-        public List<EquipmentItemMultiplicativeAttributeModifierBonusData> bonusMultiplicativeModifiers;
+        public List<EquipmentItemAdditiveAttributeModifierProbabilityData> additiveModifiers;
+        public List<EquipmentItemMultiplicativeAttributeModifierProbabilityData> multiplicativeModifiers;
         
-        public List<AbilityBase> grantedAbilities;
-
         public int GetRequirements(EquipmentRequirement requirement)
         {
             return requirements.Where(req => req.requirement == requirement).Select(req => req.value).FirstOrDefault();
@@ -70,52 +64,60 @@ namespace Item
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            var statsAdditiveModifierList = (from mod in statsAdditiveModifiers 
-                let minValue = Mathf.Min(mod.minValue, mod.maxValue) 
-                let maxValue = Mathf.Max(mod.minValue, mod.maxValue) 
-                let value = Mathf.FloorToInt(Mathf.Lerp(minValue, maxValue, a)) 
-                select new AdditiveAttributeModifierData { attribute = mod.attribute, value = value }).ToList();
-            
-            var statsMultiplicativeModifierList = (from mod in statsMultiplicativeModifiers 
-                let minValue = Mathf.Min(mod.minValue, mod.maxValue) 
-                let maxValue = Mathf.Max(mod.minValue, mod.maxValue) 
-                let value = Mathf.Lerp(minValue, maxValue, a) 
-                select new MultiplicativeAttributeModifierData { attribute = mod.attribute, value = value }).ToList();
-
-            var bonusAdditiveModifierList = new List<AdditiveAttributeModifierData>();
-            foreach (var data in bonusAdditiveModifiers)
+            var additiveModifierList = new List<AdditiveAttributeModifierData>();
+            foreach (var data in additiveModifiers)
             {
-                if(Random.value > Mathf.Lerp(data.probability, 1.0f, a)) continue;
+                if(Random.value > data.probability + a) continue;
 
                 var minValue = Mathf.Min(data.bonus.minValue, data.bonus.maxValue);
                 var maxValue = Mathf.Max(data.bonus.minValue, data.bonus.maxValue);
                 var value = Mathf.FloorToInt(Mathf.Lerp(minValue, maxValue, a));
-                bonusAdditiveModifierList.Add(new AdditiveAttributeModifierData{attribute = data.bonus.attribute, value = value});
+                additiveModifierList.Add(new AdditiveAttributeModifierData{attribute = data.bonus.attribute, value = value});
             }
             
-            var bonusMultiplicativeModifierList = new List<MultiplicativeAttributeModifierData>();
-            foreach (var data in bonusMultiplicativeModifiers)
+            var multiplicativeModifierList = new List<MultiplicativeAttributeModifierData>();
+            foreach (var data in multiplicativeModifiers)
             {
-                if(Random.value > Mathf.Lerp(data.probability, 1.0f, a)) continue;
+                if(Random.value > data.probability + a) continue;
 
                 var minValue = Mathf.Min(data.bonus.minValue, data.bonus.maxValue);
                 var maxValue = Mathf.Max(data.bonus.minValue, data.bonus.maxValue);
                 var value = Mathf.Lerp(minValue, maxValue, a);
-                bonusMultiplicativeModifierList.Add(new MultiplicativeAttributeModifierData{attribute = data.bonus.attribute, value = value});
+                multiplicativeModifierList.Add(new MultiplicativeAttributeModifierData{attribute = data.bonus.attribute, value = value});
             }
 
-            var itemLevel = (from i in level.OrderByDescending((i => i.probability)) where i.probability > Random.value select i.level).FirstOrDefault();
+            var itemLevel = (from i in level.OrderByDescending((i => i.probability)) where Random.value < i.probability select i.level).FirstOrDefault();
             
-            return new EquipmentItemInstance(Guid.NewGuid())
+            var itemAttributes = new List<AttributeData>();
+            foreach (var attr in attributes)
+            {
+                var newAttr = attr;
+                newAttr.value = new AttributeValue(attr.value.baseValue);
+                itemAttributes.Add(newAttr);
+            }
+
+            var itemDurability = (byte)(Random.value * 200 + 25);
+            
+            var item = new EquipmentItemInstance(Guid.NewGuid())
             {
                 itemBase = this,
-                statsAdditiveModifiers = statsAdditiveModifierList,
-                statsMultiplicativeModifiers = statsMultiplicativeModifierList,
-                bonusAdditiveModifiers = bonusAdditiveModifierList,
-                bonusMultiplicativeModifiers = bonusMultiplicativeModifierList,
+                attributes = itemAttributes,
+                additiveModifiers = additiveModifierList,
+                multiplicativeModifiers = multiplicativeModifierList,
                 level = itemLevel,
+                durability = itemDurability,
                 rarity =  r
             };
+            
+            if (itemLevel > 0)
+            {
+                foreach (var attr in item.attributes)
+                {
+                    attr.value.AddModifier(new AdditiveAttributeModifier(Mathf.FloorToInt(attr.value.baseValue * 0.2f + itemLevel * 2), item));
+                }
+            }
+            
+            return item;
         }
     }
 }
