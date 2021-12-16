@@ -28,7 +28,7 @@ namespace AbilitySystem.Abilities
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
             var character = source.GetComponent<BaseCharacterController>();
-            var weaponMelee = source.GetComponent<IWeaponMeleeControllerInterface>().GetWeaponMeleeController(weaponIndex);
+            var weaponMelee = source.GetComponent<IWeaponMeleeControllerInterface>()?.GetWeaponMeleeController(weaponIndex);
             
             var target = targetSystem?.GetCurrentTarget();
             

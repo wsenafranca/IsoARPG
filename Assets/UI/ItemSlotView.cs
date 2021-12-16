@@ -1,5 +1,4 @@
-﻿using Controller;
-using Item;
+﻿using Item;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -53,7 +52,7 @@ namespace UI
 
         public void BringToFront()
         {
-            var visualTransform = transform;
+            var visualTransform = _visualItem.transform;
             var position = visualTransform.localPosition;
             position.z = -30;
             visualTransform.localPosition = position;
@@ -61,10 +60,12 @@ namespace UI
         
         public void BringToTop()
         {
-            var visualTransform = transform;
+            var visualTransform = _visualItem.transform;
             var position = visualTransform.localPosition;
             position.z = -50;
             visualTransform.localPosition = position;
+            
+            visualTransform.localScale = new Vector3(80, 80, 80);
         }
 
         public void SendToBack()
@@ -73,6 +74,7 @@ namespace UI
             var position = visualTransform.localPosition;
             position.z = -5;
             visualTransform.localPosition = position;
+            visualTransform.localScale = new Vector3(60, 60, 60);
         }
 
         public void RemoveItem()
@@ -81,7 +83,7 @@ namespace UI
             SetItem(null, 0.0f, 0.0f, slotViewHandler);
         }
 
-        public void CancelDrag()
+        public virtual void CancelDrag()
         {
             SendToBack();
             SetBackground(_item != null);
@@ -90,7 +92,7 @@ namespace UI
             rect.anchoredPosition = _lastAnchoredPosition;
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        public virtual void OnPointerClick(PointerEventData eventData)
         {
             if (!DragAndDropManager.instance.dragging && eventData.button == PointerEventData.InputButton.Left)
             {
@@ -144,14 +146,14 @@ namespace UI
             
             BringToFront();
             _visualItem.StartRotateMesh();
-            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController().gameObject, _item, eventData.position, eventData.enterEventCamera);
+            ItemTooltipView.instance.ShowItem(_item, eventData.position);
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
             SendToBack();
             _visualItem.StopRotateMesh();
-            ItemTooltipView.instance.ShowItem(slotViewHandler.GetInventoryController().gameObject, null, eventData.position, eventData.enterEventCamera);
+            ItemTooltipView.instance.HideTooltip();
         }
     }
 }

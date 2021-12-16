@@ -34,10 +34,10 @@ public class GameAsset : MonoBehaviour
     
     [Header("Equipment Rarity")]
     public Color commonItem = Color.white;
-    public Color rateItem = Color.green;
+    public Color rateItem = Color.blue;
     public Color epicItem = new(0.5f, 0.0f, 0.5f);
     public Color legendaryItem = Color.yellow;
-    public Color uniqueItem = Color.red;
+    public Color uniqueItem = Color.cyan;
 
     [Header("Equipment Category")] 
     public Texture2D categoryConsumable;

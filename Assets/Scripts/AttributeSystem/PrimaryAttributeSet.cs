@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using InventorySystem;
+using UnityEngine;
 
 namespace AttributeSystem
 {
     [RequireComponent(typeof(AttributeSet))]
-    public class PrimaryAttributeSet : MonoBehaviour
+    public class PrimaryAttributeSet : MonoBehaviour, IInventoryRequirementsSource
     {
         [SerializeField]
         private int strength;
@@ -116,6 +118,19 @@ namespace AttributeSystem
             currentStamina = stamina;
             currentDexterity = dexterity;
             currentIntelligence = intelligence;
+        }
+
+        public int GetRequirementsValue(EquipmentRequirement requirement)
+        {
+            return requirement switch
+            {
+                EquipmentRequirement.Level => currentLevel,
+                EquipmentRequirement.Strength => currentStrength,
+                EquipmentRequirement.Stamina => currentStamina,
+                EquipmentRequirement.Dexterity => currentDexterity,
+                EquipmentRequirement.Intelligence => currentIntelligence,
+                _ => throw new ArgumentOutOfRangeException(nameof(requirement), requirement, null)
+            };
         }
     }
 }

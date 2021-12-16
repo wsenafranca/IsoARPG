@@ -36,13 +36,13 @@ namespace UI
             }
         }
 
-        public void OnEquip(EquipmentItemInstance item, EquipmentSlot slot)
+        public void OnEquip(IInventoryEquipmentItem item, EquipmentSlot slot)
         {
             var equipmentSlot = _equipmentSlots[(int)slot];
-            equipmentSlot.SetItem(item, 0, 0, equipmentSlot);
+            equipmentSlot.SetItem((EquipmentItemInstance)item, 0, 0, equipmentSlot);
         }
         
-        public void OnUnEquip(EquipmentItemInstance item, EquipmentSlot slot)
+        public void OnUnEquip(IInventoryEquipmentItem item, EquipmentSlot slot)
         {
             var equipmentSlot = _equipmentSlots[(int)slot];
             equipmentSlot.RemoveItem();

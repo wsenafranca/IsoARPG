@@ -27,8 +27,16 @@ namespace UI
             _slotTelegraph.gameObject.SetActive(false);
         }
 
+        public override void OnEndDrag(DragDropEventData eventData)
+        {
+            base.OnEndDrag(eventData);
+            _slotTelegraph.gameObject.SetActive(false);
+        }
+
         public void OnDropArea(DragDropEventData eventData)
         {
+            _slotTelegraph.gameObject.SetActive(false);
+            
             var slot = eventData.pointerDrag.GetComponent<ItemSlotView>();
             if (slot == null || slot.GetItem() == null) return;
 
@@ -36,9 +44,9 @@ namespace UI
             
             if (ReferenceEquals(slot.slotViewHandler, this)) return;
 
-            if (slot.GetItem() is not EquipmentItemInstance item) return;
+            if (slot.GetItem() is not IInventoryEquipmentItem item) return;
 
-            if (!InventoryController.CheckEquipSlot(thisSlot, ((EquipmentItem)item.itemBase).type)) return;
+            if (!InventoryController.CheckEquipSlot(thisSlot, item.equipmentType)) return;
 
             if (!inventoryController.IsEquipmentSlotEmpty(thisSlot) || !inventoryController.CheckRequirements(item)) return;
 
@@ -50,7 +58,14 @@ namespace UI
 
         public bool OnDraggedSlot(ItemSlotView slot, DragDropEventData eventData, ISlotViewHandler source)
         {
+            _slotTelegraph.gameObject.SetActive(false);
             return inventoryController != null && inventoryController.UnEquip(thisSlot);
+        }
+
+        public override void CancelDrag()
+        {
+            base.CancelDrag();
+            _slotTelegraph.gameObject.SetActive(false);
         }
 
         public void OnDiscardSlot(ItemSlotView slot, DragDropEventData eventData)
@@ -83,10 +98,10 @@ namespace UI
             
             if (slot == null || slot.GetItem() == null) return;
             
-            if (slot.GetItem() is not EquipmentItemInstance item) return;
+            if (slot.GetItem() is not IInventoryEquipmentItem item) return;
 
             Color color;
-            if (InventoryController.CheckEquipSlot(thisSlot, ((EquipmentItem)item.itemBase).type) && inventoryController.CheckRequirements(item))
+            if (InventoryController.CheckEquipSlot(thisSlot, item.equipmentType) && inventoryController.CheckRequirements(item))
             {
                 color = Color.green;
             }

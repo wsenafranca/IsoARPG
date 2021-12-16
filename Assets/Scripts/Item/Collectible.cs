@@ -1,6 +1,8 @@
 ﻿using InventorySystem;
 using TargetSystem;
+using UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 
 namespace Item
@@ -19,6 +21,8 @@ namespace Item
 
         public void Collect(GameObject collector)
         {
+            ItemTooltipView.instance.HideTooltip();
+        
             if (!item || !collector) return;
             
             var inventory = collector.GetComponent<InventoryController>();
@@ -73,6 +77,18 @@ namespace Item
         protected override Color GetTargetColor()
         {
             return _itemInstance.itemColor;
+        }
+
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+            base.OnPointerEnter(eventData);
+            ItemTooltipView.instance.ShowItem(_itemInstance, eventData.position);
+        }
+
+        public override void OnPointerExit(PointerEventData eventData)
+        {
+            base.OnPointerExit(eventData);
+            ItemTooltipView.instance.HideTooltip();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace TargetSystem
             };
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
+        public virtual void OnPointerEnter(PointerEventData eventData)
         {
             switch (targetType)
             {
@@ -76,7 +76,7 @@ namespace TargetSystem
             PlayerController.instance.currentTarget = this;
         }
 
-        public void OnPointerExit(PointerEventData eventData)
+        public virtual void OnPointerExit(PointerEventData eventData)
         {
             Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
             

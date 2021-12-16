@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Item;
 
 namespace InventorySystem
 {
@@ -28,7 +27,7 @@ namespace InventorySystem
             }
         }
 
-        public bool TryGetItem(int x, int y, out ItemInstance item)
+        public bool TryGetItem(int x, int y, out IInventoryItem item)
         {
             if (x < 0 || x >= columns || y < 0 || y >= rows)
             {
@@ -94,15 +93,15 @@ namespace InventorySystem
             return true;
         }
         
-        public bool IsEmpty(int x, int y, ItemInstance item)
+        public bool IsEmpty(int x, int y, IInventoryItem item)
         {
-            if (!IsValidRect(x, y, item.itemBase.width, item.itemBase.height)) return false;
+            if (!IsValidRect(x, y, item.itemWidth, item.itemHeight)) return false;
             
-            for (var i = 0; i < item.itemBase.height; i++)
+            for (var i = 0; i < item.itemHeight; i++)
             {
-                for (var j = 0; j < item.itemBase.width; j++)
+                for (var j = 0; j < item.itemWidth; j++)
                 {
-                    if (!IsValidRect(x + j, y + i, item.itemBase.width, item.itemBase.height)) return false;
+                    if (!IsValidRect(x + j, y + i, item.itemWidth, item.itemHeight)) return false;
                     if (_grid[y + i, x + j] != Guid.Empty && _grid[y + i, x + j] != item.guid) return false;
                 }
             }
@@ -110,38 +109,38 @@ namespace InventorySystem
             return true;
         }
         
-        public bool AddItem(ItemInstance item, out int x, out int y)
+        public bool AddItem(IInventoryItem item, out int x, out int y)
         {
-            if (!FindEmptySpace(item.itemBase.width, item.itemBase.height, out x, out y)) return false;
+            if (!FindEmptySpace(item.itemWidth, item.itemHeight, out x, out y)) return false;
             
             AddItemInternal(item, x, y);
 
             return true;
         }
 
-        public bool AddItem(ItemInstance item, int x, int y)
+        public bool AddItem(IInventoryItem item, int x, int y)
         {
-            if (item == null || !IsEmpty(x, y, item.itemBase.width, item.itemBase.height)) return false;
+            if (item == null || !IsEmpty(x, y, item.itemWidth, item.itemHeight)) return false;
 
             AddItemInternal(item, x, y);
             
             return true;
         }
 
-        private void AddItemInternal(ItemInstance item, int x, int y)
+        private void AddItemInternal(IInventoryItem item, int x, int y)
         {
             _items[item.guid] = (new InventoryEntry{x = x, y = y, item = item});
             
-            for (var i = y; i < y + item.itemBase.height; i++)
+            for (var i = y; i < y + item.itemHeight; i++)
             {
-                for (var j = x; j < x + item.itemBase.width; j++)
+                for (var j = x; j < x + item.itemWidth; j++)
                 {
                     _grid[i, j] = item.guid;
                 }
             }
         }
 
-        public bool MoveItem(ItemInstance item, int x, int y)
+        public bool MoveItem(IInventoryItem item, int x, int y)
         {
             if (item == null) return false;
 
@@ -156,7 +155,7 @@ namespace InventorySystem
             return true;
         }
         
-        public bool RemoveItem(ItemInstance item, out int x, out int y)
+        public bool RemoveItem(IInventoryItem item, out int x, out int y)
         {
             x = -1;
             y = -1;
@@ -169,7 +168,7 @@ namespace InventorySystem
             return true;
         }
         
-        private bool CanRemoveItem(ItemInstance item, out InventoryEntry entry)
+        private bool CanRemoveItem(IInventoryItem item, out InventoryEntry entry)
         {
             if (!_items.TryGetValue(item.guid, out entry)) return false;
             
@@ -189,7 +188,7 @@ namespace InventorySystem
         {
             public int x;
             public int y;
-            public ItemInstance item;
+            public IInventoryItem item;
         }
 
         public override string ToString()

@@ -3,21 +3,21 @@
 namespace AttributeSystem
 {
     [Serializable]
-    public struct AdditiveModifierData
+    public struct AdditiveAttributeModifierData
     {
         public Attribute attribute;
         public int value;
     }
     
     [Serializable]
-    public struct MultiplicativeModifierData
+    public struct MultiplicativeAttributeModifierData
     {
         public Attribute attribute;
         public float value;
     }
 
     [Serializable]
-    public struct AdditiveModifierDataRange
+    public struct AdditiveAttributeModifierDataRange
     {
         public Attribute attribute;
         public int minValue;
@@ -25,7 +25,7 @@ namespace AttributeSystem
     }
     
     [Serializable]
-    public struct MultiplicativeModifierDataRange
+    public struct MultiplicativeAttributeModifierDataRange
     {
         public Attribute attribute;
         public float minValue;

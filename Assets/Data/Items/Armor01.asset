@@ -27,12 +27,30 @@ MonoBehaviour:
   - slot: 7
     prefab: {fileID: 8743206347766044249, guid: f4adc4ce68bceec4bae767e3ab96a226, type: 3}
   attachItemPrefab: {fileID: 0}
-  type: 4
+  equipmentType: 4
   rarity: 0
   requirements:
   - requirement: 2
     value: 5
   level: []
-  additiveModifiers: []
-  multiplicativeModifiers: []
+  statsAdditiveModifiers:
+  - attribute: 7
+    minValue: 2
+    maxValue: 5
+  statsMultiplicativeModifiers:
+  - attribute: 9
+    minValue: 0.01
+    maxValue: 0.03
+  bonusAdditiveModifiers:
+  - bonus:
+      attribute: 7
+      minValue: 1
+      maxValue: 10
+    probability: 0.2
+  - bonus:
+      attribute: 9
+      minValue: 1
+      maxValue: 10
+    probability: 0.2
+  bonusMultiplicativeModifiers: []
   grantedAbilities: []

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using AttributeSystem;
+using Controller;
+using InventorySystem;
 using Item;
 using TMPro;
 using UnityEditor;
@@ -19,7 +21,8 @@ namespace UI
         private TextMeshProUGUI _itemName;
         private RawImage _itemIcon;
         private TextMeshProUGUI _itemInstanceInfo;
-        private TextMeshProUGUI _equipmentAdditiveModifier;
+        private TextMeshProUGUI _equipmentStatsModifier;
+        private TextMeshProUGUI _equipmentBonusModifier;
         private TextMeshProUGUI _equipmentRequirements;
         private TextMeshProUGUI _itemEffects;
         private TextMeshProUGUI _itemDescription;
@@ -29,7 +32,8 @@ namespace UI
             _itemName = transform.Find("Header").transform.Find("ItemName").GetComponent<TextMeshProUGUI>();
             _itemIcon = transform.Find("Header").transform.Find("ItemIcon").GetComponent<RawImage>();
             _itemInstanceInfo = transform.Find("ItemInstanceInfo").GetComponent<TextMeshProUGUI>();
-            _equipmentAdditiveModifier = transform.Find("EquipmentAdditiveModifier").GetComponent<TextMeshProUGUI>();
+            _equipmentStatsModifier = transform.Find("EquipmentStatsModifier").GetComponent<TextMeshProUGUI>();
+            _equipmentBonusModifier = transform.Find("EquipmentBonusModifier").GetComponent<TextMeshProUGUI>();
             _equipmentRequirements = transform.Find("EquipmentRequirements").GetComponent<TextMeshProUGUI>();
             _itemEffects = transform.Find("ItemEffects").GetComponent<TextMeshProUGUI>();
             _itemDescription = transform.Find("ItemDescription").GetComponent<TextMeshProUGUI>();
@@ -44,7 +48,7 @@ namespace UI
             gameObject.SetActive(false);
         }
         
-        public void ShowItem(GameObject obj, ItemInstance item, Vector2 screenPosition, Camera cam)
+        public void ShowItem(ItemInstance item, Vector2 screenPosition)
         {
             if (item == null)
             {
@@ -55,8 +59,9 @@ namespace UI
             _itemName.text = GetItemName(item);
             _itemIcon.texture = GetIcon(item);
             _itemInstanceInfo.text = GetItemInstanceInfo(item as EquipmentItemInstance);
-            _equipmentAdditiveModifier.text = GetEquipmentAdditiveModifier(item as EquipmentItemInstance);
-            _equipmentRequirements.text = GetEquipmentsRequirements(obj, item);
+            _equipmentStatsModifier.text = GetEquipmentStatsModifier(item as EquipmentItemInstance);
+            _equipmentBonusModifier.text = GetEquipmentBonusModifier(item as EquipmentItemInstance);
+            _equipmentRequirements.text = GetEquipmentsRequirements(item);
             _itemEffects.text = "";
             _itemDescription.text = GetItemDescription(item);
 
@@ -82,6 +87,7 @@ namespace UI
 
             var rectTransform = GetComponent<RectTransform>();
 
+            var cam = canvas.worldCamera;
             var parentRectTransform = transform.parent as RectTransform;
             if (parentRectTransform == null) return;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRectTransform, screenPosition, cam, out var parentPoint);
@@ -116,7 +122,7 @@ namespace UI
             {
                 ItemCategory.Consumable => GameAsset.instance.categoryConsumable,
                 ItemCategory.QuestItem => GameAsset.instance.categoryQuestItem,
-                ItemCategory.Equipment => item.GetItemBase<EquipmentItem>().type switch
+                ItemCategory.Equipment => item.GetItemBase<EquipmentItem>().equipmentType switch
                 {
                     EquipmentType.OneHandWeapon => GameAsset.instance.categoryEquipmentOneHandWeapon,
                     EquipmentType.TwoHandWeapon => GameAsset.instance.categoryEquipmentTwoHandWeapon,
@@ -140,7 +146,7 @@ namespace UI
         {
             if (item == null) return "";
 
-            var text = $"Type: {ObjectNames.NicifyVariableName(item.GetItemBase<EquipmentItem>().type.ToString())}\n";
+            var text = $"Type: {ObjectNames.NicifyVariableName(item.GetItemBase<EquipmentItem>().equipmentType.ToString())}\n";
             
             text += $"Rarity: <color=#{ColorUtility.ToHtmlStringRGBA(item.itemColor)}>{item.rarity}</color>\n";
             if (item.durability > 50)
@@ -155,56 +161,66 @@ namespace UI
             return text;
         }
 
-        private static string GetEquipmentAdditiveModifier(EquipmentItemInstance item)
+        private static string GetEquipmentStatsModifier(EquipmentItemInstance item)
         {
             if (item == null) return "";
 
             var text = "";
 
-            var minAttackBonus = item.additiveModifiers.Find(modifier => modifier.attribute == Attribute.MinAttackPower);
-            var maxAttackBonus = item.additiveModifiers.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
+            var minAttackBonus = item.statsAdditiveModifiers.Find(modifier => modifier.attribute == Attribute.MinAttackPower);
+            var maxAttackBonus = item.statsAdditiveModifiers.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
             if (minAttackBonus.value > 0 && maxAttackBonus.value > 0)
             {
                 text += $"Attack Power: {minAttackBonus.value}~{maxAttackBonus.value}\n";
             }
             
-            foreach (var modifier in item.additiveModifiers.Where(modifier => modifier.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
+            foreach (var modifier in item.statsAdditiveModifiers.Where(modifier => modifier.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
+            {
+                if(modifier.value == 0) continue;
+                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: {modifier.value}\n";
+            }
+            
+            foreach (var modifier in item.statsMultiplicativeModifiers)
+            {
+                if(modifier.value == 0) continue;
+                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: {Mathf.FloorToInt(modifier.value * 100.0f)}%\n";
+            }
+            
+            return text;
+        }
+        
+        private static string GetEquipmentBonusModifier(EquipmentItemInstance item)
+        {
+            if (item == null) return "";
+
+            var text = "";
+            
+            foreach (var modifier in item.bonusAdditiveModifiers)
             {
                 if(modifier.value == 0) continue;
                 
                 var sign = modifier.value < 0 ? '-' : '+';
-                var color = ColorUtility.ToHtmlStringRGBA(modifier.value < 0 ? Color.red : Color.cyan);
+                var color = ColorUtility.ToHtmlStringRGBA(item.itemColor);
                 
-                switch (modifier.attribute)
-                {
-                    case Attribute.MaxHealth:
-                    case Attribute.MaxMana:
-                    case Attribute.MaxEnergyShield:
-                    case Attribute.MinAttackPower:
-                    case Attribute.MaxAttackPower:
-                    case Attribute.AttackSpeed:
-                    case Attribute.DefensePower:
-                        text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{modifier.value}</color>\n";
-                        break;
-                    case Attribute.HitRate:
-                    case Attribute.EvasionRate:
-                    case Attribute.BlockRate:
-                    case Attribute.CriticalHitRate:
-                    case Attribute.CriticalHitDamage:
-                    case Attribute.SkillDamage:
-                        text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(modifier.value / 100.0f)}%</color>\n";
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.Abs(modifier.value)}</color>\n";
+            }
+            
+            foreach (var modifier in item.bonusMultiplicativeModifiers)
+            {
+                if(modifier.value == 0) continue;
+                
+                var sign = modifier.value < 0 ? '-' : '+';
+                var color = ColorUtility.ToHtmlStringRGBA(item.itemColor);
+                
+                text += $"{ObjectNames.NicifyVariableName(modifier.attribute.ToString())}: <color=#{color}>{sign}{Mathf.FloorToInt(Mathf.Abs(modifier.value) * 100.0f)}%</color>\n";
             }
             
             return text;
         }
 
-        private static string GetEquipmentsRequirements(GameObject obj, ItemInstance item)
+        private static string GetEquipmentsRequirements(ItemInstance item)
         {
-            var primaryAttribute = obj.GetComponent<PrimaryAttributeSet>();
+            var primaryAttribute = PlayerController.instance.GetComponent<PrimaryAttributeSet>();
             
             if (primaryAttribute == null || item == null) return "";
 

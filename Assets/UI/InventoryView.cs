@@ -3,6 +3,8 @@ using System.Linq;
 using InventorySystem;
 using Item;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI
@@ -21,7 +23,7 @@ namespace UI
 
         private float tileWidth => _slotTemplate.rect.width;
         private float tileHeight => _slotTemplate.rect.height;
-        
+
         private void Awake()
         {
             if (!inventoryController) return;
@@ -45,17 +47,17 @@ namespace UI
             _slots.Clear();
         }
 
-        public void OnAddItem(ItemInstance item, int x, int y)
+        public void OnAddItem(IInventoryItem item, int x, int y)
         {
             if (item == null || _slots == null) return;
             
             var slot = Instantiate(_slotTemplate, transform).GetComponent<ItemSlotView>();
-            SetSlotItem(slot, item, x, y);
+            SetSlotItem(slot, (ItemInstance)item, x, y);
             slot.gameObject.SetActive(true);
             _slots.Add(slot);
         }
         
-        public void OnRemoveItem(ItemInstance item, int x, int y)
+        public void OnRemoveItem(IInventoryItem item, int x, int y)
         {
             foreach (var slot in _slots.Where(slot => slot != null && slot.GetItem() == item))
             {

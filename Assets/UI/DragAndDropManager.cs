@@ -88,6 +88,7 @@ namespace UI
             if (currentArea) currentArea.GetComponent<IDropAreaHandler>()?.OnDropAreaExit(eventData);
 
             pointerDrag = null;
+            currentArea = null;
 
             StartCoroutine(EndDrag_());
         }

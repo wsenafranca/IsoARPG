@@ -1,5 +1,6 @@
 using System;
 using AbilitySystem.Abilities;
+using AttributeSystem;
 using InventorySystem;
 using Item;
 using TargetSystem;
@@ -9,7 +10,7 @@ using Random = UnityEngine.Random;
 namespace Controller
 {
     [RequireComponent(typeof(InventoryController))]
-    public class PlayerController : BaseCharacterController, ITargetSystemInterface
+    public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerInterface
     {
         public static PlayerController instance { get; private set; }
         
@@ -17,6 +18,7 @@ namespace Controller
         private float minClickDistance = 0.1f;
         
         public InventoryController inventory { get; private set; }
+        private readonly WeaponMeleeController[] _weaponMelee = new WeaponMeleeController[2];
 
         private Targetable _currentTarget;
         public Targetable currentTarget
@@ -138,33 +140,160 @@ namespace Controller
 
         private void OnWeaponBeginAttack(int weaponIndex)
         {
-            inventory.GetWeaponMeleeController(weaponIndex)?.BeginAttack(gameObject);
+            
         }
 
         private void OnWeaponEndAttack(int weaponIndex)
         {
-            inventory.GetWeaponMeleeController(weaponIndex)?.EndAttack();
+            //inventory.GetWeaponMeleeController(weaponIndex)?.EndAttack();
         }
 
-        public void OnAddItem(ItemInstance item, int x, int y)
+        public void OnAddItem(IInventoryItem item, int x, int y)
         {
         }
         
-        public void OnRemoveItem(ItemInstance item, int x, int y)
+        public void OnRemoveItem(IInventoryItem item, int x, int y)
         {
             
         }
         
-        public void OnEquip(EquipmentItemInstance item, EquipmentSlot slot)
+        public void OnEquip(IInventoryEquipmentItem item, EquipmentSlot slot)
         {
+            var equipment = (EquipmentItemInstance)item;
+            if (equipment == null) return;
+
+            foreach (var modifier in equipment.statsAdditiveModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.AddModifier(new AdditiveAttributeModifier(modifier.value, equipment));
+                }
+            }
+            
+            foreach (var modifier in equipment.statsMultiplicativeModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.AddModifier(new MultiplicativeAttributeModifier(modifier.value, equipment));
+                }
+            }
+            
+            foreach (var modifier in equipment.bonusAdditiveModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.AddModifier(new AdditiveAttributeModifier(modifier.value, equipment));
+                }
+            }
+            
+            foreach (var modifier in equipment.bonusMultiplicativeModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.AddModifier(new MultiplicativeAttributeModifier(modifier.value, equipment));
+                }
+            }
+
+            switch (slot)
+            {
+                case EquipmentSlot.MainHand:
+                {
+                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _weaponMelee[0] = itemObj.GetComponent<WeaponMeleeController>();
+                    break;
+                }
+                case EquipmentSlot.OffHand:
+                {
+                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _weaponMelee[1] = itemObj.GetComponent<WeaponMeleeController>();
+                    break;
+                }
+                case EquipmentSlot.Helm:
+                case EquipmentSlot.Armor:
+                case EquipmentSlot.Pants:
+                case EquipmentSlot.Gloves:
+                case EquipmentSlot.Boots:
+                case EquipmentSlot.Necklace:
+                case EquipmentSlot.Ring1:
+                case EquipmentSlot.Ring2:
+                case EquipmentSlot.Cape:
+                case EquipmentSlot.Pet:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+            }
         }
         
-        public void OnUnEquip(EquipmentItemInstance item, EquipmentSlot slot)
+        public void OnUnEquip(IInventoryEquipmentItem item, EquipmentSlot slot)
         {
+            var equipment = (EquipmentItemInstance)item;
+            if (equipment == null) return;
+            
+            foreach (var modifier in equipment.statsAdditiveModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.RemoveAllModifier(equipment);
+                }
+            }
+            
+            foreach (var modifier in equipment.statsMultiplicativeModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.RemoveAllModifier(equipment);
+                }
+            }
+            
+            foreach (var modifier in equipment.bonusAdditiveModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.RemoveAllModifier(equipment);
+                }
+            }
+            
+            foreach (var modifier in equipment.bonusMultiplicativeModifiers)
+            {
+                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                {
+                    value.RemoveAllModifier(equipment);
+                }
+            }
+            
+            switch (slot)
+            {
+                case EquipmentSlot.MainHand:
+                {
+                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _weaponMelee[0] = null;
+                    break;
+                }
+                case EquipmentSlot.OffHand:
+                {
+                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _weaponMelee[1] = null;
+                    break;
+                }
+                case EquipmentSlot.Helm:
+                case EquipmentSlot.Armor:
+                case EquipmentSlot.Pants:
+                case EquipmentSlot.Gloves:
+                case EquipmentSlot.Boots:
+                case EquipmentSlot.Necklace:
+                case EquipmentSlot.Ring1:
+                case EquipmentSlot.Ring2:
+                case EquipmentSlot.Cape:
+                case EquipmentSlot.Pet:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+            }
         }
 
-        private void OnGUI()
+        public WeaponMeleeController GetWeaponMeleeController(int weaponIndex)
         {
+            return _weaponMelee[weaponIndex];
         }
     }
 }

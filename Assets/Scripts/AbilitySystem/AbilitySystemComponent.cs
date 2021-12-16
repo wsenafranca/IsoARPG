@@ -31,6 +31,11 @@ namespace AbilitySystem
             attributeSet = GetComponent<AttributeSet>();
         }
 
+        private void OnEnable()
+        {
+            DeactivateAllAbilities();
+        }
+
         private void LateUpdate()
         {
             while (_damages.TryDequeue(out var damage))

@@ -1,16 +1,12 @@
 ﻿using System;
-using AbilitySystem;
-using AttributeSystem;
-using Item;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace InventorySystem
 {
-    [RequireComponent(typeof(AbilitySystemComponent))]
-    public class InventoryController : MonoBehaviour, IWeaponMeleeControllerInterface
+    public class InventoryController : MonoBehaviour
     {
-        public AbilitySystemComponent abilitySystem;
         public int rows { get; private set; }
         public int columns { get; private set; }
         
@@ -24,26 +20,26 @@ namespace InventorySystem
         [SerializeField]
         private EquipmentVisualData[] defaultParts;
         
-        private EquipmentItemInstance[] _slots;
+        private IInventoryEquipmentItem[] _slots;
         private InventoryEquipmentParts _equipmentParts;
 
         private InventoryContainer _items;
 
         [Header("Events")]
         
-        public UnityEvent<ItemInstance, int, int> onAddItem;
+        public UnityEvent<IInventoryItem, int, int> onAddItem;
         
-        public UnityEvent<ItemInstance, int, int> onRemoveItem;
+        public UnityEvent<IInventoryItem, int, int> onRemoveItem;
         
-        public UnityEvent<EquipmentItemInstance, EquipmentSlot> onEquip;
+        public UnityEvent<IInventoryEquipmentItem, EquipmentSlot> onEquip;
         
-        public UnityEvent<EquipmentItemInstance, EquipmentSlot> onUnEquip;
+        public UnityEvent<IInventoryEquipmentItem, EquipmentSlot> onUnEquip;
 
         public bool IsValidRect(int x, int y, int width, int height) => _items.IsValidRect(x, y, width, height);
 
         public bool IsEmpty(int x, int y, int width, int height) => _items.IsEmpty(x, y, width, height);
         
-        public bool IsEmpty(int x, int y, ItemInstance item) => _items.IsEmpty(x, y, item);
+        public bool IsEmpty(int x, int y, IInventoryItem item) => _items.IsEmpty(x, y, item);
 
         public void SetSize(int inventoryRows, int inventoryColumns)
         {
@@ -55,10 +51,8 @@ namespace InventorySystem
         
         private void Awake()
         {
-            abilitySystem = GetComponent<AbilitySystemComponent>();
-            
             var len = Enum.GetNames(typeof(EquipmentSlot)).Length;
-            _slots = new EquipmentItemInstance[len];
+            _slots = new IInventoryEquipmentItem[len];
             _equipmentParts = new InventoryEquipmentParts(rootBone);
 
             foreach (var part in defaultParts)
@@ -67,7 +61,7 @@ namespace InventorySystem
             }
         }
 
-        public bool AddItem(ItemInstance item)
+        public bool AddItem(IInventoryItem item)
         {
             if (_items == null || !_items.AddItem(item, out var x, out var y)) return false;
 
@@ -75,9 +69,9 @@ namespace InventorySystem
             return true;
         }
 
-        public bool EquipOrAddItem(ItemInstance item)
+        public bool EquipOrAddItem(IInventoryItem item)
         {
-            if (TryGetEmptySlot(item, out var slot) && IsEquipmentSlotEmpty(slot) && Equip(slot, item as EquipmentItemInstance))
+            if (TryGetEmptySlot(item, out var slot) && IsEquipmentSlotEmpty(slot) && Equip(slot, item as IInventoryEquipmentItem))
             {
                 return true;
             }
@@ -85,7 +79,7 @@ namespace InventorySystem
             return AddItem(item);
         }
         
-        public bool AddItem(ItemInstance item, int x, int y)
+        public bool AddItem(IInventoryItem item, int x, int y)
         {
             if (_items == null || !_items.AddItem(item, x, y)) return false;
 
@@ -93,7 +87,7 @@ namespace InventorySystem
             return true;
         }
 
-        public bool RemoveItem(ItemInstance item)
+        public bool RemoveItem(IInventoryItem item)
         {
             if (_items == null || !_items.RemoveItem(item, out var x, out var y)) return false;
 
@@ -101,16 +95,14 @@ namespace InventorySystem
             return true;
         }
 
-        public bool MoveItem(ItemInstance item, int x, int y)
+        public bool MoveItem(IInventoryItem item, int x, int y)
         {
             return _items != null && _items.MoveItem(item, x, y);
         }
 
-        public bool Equip(EquipmentSlot slot, EquipmentItemInstance item)
+        public bool Equip(EquipmentSlot slot, IInventoryEquipmentItem item)
         {
-            if (item is not { itemBase: EquipmentItem equipBase }) return false;
-            
-            if (!CheckEquipSlot(slot, equipBase.type)) return false;
+            if (!CheckEquipSlot(slot, item.equipmentType)) return false;
 
             if (!IsEquipmentSlotEmpty(slot)) return false;
 
@@ -120,12 +112,12 @@ namespace InventorySystem
 
             _slots[slotIndex] = item;
 
-            foreach (var part in equipBase.visualItemPrefab)
+            foreach (var part in item.visualItemPrefab)
             {
                 _equipmentParts.ReplaceParts(part);
             }
             
-            _equipmentParts.AttachParts(slot, equipBase.attachItemPrefab, GetSlotSocket(slot));
+            _equipmentParts.AttachParts(slot, item.attachItemPrefab, GetSlotSocket(slot));
 
             onEquip?.Invoke(item, slot);
 
@@ -139,10 +131,8 @@ namespace InventorySystem
 
             var item = _slots[slotIndex];
             _slots[slotIndex] = null;
-
-            if (item is not { itemBase: EquipmentItem equipBase }) return true;
             
-            foreach (var entry in equipBase.visualItemPrefab)
+            foreach (var entry in item.visualItemPrefab)
             {
                 _equipmentParts.ReplaceParts(defaultParts[(int)entry.slot]);
             }
@@ -173,49 +163,22 @@ namespace InventorySystem
             };
         }
 
-        public bool CheckRequirements(EquipmentItemInstance item)
+        public bool CheckRequirements(IInventoryEquipmentItem item)
         {
-            var primaryAttributes = GetComponent<PrimaryAttributeSet>();
-            if (!primaryAttributes) return false;
-
-            if (primaryAttributes.currentLevel < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Level))
-            {
-                return false;
-            }
-            
-            if (primaryAttributes.currentStrength < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Strength))
-            {
-                return false;
-            }
-
-            if (primaryAttributes.currentStamina < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Stamina))
-            {
-                return false;
-            }
-            
-            if (primaryAttributes.currentDexterity < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Dexterity))
-            {
-                return false;
-            }
-            
-            if (primaryAttributes.currentIntelligence < item.GetItemBase<EquipmentItem>().GetRequirements(EquipmentRequirement.Intelligence))
-            {
-                return false;
-            }
-
-            return true;
+            var owner = GetComponent<IInventoryRequirementsSource>();
+            return owner != null && item != null && item.requirements.All(req => owner.GetRequirementsValue(req.requirement) >= req.value);
         }
 
-        public bool TryGetEmptySlot(ItemInstance item, out EquipmentSlot slot)
+        public bool TryGetEmptySlot(IInventoryItem item, out EquipmentSlot slot)
         {
             slot = 0;
-            return item is EquipmentItemInstance equipmentItem && TryGetEmptySlot(equipmentItem, out slot);
+            return item is IInventoryEquipmentItem equipmentItem && TryGetEmptySlot(equipmentItem, out slot);
         }
 
-        public bool TryGetEmptySlot(EquipmentItemInstance item, out EquipmentSlot slot)
+        public bool TryGetEmptySlot(IInventoryEquipmentItem item, out EquipmentSlot slot)
         {
             slot = 0;
-            return item is { itemBase: EquipmentItem equipBase } && TryGetEmptySlot(equipBase.type, out slot);
+            return TryGetEmptySlot(item.equipmentType, out slot);
         }
 
         public bool TryGetEmptySlot(EquipmentType type, out EquipmentSlot slot)
@@ -329,16 +292,18 @@ namespace InventorySystem
                 EquipmentSlot.Necklace => sockets.necklace,
                 EquipmentSlot.Ring1 => sockets.ring1,
                 EquipmentSlot.Ring2 => sockets.ring2,
+                EquipmentSlot.Cape => sockets.cape,
+                EquipmentSlot.Pet => sockets.pet,
                 _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, null)
             };
         }
 
-        public EquipmentItemInstance GetEquipmentItem(EquipmentSlot slot)
+        public IInventoryEquipmentItem GetEquipmentItem(EquipmentSlot slot)
         {
             return _slots[(int)slot];
         }
 
-        public bool TryGetEquipmentSlot(EquipmentItemInstance item, out EquipmentSlot slot)
+        public bool TryGetEquipmentSlot(IInventoryEquipmentItem item, out EquipmentSlot slot)
         {
             for (var i = 0; i < _slots.Length; i++)
             {
@@ -352,16 +317,7 @@ namespace InventorySystem
             return false;
         }
 
-        public WeaponMeleeController GetWeaponMeleeController(int weaponIndex)
-        {
-            var equipmentSlot = weaponIndex == 1 ? EquipmentSlot.OffHand : EquipmentSlot.MainHand;
-
-            if (!_equipmentParts.TryGetAttachedParts(equipmentSlot, out var itemObj)) return null;
-            
-            var item = _slots[(int)equipmentSlot];
-
-            return item is not { itemBase: EquipmentItem { isWeapon: true } } ? null : itemObj.GetComponent<WeaponMeleeController>();
-        }
+        public bool TryGetAttachedParts(EquipmentSlot slot, out GameObject obj) => _equipmentParts.TryGetAttachedParts(slot, out obj);
 
         public string DumpData()
         {

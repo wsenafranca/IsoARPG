@@ -25,6 +25,12 @@ namespace AbilitySystem.Abilities
         [NonSerialized]
         private float _lastActivatedTime;
 
+        public AbilityBase()
+        {
+            isActive = false;
+            _lastActivatedTime = 0;
+        }
+
         public AbilityActivateResult CommitAbility(AbilitySystemComponent source)
         {
             if (!isReady) return AbilityActivateResult.NotReady;
