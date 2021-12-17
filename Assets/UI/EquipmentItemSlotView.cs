@@ -1,5 +1,6 @@
 ﻿using InventorySystem;
 using Item;
+using Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -75,7 +76,7 @@ namespace UI
             if (inventoryController == null) return;
             
             var item = GetItem();
-            if (!GroundController.instance.GetGroundPosition(eventData.position, out var worldPosition)) return;
+            if (!InputController.instance.GetGroundPosition(eventData.position, out var worldPosition)) return;
                 
             var itemDrop = Instantiate(item.itemBase.itemSlotPrefab);
             itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPosition);

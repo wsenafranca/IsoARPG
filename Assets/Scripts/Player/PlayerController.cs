@@ -7,7 +7,6 @@ using Item;
 using Player.Abilities;
 using TargetSystem;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Player
 {
@@ -15,8 +14,6 @@ namespace Player
     [RequireComponent(typeof(AbilitySystemComponent))]
     public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerHandler, IAbilitySystemHandler
     {
-        public static PlayerController instance { get; private set; }
-        
         [SerializeField]
         private float minClickDistance = 0.1f;
 
@@ -24,28 +21,12 @@ namespace Player
         private AbilitySystemComponent _abilitySystem;
         private readonly WeaponMeleeController[] _weaponMelee = new WeaponMeleeController[2];
 
-        private Targetable _currentTarget;
-        public Targetable currentTarget
-        {
-            get => _currentTarget;
-            set
-            {
-                if (currentTarget == value) return;
-                _currentTarget = value;
-            }
-        }
-
-        [Header("Cheat")] 
-        public ItemBase[] genItems;
-
         protected override void Awake()
         {
             base.Awake();
 
             _abilitySystem = GetComponent<AbilitySystemComponent>();
             _inventory = GetComponent<InventoryController>();
-            
-            instance = this;
         }
 
         protected override void OnEnable()
@@ -58,19 +39,6 @@ namespace Player
             _inventory.onRemoveItem.AddListener(OnRemoveItem);
         }
 
-        protected override void Update()
-        {
-            base.Update();
-
-            if (Input.GetKeyDown(KeyCode.Q) && genItems.Length > 0)
-            {
-                var item = genItems[Random.Range(0, genItems.Length)];
-                var itemDrop = Instantiate(item.itemSlotPrefab);
-                GroundController.instance.GetGroundPosition(Input.mousePosition, out var pos);
-                itemDrop.GetComponent<Collectible>().SetAsDrop(item, null, pos);
-            }
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
@@ -79,11 +47,6 @@ namespace Player
             _inventory.onUnEquip.RemoveListener(OnUnEquip);
             _inventory.onAddItem.RemoveListener(OnAddItem);
             _inventory.onRemoveItem.RemoveListener(OnRemoveItem);
-        }
-    
-        public Targetable GetCurrentTarget()
-        {
-            return _currentTarget;
         }
 
         public void MoveToHit(RaycastHit hit) => MoveToHit(hit.point);
@@ -101,11 +64,10 @@ namespace Player
         {
             if (_abilitySystem.isAnyAbilityActive) return;
 
-            _currentTarget = target;
-            if (!_currentTarget) return;
+            if (!target) return;
 
             var result = AbilityActivateResult.NotFound;
-            switch (_currentTarget.targetType)
+            switch (target.targetType)
             {
                 case TargetType.Neutral:
                     break;
@@ -154,6 +116,11 @@ namespace Player
         private void OnWeaponEndAttack(int weaponIndex)
         {
             if(_weaponMelee[weaponIndex]) _weaponMelee[weaponIndex].EndAttack();
+        }
+        
+        public Targetable GetCurrentTarget()
+        {
+            return InputController.instance.currentTarget;
         }
 
         public void OnAddItem(IInventoryItem item, int x, int y)

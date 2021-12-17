@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using InventorySystem;
 using Item;
+using Player;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -79,7 +80,7 @@ namespace UI
             slot.CancelDrag();
             
             var item = slot.GetItem();
-            if (!GroundController.instance.GetGroundPosition(eventData.position, out var worldPosition)) return;
+            if (!InputController.instance.GetGroundPosition(eventData.position, out var worldPosition)) return;
                 
             var itemDrop = Instantiate(item.itemBase.itemSlotPrefab);
             itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPosition);

@@ -3,7 +3,6 @@ using System.Linq;
 using AttributeSystem;
 using InventorySystem;
 using Item;
-using Player;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -17,6 +16,7 @@ namespace UI
         public static ItemTooltipView instance { get; private set; }
 
         public Canvas canvas;
+        public PrimaryAttributeSet playerPrimaryAttributeSet;
         
         private TextMeshProUGUI _itemName;
         private RawImage _itemIcon;
@@ -61,7 +61,7 @@ namespace UI
             _itemInstanceInfo.text = GetItemInstanceInfo(item as EquipmentItemInstance);
             _equipmentStatsModifier.text = GetEquipmentStatsModifier(item as EquipmentItemInstance);
             _equipmentBonusModifier.text = GetEquipmentBonusModifier(item as EquipmentItemInstance);
-            _equipmentRequirements.text = GetEquipmentsRequirements(item);
+            _equipmentRequirements.text = GetEquipmentsRequirements(item, playerPrimaryAttributeSet);
             _itemEffects.text = "";
             _itemDescription.text = GetItemDescription(item);
 
@@ -210,11 +210,9 @@ namespace UI
             return text;
         }
 
-        private static string GetEquipmentsRequirements(ItemInstance item)
+        private static string GetEquipmentsRequirements(ItemInstance item, PrimaryAttributeSet attributeSet)
         {
-            var primaryAttribute = PlayerController.instance.GetComponent<PrimaryAttributeSet>();
-            
-            if (primaryAttribute == null || item == null) return "";
+            if (attributeSet == null || item == null) return "";
 
             var text = "";
 
@@ -223,11 +221,11 @@ namespace UI
                 var req = (EquipmentRequirement)i;
                 var ownerValue = req switch
                 {
-                    EquipmentRequirement.Level => primaryAttribute.currentLevel,
-                    EquipmentRequirement.Strength => primaryAttribute.currentStrength,
-                    EquipmentRequirement.Stamina => primaryAttribute.currentStamina,
-                    EquipmentRequirement.Dexterity => primaryAttribute.currentDexterity,
-                    EquipmentRequirement.Intelligence => primaryAttribute.currentIntelligence,
+                    EquipmentRequirement.Level => attributeSet.currentLevel,
+                    EquipmentRequirement.Strength => attributeSet.currentStrength,
+                    EquipmentRequirement.Stamina => attributeSet.currentStamina,
+                    EquipmentRequirement.Dexterity => attributeSet.currentDexterity,
+                    EquipmentRequirement.Intelligence => attributeSet.currentIntelligence,
                     _ => throw new ArgumentOutOfRangeException()
                 };
                 

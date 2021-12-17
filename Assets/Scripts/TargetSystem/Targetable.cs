@@ -15,7 +15,7 @@ namespace TargetSystem
         Collectible
     }
     
-    public class Targetable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class Targetable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public TargetType targetType;
         
@@ -28,9 +28,9 @@ namespace TargetSystem
 
         protected virtual void OnDisable()
         {
-            if (PlayerController.instance.currentTarget == this)
+            if (InputController.instance.currentTarget == this)
             {
-                PlayerController.instance.currentTarget = null;
+                InputController.instance.currentTarget = null;
             }
         }
 
@@ -48,24 +48,6 @@ namespace TargetSystem
 
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
-            switch (targetType)
-            {
-                case TargetType.Neutral:
-                    Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
-                    break;
-                case TargetType.Enemy:
-                    Cursor.SetCursor(GameAsset.instance.cursorAttack, Vector2.zero, CursorMode.Auto);
-                    break;
-                case TargetType.Talkative:
-                    Cursor.SetCursor(GameAsset.instance.cursorTalk, Vector2.zero, CursorMode.Auto);
-                    break;
-                case TargetType.Collectible:
-                    Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
             OutlineSettings.currentColor = GetTargetColor();
             
             foreach (var r in _renderers.Where(r => r.enabled && r.gameObject.activeInHierarchy))
@@ -73,32 +55,17 @@ namespace TargetSystem
                 r.gameObject.layer = GameAsset.instance.outlineLayerOn.index;
             }
 
-            PlayerController.instance.currentTarget = this;
+            InputController.instance.currentTarget = this;
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
-            Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
-            
             foreach (var r in _renderers.Where(r => r.enabled && r.gameObject.activeInHierarchy))
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
         
-            if (PlayerController.instance.currentTarget == this)
-            {
-                PlayerController.instance.currentTarget = null;
-            }
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            PlayerController.instance.MoveToTarget(this);
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            
+            InputController.instance.currentTarget = null;
         }
     }
 }
