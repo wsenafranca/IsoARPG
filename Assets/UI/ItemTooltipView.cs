@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using AttributeSystem;
-using Controller;
 using InventorySystem;
 using Item;
+using Player;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -169,29 +169,13 @@ namespace UI
             var maxAttackAttribute = item.attributes.Find(modifier => modifier.attribute == Attribute.MaxAttackPower);
             if (minAttackAttribute.value != null && maxAttackAttribute.value != null)
             {
-                var minAttackBonus = minAttackAttribute.value.currentValue - minAttackAttribute.value.baseValue;
-                var maxAttackBonus = maxAttackAttribute.value.currentValue - maxAttackAttribute.value.baseValue;
-                
-                var minAttackSign = minAttackBonus < 0 ? '-' : '+';
-                var maxAttackSign = maxAttackBonus < 0 ? '-' : '+';
-                
-                var minAttackColor = ColorUtility.ToHtmlStringRGBA(minAttackBonus < 0 ? Color.red : Color.green);
-                var maxAttackColor = ColorUtility.ToHtmlStringRGBA(maxAttackBonus < 0 ? Color.red : Color.green);
-
-                var minAttackText = $"{minAttackAttribute.value.baseValue}" + (minAttackBonus != 0 ? $" <color=#{minAttackColor}>({minAttackSign}{minAttackBonus})</color>" : "");
-                var maxAttackText = $"{maxAttackAttribute.value.baseValue}" + (maxAttackBonus != 0 ? $" <color=#{maxAttackColor}>({maxAttackSign}{maxAttackBonus})</color>" : "");
-                
-                text += $"Attack Power: {minAttackText}~{maxAttackText}\n";
+                text += $"Attack Power: {minAttackAttribute.value.currentValue}~{maxAttackAttribute.value.currentValue}\n";
             }
             
             foreach (var attribute in item.attributes.Where(attribute => attribute.attribute is not (Attribute.MinAttackPower or Attribute.MaxAttackPower)))
             {
                 if(attribute.value.currentValue == 0) continue;
-                var attributeBonus = attribute.value.currentValue - attribute.value.baseValue;
-                var attributeSign = attributeBonus < 0 ? '-' : '+';
-                var attributeColor = ColorUtility.ToHtmlStringRGBA(attributeBonus < 0 ? Color.red : Color.green);
-                var attributeText = $"{attribute.value.baseValue}" + (attributeBonus != 0 ? $" <color=#{attributeColor}>({attributeSign}{attributeBonus})</color>" : "");
-                text += $"{ObjectNames.NicifyVariableName(attribute.attribute.ToString())}: {attributeText}\n";
+                text += $"{ObjectNames.NicifyVariableName(attribute.attribute.ToString())}: {attribute.value.currentValue}\n";
             }
             
             return text;

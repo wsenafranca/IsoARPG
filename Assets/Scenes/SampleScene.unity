@@ -8338,7 +8338,6 @@ GameObject:
   - component: {fileID: 2061347259}
   - component: {fileID: 2061347261}
   - component: {fileID: 2061347263}
-  - component: {fileID: 2061347264}
   - component: {fileID: 2061347265}
   m_Layer: 7
   m_Name: NPC
@@ -10220,21 +10219,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetType: 1
---- !u!114 &2061347264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690118997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9011453517348f785e629bb5ad4a477, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attributeSet: {fileID: 0}
-  abilities: []
-  damageLocation: {fileID: 1588765882}
 --- !u!114 &2061347265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10251,15 +10235,18 @@ MonoBehaviour:
   - attribute: 0
     value:
       baseValue: 100
-  - attribute: 3
-    value:
-      baseValue: 5
   - attribute: 4
     value:
+      baseValue: 5
+  - attribute: 5
+    value:
       baseValue: 8
-  - attribute: 7
+  - attribute: 8
     value:
       baseValue: 5
+  health: 0
+  mana: 0
+  energyShield: 0
 --- !u!1 &2093012176
 GameObject:
   m_ObjectHideFlags: 0
@@ -12974,11 +12961,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9011453517348f785e629bb5ad4a477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attributeSet: {fileID: 0}
   abilities:
   - {fileID: 11400000, guid: 553efaf6b18ac9540a5bbfece1891bfd, type: 2}
   - {fileID: 11400000, guid: 3d9fbdf3c852bbb438d8ee1abc795b5b, type: 2}
-  damageLocation: {fileID: 0}
+  abilityActivated:
+    m_PersistentCalls:
+      m_Calls: []
+  abilityDeactivated:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &4794858102986121150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12998,7 +12989,7 @@ MonoBehaviour:
   - attribute: 1
     value:
       baseValue: 0
-  - attribute: 3
+  - attribute: 2
     value:
       baseValue: 0
   - attribute: 4
@@ -13028,6 +13019,9 @@ MonoBehaviour:
   - attribute: 12
     value:
       baseValue: 0
+  health: 0
+  mana: 0
+  energyShield: 0
 --- !u!114 &4794858102986121151
 MonoBehaviour:
   m_ObjectHideFlags: 0

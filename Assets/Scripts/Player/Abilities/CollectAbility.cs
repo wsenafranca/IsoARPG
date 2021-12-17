@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using AbilitySystem;
 using Controller;
 using Item;
 using TargetSystem;
 using UnityEngine;
 
-namespace AbilitySystem.Abilities
+namespace Player.Abilities
 {
     [CreateAssetMenu(fileName = "CollectAbility", menuName = "AbilitySystem/Abilities/Collect", order = 0)]
     public class CollectAbility : AbilityBase

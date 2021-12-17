@@ -13,17 +13,13 @@ MonoBehaviour:
   m_Name: NormalAttackSword
   m_EditorClassIdentifier: 
   displayName: Normal Attack
-  displayDescription: Swing the sword to slash the enemy. Can cause poison.
+  displayDescription: Swing the sword to slash the enemy.
   icon: {fileID: 0}
   cost:
-    attribute: 2
-    cost: 0
+    resource: 1
+    value: 0
   cooldown: 0.1
-  effects:
-  - effect: {fileID: 11400000, guid: 830d0cafa31bde844800567e26f96cc9, type: 2}
-    probability: 0
   range: 1.5
-  damageBonus: 1
   animatorStateName: Base Layer.NormalAttackSword
   duration: 1
   weaponIndex: 0

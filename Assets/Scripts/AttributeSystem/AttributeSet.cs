@@ -8,9 +8,14 @@ namespace AttributeSystem
         [SerializeField]
         private List<AttributeData> attributes;
 
-        public int health { get; private set; }
-        public int mana { get; private set; }
-        public int energyShield { get; private set; }
+        [HideInInspector]
+        public int health;
+        
+        [HideInInspector]
+        public int mana;
+        
+        [HideInInspector]
+        public int energyShield;
 
         private void Start()
         {

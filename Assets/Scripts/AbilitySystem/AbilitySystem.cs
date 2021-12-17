@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AbilitySystem.Abilities
+namespace AbilitySystem
 {
     public enum AbilityCostResource
     {
@@ -14,7 +14,7 @@ namespace AbilitySystem.Abilities
     public struct AbilityCost
     {
         public AbilityCostResource resource;
-        public int cost;
+        public int value;
     }
 
     public enum AbilityActivateResult : byte
@@ -24,5 +24,6 @@ namespace AbilitySystem.Abilities
         NotEnoughResource,
         AlreadyActivate,
         NotFound,
+        CannotUseAbility
     }
 }

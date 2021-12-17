@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
+using AbilitySystem;
 using CombatSystem.Damage;
 using Controller;
 using Item;
 using TargetSystem;
 using UnityEngine;
 
-namespace AbilitySystem.Abilities
+namespace Player.Abilities
 {
     [CreateAssetMenu(fileName = "MeleeAttackAbility", menuName = "AbilitySystem/Abilities/MeleeAttack", order = 0)]
     public class MeleeAttackAbility : AbilityBase
@@ -28,7 +29,7 @@ namespace AbilitySystem.Abilities
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
             var character = source.GetComponent<BaseCharacterController>();
-            var weaponMelee = source.GetComponent<IWeaponMeleeControllerInterface>()?.GetWeaponMeleeController(weaponIndex);
+            var weaponMelee = source.GetComponent<IWeaponMeleeControllerHandler>()?.GetWeaponMeleeController(weaponIndex);
             
             var target = targetSystem?.GetCurrentTarget();
             

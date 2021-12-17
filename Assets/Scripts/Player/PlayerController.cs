@@ -1,23 +1,27 @@
 using System;
-using AbilitySystem.Abilities;
+using AbilitySystem;
 using AttributeSystem;
+using Controller;
 using InventorySystem;
 using Item;
+using Player.Abilities;
 using TargetSystem;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Controller
+namespace Player
 {
     [RequireComponent(typeof(InventoryController))]
-    public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerInterface
+    [RequireComponent(typeof(AbilitySystemComponent))]
+    public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerHandler, IAbilitySystemHandler
     {
         public static PlayerController instance { get; private set; }
         
         [SerializeField]
         private float minClickDistance = 0.1f;
-        
-        public InventoryController inventory { get; private set; }
+
+        private InventoryController _inventory;
+        private AbilitySystemComponent _abilitySystem;
         private readonly WeaponMeleeController[] _weaponMelee = new WeaponMeleeController[2];
 
         private Targetable _currentTarget;
@@ -38,7 +42,8 @@ namespace Controller
         {
             base.Awake();
 
-            inventory = GetComponent<InventoryController>();
+            _abilitySystem = GetComponent<AbilitySystemComponent>();
+            _inventory = GetComponent<InventoryController>();
             
             instance = this;
         }
@@ -47,17 +52,17 @@ namespace Controller
         {
             base.OnEnable();
             
-            inventory.onEquip.AddListener(OnEquip);
-            inventory.onUnEquip.AddListener(OnUnEquip);
-            inventory.onAddItem.AddListener(OnAddItem);
-            inventory.onRemoveItem.AddListener(OnRemoveItem);
+            _inventory.onEquip.AddListener(OnEquip);
+            _inventory.onUnEquip.AddListener(OnUnEquip);
+            _inventory.onAddItem.AddListener(OnAddItem);
+            _inventory.onRemoveItem.AddListener(OnRemoveItem);
         }
 
         protected override void Update()
         {
             base.Update();
 
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Q) && genItems.Length > 0)
             {
                 var item = genItems[Random.Range(0, genItems.Length)];
                 var itemDrop = Instantiate(item.itemSlotPrefab);
@@ -70,10 +75,10 @@ namespace Controller
         {
             base.OnDisable();
             
-            inventory.onEquip.RemoveListener(OnEquip);
-            inventory.onUnEquip.RemoveListener(OnUnEquip);
-            inventory.onAddItem.RemoveListener(OnAddItem);
-            inventory.onRemoveItem.RemoveListener(OnRemoveItem);
+            _inventory.onEquip.RemoveListener(OnEquip);
+            _inventory.onUnEquip.RemoveListener(OnUnEquip);
+            _inventory.onAddItem.RemoveListener(OnAddItem);
+            _inventory.onRemoveItem.RemoveListener(OnRemoveItem);
         }
     
         public Targetable GetCurrentTarget()
@@ -85,7 +90,7 @@ namespace Controller
         
         public void MoveToHit(Vector3 point)
         {
-            abilitySystem.DeactivateAllAbilities();
+            _abilitySystem.DeactivateAllAbilities();
 
             if (Vector3.Distance(point, transform.position) < minClickDistance) return;
 
@@ -94,7 +99,7 @@ namespace Controller
 
         public void MoveToTarget(Targetable target)
         {
-            if (abilitySystem.isAnyAbilityActive) return;
+            if (_abilitySystem.isAnyAbilityActive) return;
 
             _currentTarget = target;
             if (!_currentTarget) return;
@@ -105,13 +110,13 @@ namespace Controller
                 case TargetType.Neutral:
                     break;
                 case TargetType.Enemy:
-                    result = abilitySystem.TryActivateAbility<MeleeAttackAbility>();
+                    result = _abilitySystem.TryActivateAbility<MeleeAttackAbility>();
                     break;
                 case TargetType.Talkative:
                     
                     break;
                 case TargetType.Collectible:
-                    result = abilitySystem.TryActivateAbility<CollectAbility>();
+                    result = _abilitySystem.TryActivateAbility<CollectAbility>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -122,16 +127,19 @@ namespace Controller
                 case AbilityActivateResult.Success:
                     break;
                 case AbilityActivateResult.NotEnoughResource:
-                    Debug.Log("NotEnoughResource");
+                    Debug.Log("Not enough resource");
                     break;
                 case AbilityActivateResult.NotFound:
-                    Debug.Log("NotFound");
+                    Debug.Log("Not found");
                     break;
                 case AbilityActivateResult.AlreadyActivate:
-                    Debug.Log("AlreadyActivate");
+                    Debug.Log("Already activate");
                     break;
                 case AbilityActivateResult.NotReady:
-                    Debug.Log("NotReady");
+                    Debug.Log("Not ready");
+                    break;
+                case AbilityActivateResult.CannotUseAbility:
+                    Debug.Log("Cannot use ability");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -164,7 +172,7 @@ namespace Controller
 
             foreach (var attribute in equipment.attributes)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                if (attributeSet.TryGetAttribute(attribute.attribute, out var value))
                 {
                     value.AddModifier(new AdditiveAttributeModifier(attribute.value.currentValue, equipment));
                 }
@@ -172,7 +180,7 @@ namespace Controller
             
             foreach (var modifier in equipment.additiveModifiers)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.AddModifier(new AdditiveAttributeModifier(modifier.value, equipment));
                 }
@@ -180,7 +188,7 @@ namespace Controller
             
             foreach (var modifier in equipment.multiplicativeModifiers)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.AddModifier(new MultiplicativeAttributeModifier(modifier.value, equipment));
                 }
@@ -190,13 +198,13 @@ namespace Controller
             {
                 case EquipmentSlot.MainHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _inventory.TryGetAttachedParts(slot, out var itemObj);
                     _weaponMelee[0] = itemObj.GetComponent<WeaponMeleeController>();
                     break;
                 }
                 case EquipmentSlot.OffHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out var itemObj);
+                    _inventory.TryGetAttachedParts(slot, out var itemObj);
                     _weaponMelee[1] = itemObj.GetComponent<WeaponMeleeController>();
                     break;
                 }
@@ -223,7 +231,7 @@ namespace Controller
             
             foreach (var attribute in equipment.attributes)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                if (attributeSet.TryGetAttribute(attribute.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -231,7 +239,7 @@ namespace Controller
             
             foreach (var modifier in equipment.additiveModifiers)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -239,7 +247,7 @@ namespace Controller
             
             foreach (var modifier in equipment.multiplicativeModifiers)
             {
-                if (abilitySystem.attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -249,13 +257,13 @@ namespace Controller
             {
                 case EquipmentSlot.MainHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out _);
+                    _inventory.TryGetAttachedParts(slot, out _);
                     _weaponMelee[0] = null;
                     break;
                 }
                 case EquipmentSlot.OffHand:
                 {
-                    inventory.TryGetAttachedParts(slot, out _);
+                    _inventory.TryGetAttachedParts(slot, out _);
                     _weaponMelee[1] = null;
                     break;
                 }
@@ -278,6 +286,29 @@ namespace Controller
         public WeaponMeleeController GetWeaponMeleeController(int weaponIndex)
         {
             return _weaponMelee[weaponIndex];
+        }
+
+        public bool ConsumeAbilityResource(AbilityBase abilityBase)
+        {
+            switch (abilityBase.cost.resource)
+            {
+                case AbilityCostResource.Health:
+                    if (attributeSet.health < abilityBase.cost.value) return false;
+                    attributeSet.health -= abilityBase.cost.value;
+                    return true;
+                case AbilityCostResource.Mana:
+                    if (attributeSet.mana < abilityBase.cost.value) return false;
+                    attributeSet.mana -= abilityBase.cost.value;
+                    return true;
+                case AbilityCostResource.EnergyShield:
+                    if (attributeSet.energyShield < abilityBase.cost.value) return false;
+                    attributeSet.energyShield -= abilityBase.cost.value;
+                    return true;
+                case AbilityCostResource.Gold:
+                    return true;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

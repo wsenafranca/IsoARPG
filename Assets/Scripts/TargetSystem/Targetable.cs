@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Controller;
+using Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityFx.Outline;

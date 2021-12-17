@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using AbilitySystem;
 using CombatSystem.Damage;
 using UnityEngine;
 
 namespace Item
 {
-    public interface IWeaponMeleeControllerInterface
+    public interface IWeaponMeleeControllerHandler
     {
         public WeaponMeleeController GetWeaponMeleeController(int weaponIndex);
     }
@@ -49,17 +48,16 @@ namespace Item
                 var dir = (point2 - point1).normalized;
                 var len = Vector3.Distance(point1, point2);
                 
-                Debug.DrawLine(point1, point2, Color.blue, 1.0f);
                 var count = Physics.SphereCastNonAlloc(point1, contactPoint.radius, dir, _results, len, layerMask, QueryTriggerInteraction.Ignore);
                 for (var i = 0; i < count; i++)
                 {
                     var obj = _results[i].collider.gameObject;
                     if (_hitCharacters.Contains(obj) || obj == _instigator) continue;
 
-                    var target = obj.GetComponent<AbilitySystemComponent>();
-                    if (!target) continue;
+                    //var target = obj.GetComponent<AbilitySystemComponent>();
+                    //if (!target) continue;
 
-                    target.ApplyDamage(_damageIntent);
+                    //target.ApplyDamage(_damageIntent);
                     
                     _hitCharacters.Add(obj);
                 }

@@ -1,4 +1,4 @@
-﻿using AbilitySystem;
+﻿using AttributeSystem;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -6,16 +6,16 @@ namespace Controller
 {
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(Animator))]
-    [RequireComponent(typeof(AbilitySystemComponent))]
+    [RequireComponent(typeof(AttributeSet))]
     public class BaseCharacterController : MonoBehaviour
     {
-        protected NavMeshAgent agent;
-        protected Animator animator;
-        protected AbilitySystemComponent abilitySystem;
+        private NavMeshAgent _agent;
+        private Animator _animator;
+        protected AttributeSet attributeSet;
 
-        public bool isNavigation => agent.pathPending || agent.remainingDistance > agent.stoppingDistance;
+        public bool isNavigation => _agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance;
         public bool isPlayingAnimation { get; private set; }
-        public bool isAlive => abilitySystem.attributeSet.health > 0;
+        public bool isAlive => attributeSet.health > 0;
 
         private Quaternion _targetRotation;
         public bool isLookingAtTarget => Mathf.Abs(_targetRotation.eulerAngles.y - transform.eulerAngles.y) > 1;
@@ -26,9 +26,9 @@ namespace Controller
 
         protected virtual void Awake()
         {
-            agent = GetComponent<NavMeshAgent>();
-            animator = GetComponent<Animator>();
-            abilitySystem = GetComponent<AbilitySystemComponent>();
+            _agent = GetComponent<NavMeshAgent>();
+            _animator = GetComponent<Animator>();
+            attributeSet = GetComponent<AttributeSet>();
         }
 
         protected virtual void OnEnable()
@@ -44,30 +44,30 @@ namespace Controller
         {
             if (!isNavigation)
             {
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, _targetRotation, agent.angularSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, _targetRotation, _agent.angularSpeed * Time.deltaTime);
             }
             else
             {
                 _targetRotation = transform.rotation;
             }
             
-            animator.SetBool(MovingHash, agent.velocity.magnitude > 0.0f && agent.remainingDistance > agent.radius);
-            animator.SetFloat(SpeedHash, Mathf.Round((agent.velocity.magnitude / agent.speed) * 100.0f) / 100.0f);
-            animator.SetFloat(AnimSpeedHash, 1.0f);
+            _animator.SetBool(MovingHash, _agent.velocity.magnitude > 0.0f && _agent.remainingDistance > _agent.radius);
+            _animator.SetFloat(SpeedHash, Mathf.Round((_agent.velocity.magnitude / _agent.speed) * 100.0f) / 100.0f);
+            _animator.SetFloat(AnimSpeedHash, 1.0f);
         }
 
         public void SetDestination(Vector3 target, float acceptableDistance = 0.0f)
         {
             if (isPlayingAnimation) return;
         
-            agent.stoppingDistance = acceptableDistance;
-            agent.SetDestination(target);
-            agent.isStopped = false;
+            _agent.stoppingDistance = acceptableDistance;
+            _agent.SetDestination(target);
+            _agent.isStopped = false;
         }
 
         public void StopMovement()
         {
-            agent.isStopped = true;
+            _agent.isStopped = true;
         }
 
         public void LookAt(Vector3 target)
@@ -88,8 +88,8 @@ namespace Controller
         {
             if (isPlayingAnimation) return;
         
-            animator.CrossFade(stateName, 0.1f);
-            agent.isStopped = true;
+            _animator.CrossFade(stateName, 0.1f);
+            _agent.isStopped = true;
             isPlayingAnimation = true;
         }
 
