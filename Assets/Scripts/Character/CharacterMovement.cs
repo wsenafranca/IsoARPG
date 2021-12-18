@@ -30,7 +30,7 @@ namespace Character
         private void Update()
         {
             var trans = transform;
-            var isMoving = _agent.velocity.magnitude > 0.0f;
+            var isMoving = _agent.velocity.magnitude > 0.1f;
             if (isMoving)
             {
                 _targetRotation = Quaternion.LookRotation(Vector3.Normalize(_agent.nextPosition - trans.position));
@@ -46,19 +46,30 @@ namespace Character
 
         private void OnAnimatorMove()
         {
-            if(isNavigation) transform.position = _agent.nextPosition;
+            if (_agent.isStopped)
+            {
+                _agent.nextPosition = transform.position;
+            }
+            else
+            {
+                transform.position = _agent.nextPosition;
+            }
         }
 
-        public void SetDestination(Vector3 target, float acceptableDistance = 0.0f)
+        public bool SetDestination(Vector3 target, float acceptableDistance = 0.0f)
         {
+            if (Vector3.Distance(target, _agent.nextPosition) < acceptableDistance + _agent.radius) return false;
+            
             _agent.stoppingDistance = acceptableDistance;
             _agent.SetDestination(target);
             _agent.isStopped = false;
+            return true;
         }
 
         public void StopMovement()
         {
             _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
         }
 
         public void LookAt(Transform target)

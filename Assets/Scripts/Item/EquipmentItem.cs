@@ -28,6 +28,11 @@ namespace Item
         
         public List<EquipmentItemAdditiveAttributeModifierProbabilityData> additiveModifiers;
         public List<EquipmentItemMultiplicativeAttributeModifierProbabilityData> multiplicativeModifiers;
+
+        public EquipmentItem()
+        {
+            category = ItemCategory.Equipment;
+        }
         
         public int GetRequirements(EquipmentRequirement requirement)
         {

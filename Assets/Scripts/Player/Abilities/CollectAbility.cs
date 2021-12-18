@@ -30,9 +30,11 @@ namespace Player.Abilities
                 Deactivate(source);
                 yield break;
             }
-            
-            characterMovement.SetDestination(collectible.transform.position, range);
-            yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && collectible && isActive);
+
+            if (characterMovement.SetDestination(collectible.transform.position, range))
+            {
+                yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && collectible && isActive);
+            }
             
             if (!isActive || !collectible || !character.isAlive)
             {

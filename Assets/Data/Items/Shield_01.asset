@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455ee0ddd5aa405e9a1d819350cedb83, type: 3}
+  m_Name: Shield_01
+  m_EditorClassIdentifier: 
+  displayName: Knight Shield
+  displayDescription: 
+  itemSlotPrefab: {fileID: 3870449665704532578, guid: d573d7a81879ec848804bc06fd05ccfb, type: 3}
+  price: 0
+  width: 2
+  height: 2
+  category: 1
+  visualItemPrefab: []
+  attachItemPrefab: {fileID: 654663887510326346, guid: 3abc144b4b39d584791d75398299574f, type: 3}
+  equipmentType: 2
+  rarity: 0
+  requirements:
+  - requirement: 1
+    value: 8
+  level: []
+  attributes:
+  - attribute: 10
+    value:
+      baseValue: 15
+  additiveModifiers: []
+  multiplicativeModifiers:
+  - bonus:
+      attribute: 10
+      minValue: 0.25
+      maxValue: 0.5
+    probability: 0.2

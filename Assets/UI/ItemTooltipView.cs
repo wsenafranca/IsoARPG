@@ -96,12 +96,12 @@ namespace UI
             var rect = rectTransform.rect;
             var canvasRect = ((RectTransform)canvas.transform).rect;
             
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
-            
             var clamped = rectTransform.anchoredPosition;
             clamped.x = Mathf.Clamp(clamped.x, 8.0f, canvasRect.width - rect.width - 8.0f);
             clamped.y = Mathf.Clamp(clamped.y, rect.height + 8.0f, canvasRect.height - rect.height - 8.0f);
             rectTransform.anchoredPosition = clamped;
+            
+            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
             
             gameObject.SetActive(true);
         }

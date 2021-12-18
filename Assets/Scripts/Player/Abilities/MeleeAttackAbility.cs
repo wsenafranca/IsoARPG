@@ -40,9 +40,11 @@ namespace Player.Abilities
                 Deactivate(source);
                 yield break;
             }
-            
-            characterMovement.SetDestination(target.transform.position, range);
-            yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && target && isActive);
+
+            if (characterMovement.SetDestination(target.transform.position, range))
+            {
+                yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && target && isActive);
+            }
 
             if (!isActive || !target || !character.isAlive)
             {
@@ -66,7 +68,7 @@ namespace Player.Abilities
             weaponMelee.SetDamageIntent(_intent);
             
             character.TriggerAnimation(animatorStateName);
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSeconds(duration / character.animSpeed);
             character.StopAnimation();
             Deactivate(source);
         }

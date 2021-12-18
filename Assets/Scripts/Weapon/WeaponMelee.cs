@@ -98,8 +98,9 @@ namespace Weapon
             var point1Position = contactPoint.point1.position;
             var point2Position = contactPoint.point2.position;
             Gizmos.DrawLine(point1Position, point2Position);
-            Gizmos.DrawSphere(point1Position, contactPoint.radius);
-            Gizmos.DrawSphere(point2Position, contactPoint.radius);
+            var scale = transform.localScale.x;
+            Gizmos.DrawSphere(point1Position, contactPoint.radius * scale);
+            Gizmos.DrawSphere(point2Position, contactPoint.radius * scale);
         }
 #endif
     }

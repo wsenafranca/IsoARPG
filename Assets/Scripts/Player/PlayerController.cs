@@ -20,7 +20,7 @@ namespace Player
         public static PlayerController current { get; private set; }
         
         [SerializeField]
-        private float minClickDistance = 1.3f;
+        private float minClickDistance = 0.5f;
 
         private InventoryController _inventory;
         private AbilitySystemComponent _abilitySystem;
@@ -28,9 +28,14 @@ namespace Player
         private Animator _animator;
         private CharacterMovement _movement;
         private readonly WeaponMelee[] _weaponMelee = new WeaponMelee[2];
-        private int _currentWeaponIndex;
-        private static readonly int WeaponTypeHash = Animator.StringToHash("weaponType");
+        private int _hitNumber;
+        private float _lastAttack;
+        private static readonly int HitNumberHash = Animator.StringToHash("hitNumber");
         private static readonly int WeaponIndexHash = Animator.StringToHash("weaponIndex");
+        private static readonly int EquipOneHandSwordHash = Animator.StringToHash("EquipOneHandSword");
+        private static readonly int EquipSwordAndShieldHash = Animator.StringToHash("EquipSwordAndShield");
+        private static readonly int EquipTwoHandSwordHash = Animator.StringToHash("EquipTwoHandSword");
+        private static readonly int UnEquipHash = Animator.StringToHash("UnEquip");
 
         private void Awake()
         {
@@ -49,29 +54,6 @@ namespace Player
             _inventory.onUnEquip.AddListener(OnUnEquip);
             _inventory.onAddItem.AddListener(OnAddItem);
             _inventory.onRemoveItem.AddListener(OnRemoveItem);
-        }
-
-        private void Update()
-        {
-            var mainHand = _inventory.GetEquipmentItem(EquipmentSlot.MainHand);
-            var offHand = _inventory.GetEquipmentItem(EquipmentSlot.OffHand);
-
-            var weaponType = 0;
-            if (offHand is { equipmentType: EquipmentType.Shield })
-            {
-                weaponType = 1;
-            }
-            else if (mainHand is {equipmentType:EquipmentType.OneHandWeapon})
-            {
-                weaponType = 2;
-            }
-            else if (mainHand is { equipmentType: EquipmentType.TwoHandWeapon })
-            {
-                weaponType = 3;
-            }
-
-            _animator.SetInteger(WeaponTypeHash, weaponType);
-            _animator.SetInteger(WeaponIndexHash, _currentWeaponIndex);
         }
 
         private void OnDisable()
@@ -107,18 +89,24 @@ namespace Player
                 case TargetType.Neutral:
                     break;
                 case TargetType.Enemy:
+                    _hitNumber = Time.time - _lastAttack < 2.0f ? _hitNumber + 1 : 0;
+                    _lastAttack = Time.time;
+                    
+                    _animator.SetInteger(HitNumberHash, _hitNumber % 2);
+                    
                     if (_abilitySystem.TryGetAbility<MeleeAttackAbility>(out var ability))
                     {
-                        ability.weaponIndex = _currentWeaponIndex;
                         if (_inventory.TryGetEquipmentItem(EquipmentSlot.OffHand, out var item) && item.equipmentType == EquipmentType.OneHandWeapon)
                         {
-                            _currentWeaponIndex = (_currentWeaponIndex + 1) % 2;
+                            ability.weaponIndex = _hitNumber % 2;
                         }
                         else
                         {
-                            _currentWeaponIndex = 0;
+                            ability.weaponIndex = 0;
                         }
+                        _animator.SetInteger(WeaponIndexHash, ability.weaponIndex);
                     }
+                    
                     result = _abilitySystem.TryActivateAbility<MeleeAttackAbility>();
                     break;
                 case TargetType.Talkative:
@@ -236,6 +224,26 @@ namespace Player
                 default:
                     throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
             }
+            
+            var mainHand = _inventory.GetEquipmentItem(EquipmentSlot.MainHand);
+            var offHand = _inventory.GetEquipmentItem(EquipmentSlot.OffHand);
+
+            if (mainHand is {equipmentType:EquipmentType.OneHandWeapon} && offHand is not { equipmentType: EquipmentType.Shield })
+            {
+                _animator.SetTrigger(EquipOneHandSwordHash);
+            }
+            else if (offHand is { equipmentType: EquipmentType.Shield })
+            {
+                _animator.SetTrigger(EquipSwordAndShieldHash);
+            }
+            else if (mainHand is { equipmentType: EquipmentType.TwoHandWeapon })
+            {
+                _animator.SetTrigger(EquipTwoHandSwordHash);
+            }
+            else
+            {
+                _animator.SetTrigger(UnEquipHash);
+            }
         }
         
         public void OnUnEquip(IInventoryEquipmentItem item, EquipmentSlot slot)
@@ -294,6 +302,26 @@ namespace Player
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+            }
+            
+            var mainHand = _inventory.GetEquipmentItem(EquipmentSlot.MainHand);
+            var offHand = _inventory.GetEquipmentItem(EquipmentSlot.OffHand);
+
+            if (mainHand is {equipmentType:EquipmentType.OneHandWeapon} && offHand is not { equipmentType: EquipmentType.Shield })
+            {
+                _animator.SetTrigger(EquipOneHandSwordHash);
+            }
+            else if (offHand is { equipmentType: EquipmentType.Shield })
+            {
+                _animator.SetTrigger(EquipSwordAndShieldHash);
+            }
+            else if (mainHand is { equipmentType: EquipmentType.TwoHandWeapon })
+            {
+                _animator.SetTrigger(EquipTwoHandSwordHash);
+            }
+            else
+            {
+                _animator.SetTrigger(UnEquipHash);
             }
         }
 

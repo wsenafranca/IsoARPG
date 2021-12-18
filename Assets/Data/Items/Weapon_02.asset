@@ -10,31 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 455ee0ddd5aa405e9a1d819350cedb83, type: 3}
-  m_Name: Shield01
+  m_Name: Weapon_02
   m_EditorClassIdentifier: 
-  displayName: Knight Shield
+  displayName: Big Sword
   displayDescription: 
-  itemSlotPrefab: {fileID: 3870449665704532578, guid: d573d7a81879ec848804bc06fd05ccfb, type: 3}
+  itemSlotPrefab: {fileID: 2654632086693795933, guid: cdcbef52be9e14147b0c2167f4a797e9, type: 3}
   price: 0
   width: 2
-  height: 2
+  height: 3
   category: 1
   visualItemPrefab: []
-  attachItemPrefab: {fileID: 654663887510326346, guid: 3abc144b4b39d584791d75398299574f, type: 3}
-  equipmentType: 2
+  attachItemPrefab: {fileID: 654663887510326346, guid: fb8cc89d7db425144a34ddb7be1a7736, type: 3}
+  equipmentType: 1
   rarity: 0
-  requirements:
-  - requirement: 1
-    value: 8
+  requirements: []
   level: []
   attributes:
-  - attribute: 10
+  - attribute: 4
     value:
-      baseValue: 15
+      baseValue: 5
+  - attribute: 5
+    value:
+      baseValue: 10
   additiveModifiers: []
-  multiplicativeModifiers:
-  - bonus:
-      attribute: 10
-      minValue: 0.25
-      maxValue: 0.5
-    probability: 0.2
+  multiplicativeModifiers: []

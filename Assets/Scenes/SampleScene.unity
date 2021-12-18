@@ -1561,7 +1561,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 5350386508674628506}
-  playerPrimaryAttributeSet: {fileID: 4794858102986121151}
 --- !u!1 &242548682
 GameObject:
   m_ObjectHideFlags: 0
@@ -1764,7 +1763,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cefbe9d8379440ba030849712eea3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 4794858102986121148}
   pointerClickGround:
     m_PersistentCalls:
       m_Calls: []
@@ -1814,7 +1812,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &273458223
 PrefabInstance:
@@ -2086,7 +2084,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &342638797
 GameObject:
@@ -3376,7 +3374,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 50, y: -13, z: 0}
 --- !u!114 &705507996
 MonoBehaviour:
@@ -4233,7 +4231,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
@@ -6824,7 +6822,7 @@ Transform:
   m_Children:
   - {fileID: 963194228}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 32.5, y: 45, z: 0}
 --- !u!1 &1606402333
 GameObject:
@@ -7581,7 +7579,7 @@ Transform:
   - {fileID: 1689958245}
   - {fileID: 1588765882}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!4 &1689958199
 Transform:
@@ -8498,6 +8496,7 @@ GameObject:
   - component: {fileID: 2061347261}
   - component: {fileID: 2061347263}
   - component: {fileID: 2061347265}
+  - component: {fileID: 2061347266}
   m_Layer: 7
   m_Name: NPC
   m_TagString: Untagged
@@ -8930,7 +8929,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1700379920
 MonoBehaviour:
@@ -8989,7 +8988,7 @@ Transform:
   - {fileID: 973299399}
   - {fileID: 853573954}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1741308224
 GameObject:
@@ -10403,6 +10402,22 @@ MonoBehaviour:
   - attribute: 8
     value:
       baseValue: 5
+--- !u!114 &2061347266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690118997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3012cbe8c7e74dff933448c40ca3fb09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attributeSet: {fileID: 0}
+  health: 0
+  mana: 0
+  energyShield: 0
 --- !u!1 &2093012176
 GameObject:
   m_ObjectHideFlags: 0
@@ -12914,7 +12929,6 @@ GameObject:
   - component: {fileID: 4794858102986121140}
   - component: {fileID: 4794858102986121139}
   - component: {fileID: 4794858102986121137}
-  - component: {fileID: 4794858102986121148}
   - component: {fileID: 4794858102986121149}
   - component: {fileID: 4794858102986121150}
   - component: {fileID: 4794858102986121151}
@@ -12922,6 +12936,7 @@ GameObject:
   - component: {fileID: 4794858102986121155}
   - component: {fileID: 4794858102986121153}
   - component: {fileID: 4794858102986121154}
+  - component: {fileID: 4794858102986121156}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -12943,7 +12958,7 @@ Transform:
   m_Children:
   - {fileID: 2374725824814172895}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4794858102986121137
 MonoBehaviour:
@@ -13095,29 +13110,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &4794858102986121148
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4794858102986083213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26733a833438d9243b7a6736c09e0950, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  attributeSet: {fileID: 0}
-  health: 0
-  mana: 0
-  energyShield: 0
-  <isPlayingAnimation>k__BackingField: 0
-  minClickDistance: 0.1
-  _inventory: {fileID: 0}
-  _abilitySystem: {fileID: 0}
-  _movement: {fileID: 0}
-  _currentWeaponIndex: 0
 --- !u!114 &4794858102986121149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13221,6 +13213,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f7d35f3c04e749e4aa7c6000458e3a3e, type: 2}
   - {fileID: 11400000, guid: dc84bb392a828bd4dae274595f53f7f1, type: 2}
   - {fileID: 11400000, guid: e22284811e8eb3a43923b198c800eac0, type: 2}
+  - {fileID: 11400000, guid: 38bcbf6ea36797e428d15d7c76eb8d45, type: 2}
 --- !u!114 &4794858102986121153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13266,6 +13259,19 @@ MonoBehaviour:
   health: 0
   mana: 0
   energyShield: 0
+--- !u!114 &4794858102986121156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794858102986083213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26733a833438d9243b7a6736c09e0950, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minClickDistance: 0.5
 --- !u!222 &5350386508571903283
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13385,7 +13391,7 @@ RectTransform:
   - {fileID: 5350386508571903293}
   - {fileID: 196728460}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

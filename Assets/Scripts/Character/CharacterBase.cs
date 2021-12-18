@@ -30,6 +30,8 @@ namespace Character
         public bool isPlayingAnimation { get; private set; }
         public bool isAlive => health > 0;
 
+        public float animSpeed => Mathf.Clamp(1 + attributeSet.GetAttributeValueOrDefault(Attribute.AttackSpeed) / 100.0f, 1.0f, 3.0f);
+        
         private static readonly int AnimSpeedHash = Animator.StringToHash("animSpeed");
 
         private void Awake()
@@ -50,7 +52,7 @@ namespace Character
 
         private void Update()
         {
-            _animator.SetFloat(AnimSpeedHash, 1.0f);
+            _animator.SetFloat(AnimSpeedHash, animSpeed);
         }
 
         private IEnumerator ApplyDamage_()
