@@ -86,6 +86,8 @@ namespace UI
             }
 
             var rectTransform = GetComponent<RectTransform>();
+            
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
 
             var cam = canvas.worldCamera;
             var parentRectTransform = transform.parent as RectTransform;
@@ -100,8 +102,6 @@ namespace UI
             clamped.x = Mathf.Clamp(clamped.x, 8.0f, canvasRect.width - rect.width - 8.0f);
             clamped.y = Mathf.Clamp(clamped.y, rect.height + 8.0f, canvasRect.height - rect.height - 8.0f);
             rectTransform.anchoredPosition = clamped;
-            
-            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
             
             gameObject.SetActive(true);
         }

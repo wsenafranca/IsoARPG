@@ -14,8 +14,9 @@ namespace Player
 
         private bool _isPressing;
         private readonly List<RaycastResult> _results = new();
-
         private Targetable _target;
+        private float _lastClickTime;
+        
         public Targetable currentTarget
         {
             get => _target;
@@ -53,12 +54,13 @@ namespace Player
                 _isPressing = false;
             }
             
-            if (!_isPressing) return;
+            if (!_isPressing || Time.time - _lastClickTime < 0.5f) return;
 
             if (currentTarget)
             {
                 PlayerController.current.MoveToTarget(currentTarget);
                 pointerClickTarget?.Invoke(currentTarget);
+                _lastClickTime = Time.time;
             }
             else if (GetGroundPosition(Input.mousePosition, out var destination))
             {

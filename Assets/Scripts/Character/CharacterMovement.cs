@@ -33,7 +33,9 @@ namespace Character
             var isMoving = _agent.velocity.magnitude > 0.1f;
             if (isMoving)
             {
-                _targetRotation = Quaternion.LookRotation(Vector3.Normalize(_agent.nextPosition - trans.position));
+                var dir = Vector3.Normalize(_agent.nextPosition - trans.position);
+                dir.y = 0.0f;
+                _targetRotation = Quaternion.LookRotation(dir);
             }
 
             trans.rotation = Quaternion.RotateTowards(trans.rotation, _targetRotation, _agent.angularSpeed * Time.deltaTime);
@@ -74,7 +76,9 @@ namespace Character
 
         public void LookAt(Transform target)
         {
-            _targetRotation = Quaternion.LookRotation(Vector3.Normalize(target.position - transform.position));
+            var dir = Vector3.Normalize(target.position - transform.position);
+            dir.y = 0;
+            _targetRotation = Quaternion.LookRotation(dir);
         }
 
         private void FootR()
