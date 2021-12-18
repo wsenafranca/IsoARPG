@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -8,13 +6,13 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private Transform target;
 
-    void Update()
+    private Vector3 _velocity;
+
+    private void Update()
     {
         if (!target) return;
 
-        Vector3 position = Vector3.MoveTowards(transform.position, target.position, 30.0f * Time.deltaTime);
-        position.y = transform.position.y;
-
-        transform.position = position;
+        var trans = transform;
+        trans.position = Vector3.SmoothDamp(trans.position, target.transform.position, ref _velocity, 120);
     }
 }
