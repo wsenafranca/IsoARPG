@@ -7,6 +7,7 @@ public class GameAsset : MonoBehaviour
     public static GameAsset instance { get; private set; }
 
     [Header("Layer")] 
+    public SingleUnityLayer characterLayer;
     public SingleUnityLayer groundLayer;
     public SingleUnityLayer outlineLayerOn;
     public SingleUnityLayer outlineLayerOff;

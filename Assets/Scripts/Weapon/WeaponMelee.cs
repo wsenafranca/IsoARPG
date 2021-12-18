@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using AttributeSystem;
 using Character;
 using Damage;
 using UnityEngine;
 
-namespace Item
+namespace Weapon
 {
-    public interface IWeaponMeleeControllerHandler
+    public interface IWeaponMeleeHandler
     {
-        public WeaponMeleeController GetWeaponMeleeController(int weaponIndex);
+        public WeaponMelee GetWeaponMeleeController(int weaponIndex);
     }
     
     [Serializable]
@@ -20,7 +19,7 @@ namespace Item
         public float radius = 0.1f;
     }
     
-    public class WeaponMeleeController : MonoBehaviour
+    public class WeaponMelee : MonoBehaviour
     {
         [SerializeField]
         private WeaponMeleeContactPoint contactPoint = new();
@@ -41,7 +40,7 @@ namespace Item
         {
             if (!_isAttacking) return;
 
-            var layerMask = LayerMask.GetMask("Character");
+            var layerMask = GameAsset.instance.characterLayer.mask;
             var step = 1.0f / collisionSteps;
             for (var alpha = 0.0f; alpha <= 1.0f; alpha += step)
             {
@@ -56,10 +55,10 @@ namespace Item
                     var obj = _results[i].collider.gameObject;
                     if (_hitCharacters.Contains(obj) || obj == _instigator) continue;
 
-                    var target = obj.GetComponent<BaseCharacterController>();
-                    if (!target) continue;
+                    var target = obj.GetComponent<CharacterBase>();
+                    if (!target || !target.isAlive) continue;
 
-                    _damageIntent.worldPosition = point1;
+                    _damageIntent.worldPosition = (point1 + point2) * 0.5f;
                     target.ApplyDamage(_damageIntent);
                     
                     _hitCharacters.Add(obj);

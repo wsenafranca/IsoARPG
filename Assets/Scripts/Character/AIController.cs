@@ -1,8 +1,8 @@
-using Character;
+using UnityEngine;
 
-namespace Controller
+namespace Character
 {
-    public class AIController : BaseCharacterController
+    public class AIController : MonoBehaviour
     {
     }
 }

@@ -6,16 +6,18 @@ namespace Damage
 {
     public static class DamageCalculator
     {
-        public static DamageInfo CalculateDamage(DamageIntent intent, BaseCharacterController target) => CalculateDamage(intent.source, target, intent.flags, intent.damageType, intent.attackBonus, intent.worldPosition);
+        public static DamageInfo CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.flags, intent.damageType, intent.attackBonus, intent.worldPosition);
         
-        public static DamageInfo CalculateDamage(BaseCharacterController source, BaseCharacterController target, DamageFlags damageFlags, DamageType damageType, float attackBonus, Vector3 worldPosition)
+        public static DamageInfo CalculateDamage(CharacterBase source, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float attackBonus, Vector3 worldPosition)
         {
             var outDamage = new DamageInfo
             {
                 flags = damageFlags,
                 damageType = damageType,
                 worldPosition =  worldPosition
-            }; 
+            };
+
+            if (source == null || target == null) return outDamage;
             
             var hitRate = source.attributeSet.GetAttributeValueOrDefault(Attribute.HitRate) / 100.0f;
             if (hitRate > 0 && Random.value > hitRate && !damageFlags.HasFlag(DamageFlags.AlwaysHit))

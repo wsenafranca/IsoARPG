@@ -12,8 +12,6 @@ namespace Player
     {
         public static InputController instance { get; private set; }
 
-        public PlayerController player;
-
         private bool _isPressing;
         private readonly List<RaycastResult> _results = new();
 
@@ -59,12 +57,12 @@ namespace Player
 
             if (currentTarget)
             {
-                player.MoveToTarget(currentTarget);
+                PlayerController.current.MoveToTarget(currentTarget);
                 pointerClickTarget?.Invoke(currentTarget);
             }
             else if (GetGroundPosition(Input.mousePosition, out var destination))
             {
-                player.MoveToHit(destination);
+                PlayerController.current.MoveToHit(destination);
                 pointerClickGround?.Invoke(destination);
             }
         }
@@ -81,7 +79,7 @@ namespace Player
 
             if (_results.Count == 0) return false;
 
-            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject != player.gameObject))
+            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject != PlayerController.current.gameObject))
             {
                 _results.Clear();
                 return false;

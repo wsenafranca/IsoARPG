@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using AttributeSystem;
 using Damage;
@@ -9,9 +10,9 @@ namespace Character
 {
     [RequireComponent(typeof(AttributeSet))]
     [RequireComponent(typeof(Animator))]
-    public class BaseCharacterController : MonoBehaviour
+    public class CharacterBase : MonoBehaviour
     {
-        protected Animator animator;
+        private Animator _animator;
         
         [HideInInspector]
         public AttributeSet attributeSet;
@@ -31,35 +32,43 @@ namespace Character
 
         private static readonly int AnimSpeedHash = Animator.StringToHash("animSpeed");
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            animator = GetComponent<Animator>();
+            _animator = GetComponent<Animator>();
             attributeSet = GetComponent<AttributeSet>();
         }
 
-        protected virtual void OnEnable()
+        private void OnEnable()
         {
-            _damages.Clear();
             health = attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth);
             mana = attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana);
             energyShield = attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield);
+
+            _damages.Clear();
+            StartCoroutine(ApplyDamage_());
         }
 
-        protected virtual void OnDisable()
+        private void Update()
         {
+            _animator.SetFloat(AnimSpeedHash, 1.0f);
         }
 
-        protected virtual void Update()
+        private IEnumerator ApplyDamage_()
         {
-            animator.SetFloat(AnimSpeedHash, 1.0f);
-        }
-
-        private void LateUpdate()
-        {
-            while (_damages.TryDequeue(out var damage))
+            while (enabled)
             {
-                if (damage.value > 0)
+                yield return new WaitUntil(() => _damages.Count > 0 || !enabled);
+
+                while (_damages.TryDequeue(out var damage))
                 {
+                    if (!isAlive)
+                    {
+                        _damages.Clear();
+                        break;
+                    }
+                    
+                    if (damage.value <= 0) continue;
+                    
                     switch (damage.damageType)
                     {
                         case DamageType.Health:
@@ -73,10 +82,12 @@ namespace Character
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                        
+                    DamageOutputManager.instance.ShowDamage(damage);
                 }
-                
-                DamageOutputManager.instance.ShowDamage(damage);
             }
+            
+            _damages.Clear();
         }
         
         public void ApplyDamage(DamageIntent intent)
@@ -85,11 +96,11 @@ namespace Character
             _damages.Enqueue(DamageCalculator.CalculateDamage(intent, this));
         }
 
-        public void PlayAnimation(string stateName)
+        public void TriggerAnimation(string stateName)
         {
             if (isPlayingAnimation) return;
         
-            animator.CrossFade(stateName, 0.1f);
+            _animator.SetTrigger(stateName);
             isPlayingAnimation = true;
         }
 

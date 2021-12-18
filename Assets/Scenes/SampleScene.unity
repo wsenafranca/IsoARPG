@@ -606,6 +606,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c0c94d20e694a25a08fff5b8a9e7cdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterLayer:
+    layerIndex: 7
   groundLayer:
     layerIndex: 6
   outlineLayerOn:
@@ -10341,10 +10343,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97ee3077d5688fa4294d5810e93753e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attributeSet: {fileID: 0}
-  health: 0
-  mana: 0
-  energyShield: 0
 --- !u!195 &2061347261
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -10395,7 +10393,7 @@ MonoBehaviour:
   attributes:
   - attribute: 0
     value:
-      baseValue: 100
+      baseValue: 10000
   - attribute: 4
     value:
       baseValue: 5
@@ -12921,6 +12919,7 @@ GameObject:
   - component: {fileID: 4794858102986121150}
   - component: {fileID: 4794858102986121151}
   - component: {fileID: 4794858102986121152}
+  - component: {fileID: 4794858102986121155}
   - component: {fileID: 4794858102986121153}
   - component: {fileID: 4794858102986121154}
   m_Layer: 7
@@ -13108,11 +13107,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26733a833438d9243b7a6736c09e0950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
   attributeSet: {fileID: 0}
   health: 0
   mana: 0
   energyShield: 0
+  <isPlayingAnimation>k__BackingField: 0
   minClickDistance: 0.1
+  _inventory: {fileID: 0}
+  _abilitySystem: {fileID: 0}
+  _movement: {fileID: 0}
+  _currentWeaponIndex: 0
 --- !u!114 &4794858102986121149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13245,6 +13250,22 @@ MonoBehaviour:
   lookAtCoolTime: 0.2
   lookAtHeatTime: 0.2
   looking: 0
+--- !u!114 &4794858102986121155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794858102986083213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3012cbe8c7e74dff933448c40ca3fb09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attributeSet: {fileID: 0}
+  health: 0
+  mana: 0
+  energyShield: 0
 --- !u!222 &5350386508571903283
 CanvasRenderer:
   m_ObjectHideFlags: 0

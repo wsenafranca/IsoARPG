@@ -59,7 +59,6 @@ namespace Character
         public void StopMovement()
         {
             _agent.isStopped = true;
-            _agent.nextPosition = transform.position;
         }
 
         public void LookAt(Transform target)

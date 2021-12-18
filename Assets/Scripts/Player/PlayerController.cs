@@ -7,47 +7,52 @@ using Item;
 using Player.Abilities;
 using TargetSystem;
 using UnityEngine;
+using Weapon;
 
 namespace Player
 {
     [RequireComponent(typeof(InventoryController))]
     [RequireComponent(typeof(AbilitySystemComponent))]
+    [RequireComponent(typeof(CharacterBase))]
     [RequireComponent(typeof(CharacterMovement))]
-    public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerHandler, IAbilitySystemHandler
+    public class PlayerController : MonoBehaviour, ITargetSystemInterface, IWeaponMeleeHandler, IAbilitySystemHandler
     {
+        public static PlayerController current { get; private set; }
+        
         [SerializeField]
-        private float minClickDistance = 0.1f;
+        private float minClickDistance = 1.3f;
 
         private InventoryController _inventory;
         private AbilitySystemComponent _abilitySystem;
+        private CharacterBase _character;
+        private Animator _animator;
         private CharacterMovement _movement;
-        private readonly WeaponMeleeController[] _weaponMelee = new WeaponMeleeController[2];
+        private readonly WeaponMelee[] _weaponMelee = new WeaponMelee[2];
         private int _currentWeaponIndex;
         private static readonly int WeaponTypeHash = Animator.StringToHash("weaponType");
+        private static readonly int WeaponIndexHash = Animator.StringToHash("weaponIndex");
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
-
             _abilitySystem = GetComponent<AbilitySystemComponent>();
             _inventory = GetComponent<InventoryController>();
+            _character = GetComponent<CharacterBase>();
+            _animator = GetComponent<Animator>();
             _movement = GetComponent<CharacterMovement>();
+
+            current = this;
         }
 
-        protected override void OnEnable()
+        private void OnEnable()
         {
-            base.OnEnable();
-            
             _inventory.onEquip.AddListener(OnEquip);
             _inventory.onUnEquip.AddListener(OnUnEquip);
             _inventory.onAddItem.AddListener(OnAddItem);
             _inventory.onRemoveItem.AddListener(OnRemoveItem);
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
-            
             var mainHand = _inventory.GetEquipmentItem(EquipmentSlot.MainHand);
             var offHand = _inventory.GetEquipmentItem(EquipmentSlot.OffHand);
 
@@ -65,13 +70,12 @@ namespace Player
                 weaponType = 3;
             }
 
-            animator.SetInteger(WeaponTypeHash, weaponType);
+            _animator.SetInteger(WeaponTypeHash, weaponType);
+            _animator.SetInteger(WeaponIndexHash, _currentWeaponIndex);
         }
 
-        protected override void OnDisable()
+        private void OnDisable()
         {
-            base.OnDisable();
-            
             _inventory.onEquip.RemoveListener(OnEquip);
             _inventory.onUnEquip.RemoveListener(OnUnEquip);
             _inventory.onAddItem.RemoveListener(OnAddItem);
@@ -82,7 +86,7 @@ namespace Player
         
         public void MoveToHit(Vector3 point)
         {
-            if (isPlayingAnimation) return;
+            if (_character.isPlayingAnimation) return;
             
             _abilitySystem.DeactivateAllAbilities();
 
@@ -93,7 +97,7 @@ namespace Player
 
         public void MoveToTarget(Targetable target)
         {
-            if (_abilitySystem.isAnyAbilityActive || isPlayingAnimation) return;
+            if (_abilitySystem.isAnyAbilityActive || _character.isPlayingAnimation) return;
 
             if (!target) return;
 
@@ -182,7 +186,7 @@ namespace Player
 
             foreach (var attribute in equipment.attributes)
             {
-                if (attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(attribute.attribute, out var value))
                 {
                     value.AddModifier(new AdditiveAttributeModifier(attribute.value.currentValue, equipment));
                 }
@@ -190,7 +194,7 @@ namespace Player
             
             foreach (var modifier in equipment.additiveModifiers)
             {
-                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.AddModifier(new AdditiveAttributeModifier(modifier.value, equipment));
                 }
@@ -198,7 +202,7 @@ namespace Player
             
             foreach (var modifier in equipment.multiplicativeModifiers)
             {
-                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.AddModifier(new MultiplicativeAttributeModifier(modifier.value, equipment));
                 }
@@ -209,13 +213,13 @@ namespace Player
                 case EquipmentSlot.MainHand:
                 {
                     _inventory.TryGetAttachedParts(slot, out var itemObj);
-                    _weaponMelee[0] = itemObj.GetComponent<WeaponMeleeController>();
+                    _weaponMelee[0] = itemObj.GetComponent<WeaponMelee>();
                     break;
                 }
                 case EquipmentSlot.OffHand:
                 {
                     _inventory.TryGetAttachedParts(slot, out var itemObj);
-                    _weaponMelee[1] = itemObj.GetComponent<WeaponMeleeController>();
+                    _weaponMelee[1] = itemObj.GetComponent<WeaponMelee>();
                     break;
                 }
                 case EquipmentSlot.Helm:
@@ -241,7 +245,7 @@ namespace Player
             
             foreach (var attribute in equipment.attributes)
             {
-                if (attributeSet.TryGetAttribute(attribute.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(attribute.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -249,7 +253,7 @@ namespace Player
             
             foreach (var modifier in equipment.additiveModifiers)
             {
-                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -257,7 +261,7 @@ namespace Player
             
             foreach (var modifier in equipment.multiplicativeModifiers)
             {
-                if (attributeSet.TryGetAttribute(modifier.attribute, out var value))
+                if (_character.attributeSet.TryGetAttribute(modifier.attribute, out var value))
                 {
                     value.RemoveAllModifier(equipment);
                 }
@@ -293,7 +297,7 @@ namespace Player
             }
         }
 
-        public WeaponMeleeController GetWeaponMeleeController(int weaponIndex)
+        public WeaponMelee GetWeaponMeleeController(int weaponIndex)
         {
             return _weaponMelee[weaponIndex];
         }
@@ -303,16 +307,16 @@ namespace Player
             switch (abilityBase.cost.resource)
             {
                 case AbilityCostResource.Health:
-                    if (health < abilityBase.cost.value) return false;
-                    health -= abilityBase.cost.value;
+                    if (_character.health < abilityBase.cost.value) return false;
+                    _character.health -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Mana:
-                    if (mana < abilityBase.cost.value) return false;
-                    mana -= abilityBase.cost.value;
+                    if (_character.mana < abilityBase.cost.value) return false;
+                    _character.mana -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.EnergyShield:
-                    if (energyShield < abilityBase.cost.value) return false;
-                    energyShield -= abilityBase.cost.value;
+                    if (_character.energyShield < abilityBase.cost.value) return false;
+                    _character.energyShield -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Gold:
                     return true;

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using AbilitySystem;
 using Character;
-using Controller;
 using Item;
 using TargetSystem;
 using UnityEngine;
@@ -21,7 +20,7 @@ namespace Player.Abilities
         private IEnumerator OnCollecting_(AbilitySystemComponent source)
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
-            var character = source.GetComponent<BaseCharacterController>();
+            var character = source.GetComponent<CharacterBase>();
             var characterMovement = source.GetComponent<CharacterMovement>();
             
             var collectible = targetSystem?.GetCurrentTarget().GetComponent<Collectible>();

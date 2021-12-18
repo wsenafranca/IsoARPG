@@ -6,6 +6,7 @@ using Damage;
 using Item;
 using TargetSystem;
 using UnityEngine;
+using Weapon;
 
 namespace Player.Abilities
 {
@@ -28,9 +29,9 @@ namespace Player.Abilities
         private IEnumerator OnAttacking_(AbilitySystemComponent source)
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
-            var character = source.GetComponent<BaseCharacterController>();
+            var character = source.GetComponent<CharacterBase>();
             var characterMovement = source.GetComponent<CharacterMovement>();
-            var weaponMelee = source.GetComponent<IWeaponMeleeControllerHandler>()?.GetWeaponMeleeController(weaponIndex);
+            var weaponMelee = source.GetComponent<IWeaponMeleeHandler>()?.GetWeaponMeleeController(weaponIndex);
             
             var target = targetSystem?.GetCurrentTarget();
             
@@ -64,7 +65,7 @@ namespace Player.Abilities
             
             weaponMelee.SetDamageIntent(_intent);
             
-            character.PlayAnimation(animatorStateName+weaponIndex);
+            character.TriggerAnimation(animatorStateName);
             yield return new WaitForSeconds(duration);
             character.StopAnimation();
             Deactivate(source);
