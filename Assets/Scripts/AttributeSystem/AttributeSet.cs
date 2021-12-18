@@ -8,22 +8,6 @@ namespace AttributeSystem
         [SerializeField]
         private List<AttributeData> attributes;
 
-        [HideInInspector]
-        public int health;
-        
-        [HideInInspector]
-        public int mana;
-        
-        [HideInInspector]
-        public int energyShield;
-
-        private void Start()
-        {
-            health = GetAttributeValueOrDefault(Attribute.MaxHealth);
-            mana = GetAttributeValueOrDefault(Attribute.MaxMana);
-            energyShield = GetAttributeValueOrDefault(Attribute.MaxEnergyShield);
-        }
-        
         public bool TryGetAttribute(Attribute attribute, out AttributeValue value)
         {
             value = attributes.Find((data => data.attribute == attribute)).value;

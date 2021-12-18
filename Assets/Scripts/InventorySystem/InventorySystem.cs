@@ -24,6 +24,7 @@ namespace InventorySystem
     {
         public Transform mainHand;
         public Transform offHand;
+        public Transform shield;
         public Transform helm;
         public Transform armor;
         public Transform pants;

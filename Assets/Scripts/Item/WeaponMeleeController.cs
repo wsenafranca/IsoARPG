@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CombatSystem.Damage;
+using AttributeSystem;
+using Character;
+using Damage;
 using UnityEngine;
 
 namespace Item
@@ -54,10 +56,11 @@ namespace Item
                     var obj = _results[i].collider.gameObject;
                     if (_hitCharacters.Contains(obj) || obj == _instigator) continue;
 
-                    //var target = obj.GetComponent<AbilitySystemComponent>();
-                    //if (!target) continue;
+                    var target = obj.GetComponent<BaseCharacterController>();
+                    if (!target) continue;
 
-                    //target.ApplyDamage(_damageIntent);
+                    _damageIntent.worldPosition = point1;
+                    target.ApplyDamage(_damageIntent);
                     
                     _hitCharacters.Add(obj);
                 }

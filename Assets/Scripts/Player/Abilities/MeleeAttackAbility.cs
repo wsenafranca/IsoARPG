@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using AbilitySystem;
-using CombatSystem.Damage;
-using Controller;
+using Character;
+using Damage;
 using Item;
 using TargetSystem;
 using UnityEngine;
@@ -29,18 +29,19 @@ namespace Player.Abilities
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
             var character = source.GetComponent<BaseCharacterController>();
+            var characterMovement = source.GetComponent<CharacterMovement>();
             var weaponMelee = source.GetComponent<IWeaponMeleeControllerHandler>()?.GetWeaponMeleeController(weaponIndex);
             
             var target = targetSystem?.GetCurrentTarget();
             
-            if (!target || !weaponMelee || !character || !character.isAlive)
+            if (!target || !weaponMelee || !character || !character.isAlive || !characterMovement)
             {
                 Deactivate(source);
                 yield break;
             }
             
-            character.SetDestination(target.transform.position, range);
-            yield return new WaitWhile(() => character.isAlive && character.isNavigation && target && isActive);
+            characterMovement.SetDestination(target.transform.position, range);
+            yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && target && isActive);
 
             if (!isActive || !target || !character.isAlive)
             {
@@ -48,10 +49,9 @@ namespace Player.Abilities
                 yield break;
             }
             
-            character.StopMovement();
+            characterMovement.StopMovement();
 
-            character.LookAt(target.transform);
-            yield return new WaitWhile(() => character.isLookingAtTarget);
+            characterMovement.LookAt(target.transform);
             
             if(!isActive || !target || !character.isAlive)
             {
@@ -59,12 +59,12 @@ namespace Player.Abilities
                 yield break;
             }
 
-            _intent.damageTarget = DamageTarget.Health;
-            _intent.source = source.gameObject;
+            _intent.damageType = DamageType.Health;
+            _intent.source = character;
             
             weaponMelee.SetDamageIntent(_intent);
             
-            character.PlayAnimation(animatorStateName);
+            character.PlayAnimation(animatorStateName+weaponIndex);
             yield return new WaitForSeconds(duration);
             character.StopAnimation();
             Deactivate(source);

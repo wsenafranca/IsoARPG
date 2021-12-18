@@ -1,39 +1,48 @@
-﻿using AttributeSystem;
+﻿using System;
+using System.Collections.Generic;
+using AttributeSystem;
+using Damage;
 using UnityEngine;
-using UnityEngine.AI;
+using Attribute = AttributeSystem.Attribute;
 
-namespace Controller
+namespace Character
 {
-    [RequireComponent(typeof(NavMeshAgent))]
-    [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(AttributeSet))]
+    [RequireComponent(typeof(Animator))]
     public class BaseCharacterController : MonoBehaviour
     {
-        private NavMeshAgent _agent;
-        private Animator _animator;
-        protected AttributeSet attributeSet;
-
-        public bool isNavigation => _agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance;
+        protected Animator animator;
+        
+        [HideInInspector]
+        public AttributeSet attributeSet;
+        
+        [HideInInspector]
+        public int health;
+        private readonly Queue<DamageInfo> _damages = new(30);
+        
+        [HideInInspector]
+        public int mana;
+        
+        [HideInInspector]
+        public int energyShield;
+        
         public bool isPlayingAnimation { get; private set; }
-        public bool isAlive => attributeSet.health > 0;
+        public bool isAlive => health > 0;
 
-        private Quaternion _targetRotation;
-        public bool isLookingAtTarget => Mathf.Abs(_targetRotation.eulerAngles.y - transform.eulerAngles.y) > 1;
-    
-        private static readonly int MovingHash = Animator.StringToHash("moving");
-        private static readonly int SpeedHash = Animator.StringToHash("speed");
         private static readonly int AnimSpeedHash = Animator.StringToHash("animSpeed");
 
         protected virtual void Awake()
         {
-            _agent = GetComponent<NavMeshAgent>();
-            _animator = GetComponent<Animator>();
+            animator = GetComponent<Animator>();
             attributeSet = GetComponent<AttributeSet>();
         }
 
         protected virtual void OnEnable()
         {
-            _targetRotation = transform.rotation;
+            _damages.Clear();
+            health = attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth);
+            mana = attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana);
+            energyShield = attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield);
         }
 
         protected virtual void OnDisable()
@@ -42,54 +51,45 @@ namespace Controller
 
         protected virtual void Update()
         {
-            if (!isNavigation)
+            animator.SetFloat(AnimSpeedHash, 1.0f);
+        }
+
+        private void LateUpdate()
+        {
+            while (_damages.TryDequeue(out var damage))
             {
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, _targetRotation, _agent.angularSpeed * Time.deltaTime);
+                if (damage.value > 0)
+                {
+                    switch (damage.damageType)
+                    {
+                        case DamageType.Health:
+                            health = (int)Mathf.Clamp(health - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
+                            break;
+                        case DamageType.Mana:
+                            mana = (int)Mathf.Clamp(mana - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana));
+                            break;
+                        case DamageType.EnergyShield:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                
+                DamageOutputManager.instance.ShowDamage(damage);
             }
-            else
-            {
-                _targetRotation = transform.rotation;
-            }
-            
-            _animator.SetBool(MovingHash, _agent.velocity.magnitude > 0.0f && _agent.remainingDistance > _agent.radius);
-            _animator.SetFloat(SpeedHash, Mathf.Round((_agent.velocity.magnitude / _agent.speed) * 100.0f) / 100.0f);
-            _animator.SetFloat(AnimSpeedHash, 1.0f);
-        }
-
-        public void SetDestination(Vector3 target, float acceptableDistance = 0.0f)
-        {
-            if (isPlayingAnimation) return;
-        
-            _agent.stoppingDistance = acceptableDistance;
-            _agent.SetDestination(target);
-            _agent.isStopped = false;
-        }
-
-        public void StopMovement()
-        {
-            _agent.isStopped = true;
-        }
-
-        public void LookAt(Vector3 target)
-        {
-            var forward = (target - transform.position);
-            forward.y = 0.0f;
-            _targetRotation = Quaternion.LookRotation(forward.normalized);
         }
         
-        public void LookAt(Transform target)
+        public void ApplyDamage(DamageIntent intent)
         {
-            var forward = (target.position - transform.position);
-            forward.y = 0.0f;
-            _targetRotation = Quaternion.LookRotation(forward.normalized);
+            // damages are applied on LateUpdate
+            _damages.Enqueue(DamageCalculator.CalculateDamage(intent, this));
         }
 
         public void PlayAnimation(string stateName)
         {
             if (isPlayingAnimation) return;
         
-            _animator.CrossFade(stateName, 0.1f);
-            _agent.isStopped = true;
+            animator.CrossFade(stateName, 0.1f);
             isPlayingAnimation = true;
         }
 

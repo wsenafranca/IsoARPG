@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using Utils;
 
 public class GameAsset : MonoBehaviour
@@ -28,9 +29,12 @@ public class GameAsset : MonoBehaviour
     public Color energyShield = Color.cyan;
     
     [Header("Hit")]
-    public Color criticalHit = Color.yellow;
-    public Color missHit = Color.gray;
-    public Color blockHit = Color.white;
+    public VertexGradient healthHit;
+    public VertexGradient manaHit;
+    public VertexGradient energyShieldHit;
+    public VertexGradient criticalHit;
+    public VertexGradient missHit;
+    public VertexGradient blockHit;
     
     [Header("Equipment Rarity")]
     public Color commonItem = Color.white;

@@ -117,7 +117,7 @@ namespace InventorySystem
                 _equipmentParts.ReplaceParts(part);
             }
             
-            _equipmentParts.AttachParts(slot, item.attachItemPrefab, GetSlotSocket(slot));
+            _equipmentParts.AttachParts(slot, item.attachItemPrefab, GetSlotSocket(slot, item.equipmentType));
 
             onEquip?.Invoke(item, slot);
 
@@ -278,12 +278,12 @@ namespace InventorySystem
             return _slots[(int)slot] == null;
         }
 
-        public Transform GetSlotSocket(EquipmentSlot slot)
+        public Transform GetSlotSocket(EquipmentSlot slot, EquipmentType equipmentType)
         {
             return slot switch
             {
                 EquipmentSlot.MainHand => sockets.mainHand,
-                EquipmentSlot.OffHand => sockets.offHand,
+                EquipmentSlot.OffHand => equipmentType == EquipmentType.Shield ? sockets.shield : sockets.offHand,
                 EquipmentSlot.Helm => sockets.helm,
                 EquipmentSlot.Armor => sockets.armor,
                 EquipmentSlot.Pants => sockets.pants,
@@ -301,6 +301,12 @@ namespace InventorySystem
         public IInventoryEquipmentItem GetEquipmentItem(EquipmentSlot slot)
         {
             return _slots[(int)slot];
+        }
+
+        public bool TryGetEquipmentItem(EquipmentSlot slot, out IInventoryEquipmentItem item)
+        {
+            item = _slots[(int)slot];
+            return item != null;
         }
 
         public bool TryGetEquipmentSlot(IInventoryEquipmentItem item, out EquipmentSlot slot)

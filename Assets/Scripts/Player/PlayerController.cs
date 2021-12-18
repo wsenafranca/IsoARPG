@@ -1,7 +1,7 @@
 using System;
 using AbilitySystem;
 using AttributeSystem;
-using Controller;
+using Character;
 using InventorySystem;
 using Item;
 using Player.Abilities;
@@ -12,6 +12,7 @@ namespace Player
 {
     [RequireComponent(typeof(InventoryController))]
     [RequireComponent(typeof(AbilitySystemComponent))]
+    [RequireComponent(typeof(CharacterMovement))]
     public class PlayerController : BaseCharacterController, ITargetSystemInterface, IWeaponMeleeControllerHandler, IAbilitySystemHandler
     {
         [SerializeField]
@@ -19,7 +20,10 @@ namespace Player
 
         private InventoryController _inventory;
         private AbilitySystemComponent _abilitySystem;
+        private CharacterMovement _movement;
         private readonly WeaponMeleeController[] _weaponMelee = new WeaponMeleeController[2];
+        private int _currentWeaponIndex;
+        private static readonly int WeaponTypeHash = Animator.StringToHash("weaponType");
 
         protected override void Awake()
         {
@@ -27,6 +31,7 @@ namespace Player
 
             _abilitySystem = GetComponent<AbilitySystemComponent>();
             _inventory = GetComponent<InventoryController>();
+            _movement = GetComponent<CharacterMovement>();
         }
 
         protected override void OnEnable()
@@ -37,6 +42,30 @@ namespace Player
             _inventory.onUnEquip.AddListener(OnUnEquip);
             _inventory.onAddItem.AddListener(OnAddItem);
             _inventory.onRemoveItem.AddListener(OnRemoveItem);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            
+            var mainHand = _inventory.GetEquipmentItem(EquipmentSlot.MainHand);
+            var offHand = _inventory.GetEquipmentItem(EquipmentSlot.OffHand);
+
+            var weaponType = 0;
+            if (offHand is { equipmentType: EquipmentType.Shield })
+            {
+                weaponType = 1;
+            }
+            else if (mainHand is {equipmentType:EquipmentType.OneHandWeapon})
+            {
+                weaponType = 2;
+            }
+            else if (mainHand is { equipmentType: EquipmentType.TwoHandWeapon })
+            {
+                weaponType = 3;
+            }
+
+            animator.SetInteger(WeaponTypeHash, weaponType);
         }
 
         protected override void OnDisable()
@@ -53,16 +82,18 @@ namespace Player
         
         public void MoveToHit(Vector3 point)
         {
+            if (isPlayingAnimation) return;
+            
             _abilitySystem.DeactivateAllAbilities();
 
             if (Vector3.Distance(point, transform.position) < minClickDistance) return;
 
-            SetDestination(point);
+            _movement.SetDestination(point);
         }
 
         public void MoveToTarget(Targetable target)
         {
-            if (_abilitySystem.isAnyAbilityActive) return;
+            if (_abilitySystem.isAnyAbilityActive || isPlayingAnimation) return;
 
             if (!target) return;
 
@@ -72,6 +103,18 @@ namespace Player
                 case TargetType.Neutral:
                     break;
                 case TargetType.Enemy:
+                    if (_abilitySystem.TryGetAbility<MeleeAttackAbility>(out var ability))
+                    {
+                        ability.weaponIndex = _currentWeaponIndex;
+                        if (_inventory.TryGetEquipmentItem(EquipmentSlot.OffHand, out var item) && item.equipmentType == EquipmentType.OneHandWeapon)
+                        {
+                            _currentWeaponIndex = (_currentWeaponIndex + 1) % 2;
+                        }
+                        else
+                        {
+                            _currentWeaponIndex = 0;
+                        }
+                    }
                     result = _abilitySystem.TryActivateAbility<MeleeAttackAbility>();
                     break;
                 case TargetType.Talkative:
@@ -260,16 +303,16 @@ namespace Player
             switch (abilityBase.cost.resource)
             {
                 case AbilityCostResource.Health:
-                    if (attributeSet.health < abilityBase.cost.value) return false;
-                    attributeSet.health -= abilityBase.cost.value;
+                    if (health < abilityBase.cost.value) return false;
+                    health -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Mana:
-                    if (attributeSet.mana < abilityBase.cost.value) return false;
-                    attributeSet.mana -= abilityBase.cost.value;
+                    if (mana < abilityBase.cost.value) return false;
+                    mana -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.EnergyShield:
-                    if (attributeSet.energyShield < abilityBase.cost.value) return false;
-                    attributeSet.energyShield -= abilityBase.cost.value;
+                    if (energyShield < abilityBase.cost.value) return false;
+                    energyShield -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Gold:
                     return true;

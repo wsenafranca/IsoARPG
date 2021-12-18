@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using AbilitySystem;
-using CombatSystem.Damage;
+using Damage;
+using TMPro;
+using UI;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -10,11 +12,12 @@ public class DamageOutputManager : MonoBehaviour
     public static DamageOutputManager instance { get; private set; }
     
     public GameObject damagePrefab;
+    public float duration = 1.0f;
+    public Canvas canvas;
     
     private ObjectPool<GameObject> _pool;
     private readonly Queue<DamageOutputEntry> _queue = new();
-    private Transform _cameraTransform;
-
+    
     private void Awake()
     {
         _pool = new ObjectPool<GameObject>(
@@ -29,7 +32,6 @@ public class DamageOutputManager : MonoBehaviour
 
     private void OnEnable()
     {
-        _cameraTransform = GameObject.FindWithTag("MainCamera").transform;
         StartCoroutine(ShowDamage_());
     }
 
@@ -45,9 +47,17 @@ public class DamageOutputManager : MonoBehaviour
                 if (obj == null) continue;
             
                 obj.SetActive(false);
-                var damage = obj.GetComponent<DamageOutput>();
-                var rotation = Quaternion.LookRotation((entry.location - _cameraTransform.position).normalized);
-                damage.SetText(entry.location, rotation, entry.text, entry.color, (dmg)=>_pool.Release(dmg.gameObject));
+                
+                obj.transform.SetParent(canvas.transform, false);
+                
+                var damage = obj.GetComponent<DamageView>();
+                damage.text = entry.text;
+                damage.color = entry.color;
+                damage.finishedCallback = (damageObject) => _pool.Release(damageObject);
+                var cam = canvas.worldCamera;
+                var screenPosition = cam.WorldToScreenPoint(entry.worldPosition);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, screenPosition, cam, out damage.position);
+                
                 obj.SetActive(true);
 
                 if(_queue.Count > 0) yield return new WaitForSeconds(0.2f);
@@ -55,32 +65,42 @@ public class DamageOutputManager : MonoBehaviour
         }
     }
 
-    public void ShowDamage(Vector3 location, DamageInfo damage)
+    public void ShowDamage(DamageInfo damage)
     {
-        Color color;
         if(damage.criticalHit)
         {
-            color = Color.yellow;
-        }
-        else
-        {
-            color = damage.damageTarget switch
-            {
-                DamageTarget.Health => Color.red,
-                DamageTarget.Mana => Color.blue,
-                DamageTarget.MagicShield => Color.cyan,
-                _ => Color.white
-            };
+            ShowText(damage.worldPosition, $"Critical!\n{-damage.value}", GameAsset.instance.criticalHit);
+            return;
         }
 
-        ShowText(location, (-damage.value).ToString(), color);
+        if (damage.blockedHit)
+        {
+            ShowText(damage.worldPosition, "Block", GameAsset.instance.criticalHit);
+            return;
+        }
+        
+        if (damage.missedHit)
+        {
+            ShowText(damage.worldPosition, "Miss", GameAsset.instance.criticalHit);
+            return;
+        }
+
+        var color = damage.damageType switch
+        {
+            DamageType.Health => GameAsset.instance.healthHit,
+            DamageType.Mana => GameAsset.instance.manaHit,
+            DamageType.EnergyShield => GameAsset.instance.energyShieldHit,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        ShowText(damage.worldPosition, (-damage.value).ToString(), color);
     }
 
-    public void ShowText(Vector3 location, string text, Color color)
+    public void ShowText(Vector3 worldPosition, string text, VertexGradient color)
     {
         _queue.Enqueue(new DamageOutputEntry
         {
-            location = location,
+            worldPosition = worldPosition,
             text = text,
             color = color
         });
@@ -88,9 +108,9 @@ public class DamageOutputManager : MonoBehaviour
 
     private struct DamageOutputEntry
     {
-        public Vector3 location;
+        public Vector3 worldPosition;
         public string text;
-        public Color color;
+        public VertexGradient color;
 
         public override string ToString()
         {

@@ -6,6 +6,13 @@ namespace UI
 {
     public class CanvasView : MonoBehaviour
     {
+        private Canvas _canvas;
+
+        private void Awake()
+        {
+            _canvas = GetComponent<Canvas>();
+        }
+
         private void Start()
         {
             Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);

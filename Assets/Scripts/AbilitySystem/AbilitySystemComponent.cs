@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -31,6 +32,18 @@ namespace AbilitySystem
         public int IndexOfAbility<T>() where T : AbilityBase
         {
             return abilities.FindIndex((ability) => ability.GetType() == typeof(T));
+        }
+
+        public bool TryGetAbility<T>(out T outAbility) where T : AbilityBase
+        {
+            outAbility = abilities.Find(ability => ability.GetType() == typeof(T)) as T;
+            return outAbility;
+        }
+        
+        public bool TryGetAbility(Type type, out AbilityBase outAbility)
+        {
+            outAbility = abilities.Find(ability => ability.GetType() == type);
+            return outAbility;
         }
         
         public void AddAbility(AbilityBase ability)

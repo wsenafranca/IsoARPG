@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using AbilitySystem;
+using Character;
 using Controller;
 using Item;
 using TargetSystem;
@@ -21,17 +22,18 @@ namespace Player.Abilities
         {
             var targetSystem = source.GetComponent<ITargetSystemInterface>();
             var character = source.GetComponent<BaseCharacterController>();
+            var characterMovement = source.GetComponent<CharacterMovement>();
             
             var collectible = targetSystem?.GetCurrentTarget().GetComponent<Collectible>();
             
-            if (!collectible || !character || !character.isAlive)
+            if (!collectible || !character || !character.isAlive || !characterMovement)
             {
                 Deactivate(source);
                 yield break;
             }
             
-            character.SetDestination(collectible.transform.position, range);
-            yield return new WaitWhile(() => character.isAlive && character.isNavigation && collectible && isActive);
+            characterMovement.SetDestination(collectible.transform.position, range);
+            yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && collectible && isActive);
             
             if (!isActive || !collectible || !character.isAlive)
             {
@@ -39,7 +41,7 @@ namespace Player.Abilities
                 yield break;
             }
             
-            character.StopMovement();
+            characterMovement.StopMovement();
             
             collectible.Collect(source.gameObject);
             

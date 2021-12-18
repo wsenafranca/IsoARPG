@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TargetSystem;
 using UI;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace Player
     public class InputController : MonoBehaviour
     {
         public static InputController instance { get; private set; }
+
+        public PlayerController player;
 
         private bool _isPressing;
         private readonly List<RaycastResult> _results = new();
@@ -30,7 +33,6 @@ namespace Player
         }
         
         public UnityEvent<Vector3> pointerClickGround;
-
         public UnityEvent<Targetable> pointerEnterTarget;
         public UnityEvent<Targetable> pointerExitTarget;
         public UnityEvent<Targetable> pointerClickTarget;
@@ -57,10 +59,12 @@ namespace Player
 
             if (currentTarget)
             {
+                player.MoveToTarget(currentTarget);
                 pointerClickTarget?.Invoke(currentTarget);
             }
             else if (GetGroundPosition(Input.mousePosition, out var destination))
             {
+                player.MoveToHit(destination);
                 pointerClickGround?.Invoke(destination);
             }
         }
@@ -77,23 +81,15 @@ namespace Player
 
             if (_results.Count == 0) return false;
 
-            var raycastResult = new RaycastResult();
-            var foundNotGround = false;
-            foreach (var result in _results)
+            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject != player.gameObject))
             {
-                if (result.gameObject.layer != GameAsset.instance.groundLayer.index)
-                {
-                    foundNotGround = true;
-                    break;
-                }
-                raycastResult = result;
+                _results.Clear();
+                return false;
             }
 
+            worldPosition = _results.First().worldPosition;
             _results.Clear();
-        
-            if (foundNotGround) return false;
-
-            worldPosition = raycastResult.worldPosition;
+            
             return true;
         }
     }
