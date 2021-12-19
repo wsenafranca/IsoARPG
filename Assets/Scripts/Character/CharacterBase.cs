@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AttributeSystem;
 using Damage;
 using UnityEngine;
+using UnityEngine.Events;
 using Attribute = AttributeSystem.Attribute;
 
 namespace Character
@@ -12,23 +13,63 @@ namespace Character
     [RequireComponent(typeof(Animator))]
     public class CharacterBase : MonoBehaviour
     {
+        public string displayName;
+        
         private Animator _animator;
         
         [HideInInspector]
         public AttributeSet attributeSet;
         
-        [HideInInspector]
-        public int health;
         private readonly Queue<DamageInfo> _damages = new(30);
+
+        public UnityEvent<CharacterBase> death;
+        public UnityEvent<CharacterBase, int, int> currentHealthChanged;
+        public UnityEvent<CharacterBase, int, int> currentManaChanged;
+        public UnityEvent<CharacterBase, int, int> currentEnergyShieldChanged;
+
+        [NonSerialized]
+        private int _health;
+        public int currentHealth
+        {
+            get => _health;
+            set
+            {
+                if (value == _health) return;
+                _health = value;
+                currentHealthChanged?.Invoke(this, _health, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
+                
+                if(!isAlive) death?.Invoke(this);
+            }
+        }
+
+        [NonSerialized]
+        private int _mana;
+        public int currentMana
+        {
+            get => _mana;
+            set
+            {
+                if (value == _mana) return;
+                _mana = value;
+                currentManaChanged?.Invoke(this, _mana, attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana));
+            }
+        }
         
-        [HideInInspector]
-        public int mana;
-        
-        [HideInInspector]
-        public int energyShield;
+        [NonSerialized]
+        private int _energyShield;
+        public int currentEnergyShield
+        {
+            get => _energyShield;
+            set
+            {
+                if (value == _energyShield) return;
+                _energyShield = value;
+                currentEnergyShieldChanged?.Invoke(this, _energyShield, attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield));
+            }
+        }
         
         public bool isPlayingAnimation { get; private set; }
-        public bool isAlive => health > 0;
+        public bool isAlive => currentHealth > 0;
 
         public float animSpeed => Mathf.Clamp(0.7f + attributeSet.GetAttributeValueOrDefault(Attribute.AttackSpeed) / 300.0f, 0.8f, 3.0f);
         
@@ -42,9 +83,9 @@ namespace Character
 
         private void OnEnable()
         {
-            health = attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth);
-            mana = attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana);
-            energyShield = attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield);
+            currentHealth = attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth);
+            currentMana = attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana);
+            currentEnergyShield = attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield);
 
             _damages.Clear();
             StartCoroutine(ApplyDamage_());
@@ -74,12 +115,13 @@ namespace Character
                     switch (damage.damageType)
                     {
                         case DamageType.Health:
-                            health = (int)Mathf.Clamp(health - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
+                            currentHealth = (int)Mathf.Clamp(currentHealth - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
                             break;
                         case DamageType.Mana:
-                            mana = (int)Mathf.Clamp(mana - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana));
+                            currentMana = (int)Mathf.Clamp(currentMana - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana));
                             break;
                         case DamageType.EnergyShield:
+                            currentEnergyShield = (int)Mathf.Clamp(currentEnergyShield - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

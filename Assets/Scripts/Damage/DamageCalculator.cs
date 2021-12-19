@@ -6,9 +6,9 @@ namespace Damage
 {
     public static class DamageCalculator
     {
-        public static DamageInfo CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.flags, intent.damageType, intent.attackBonus, intent.worldPosition);
+        public static DamageInfo CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.flags, intent.damageType, intent.skillDamage, intent.worldPosition);
         
-        public static DamageInfo CalculateDamage(CharacterBase source, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float attackBonus, Vector3 worldPosition)
+        public static DamageInfo CalculateDamage(CharacterBase source, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float skillDamage, Vector3 worldPosition)
         {
             var outDamage = new DamageInfo
             {
@@ -45,7 +45,7 @@ namespace Damage
 
             var defensePower = damageFlags.HasFlag(DamageFlags.IgnoreDefense) ? 0 : target.attributeSet.GetAttributeValueOrDefault(Attribute.DefensePower);
 
-            outDamage.value = 1 + Mathf.FloorToInt((attackPower * 1 + attackBonus) - defensePower);
+            outDamage.value = 1 + Mathf.FloorToInt(attackPower * (1 + skillDamage) - defensePower);
 
             if (Random.value < source.attributeSet.GetAttributeValueOrDefault(Attribute.CriticalHitRate) / 100.0f)
             {

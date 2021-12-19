@@ -17,7 +17,7 @@ namespace UI
         
         public Action<GameObject> finishedCallback;
         
-        private TextMeshPro _textMesh;
+        private TextMeshProUGUI _textMesh;
         private RectTransform _rect;
 
         private void OnEnable()
@@ -28,7 +28,7 @@ namespace UI
                 return;
             }
             
-            _textMesh = GetComponent<TextMeshPro>();
+            _textMesh = GetComponent<TextMeshProUGUI>();
             
             _textMesh.text = text;
             _textMesh.colorGradient = color;

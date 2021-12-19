@@ -3,7 +3,6 @@ using System.Collections;
 using AbilitySystem;
 using Character;
 using Damage;
-using Item;
 using TargetSystem;
 using UnityEngine;
 using Weapon;
@@ -17,6 +16,7 @@ namespace Player.Abilities
         public string animatorStateName;
         public float duration = 0.5f;
         public int weaponIndex;
+        public float skillDamage;
         
         [NonSerialized]
         private DamageIntent _intent;
@@ -35,7 +35,7 @@ namespace Player.Abilities
             
             var target = targetSystem?.GetCurrentTarget();
             
-            if (!target || !weaponMelee || !character || !character.isAlive || !characterMovement)
+            if (!target || !target.isValid || !weaponMelee || !character || !character.isAlive || !characterMovement)
             {
                 Deactivate(source);
                 yield break;
@@ -46,7 +46,7 @@ namespace Player.Abilities
                 yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && target && isActive);
             }
 
-            if (!isActive || !target || !character.isAlive)
+            if (!isActive || !target || !target.isValid || !character.isAlive)
             {
                 Deactivate(source);
                 yield break;
@@ -56,13 +56,14 @@ namespace Player.Abilities
 
             characterMovement.LookAt(target.transform);
             
-            if(!isActive || !target || !character.isAlive)
+            if(!isActive || !target || !target.isValid || !character.isAlive)
             {
                 Deactivate(source);
                 yield break;
             }
 
             _intent.damageType = DamageType.Health;
+            _intent.skillDamage = skillDamage;
             _intent.source = character;
             
             weaponMelee.SetDamageIntent(_intent);

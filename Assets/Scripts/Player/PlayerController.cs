@@ -81,7 +81,7 @@ namespace Player
         {
             if (_abilitySystem.isAnyAbilityActive || _character.isPlayingAnimation) return;
 
-            if (!target) return;
+            if (!target || !target.isValid) return;
 
             var result = AbilityActivateResult.NotFound;
             switch (target.targetType)
@@ -335,16 +335,16 @@ namespace Player
             switch (abilityBase.cost.resource)
             {
                 case AbilityCostResource.Health:
-                    if (_character.health < abilityBase.cost.value) return false;
-                    _character.health -= abilityBase.cost.value;
+                    if (_character.currentHealth < abilityBase.cost.value) return false;
+                    _character.currentHealth -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Mana:
-                    if (_character.mana < abilityBase.cost.value) return false;
-                    _character.mana -= abilityBase.cost.value;
+                    if (_character.currentMana < abilityBase.cost.value) return false;
+                    _character.currentMana -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.EnergyShield:
-                    if (_character.energyShield < abilityBase.cost.value) return false;
-                    _character.energyShield -= abilityBase.cost.value;
+                    if (_character.currentEnergyShield < abilityBase.cost.value) return false;
+                    _character.currentEnergyShield -= abilityBase.cost.value;
                     return true;
                 case AbilityCostResource.Gold:
                     return true;

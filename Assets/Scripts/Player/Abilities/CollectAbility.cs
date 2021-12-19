@@ -25,7 +25,7 @@ namespace Player.Abilities
             
             var collectible = targetSystem?.GetCurrentTarget().GetComponent<Collectible>();
             
-            if (!collectible || !character || !character.isAlive || !characterMovement)
+            if (!collectible || !collectible.isValid || !character || !character.isAlive || !characterMovement)
             {
                 Deactivate(source);
                 yield break;
@@ -36,7 +36,7 @@ namespace Player.Abilities
                 yield return new WaitWhile(() => character.isAlive && characterMovement.isNavigation && collectible && isActive);
             }
             
-            if (!isActive || !collectible || !character.isAlive)
+            if (!isActive || !collectible || !collectible.isValid || !character.isAlive)
             {
                 Deactivate(source);
                 yield break;

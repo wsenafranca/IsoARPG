@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Player;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityFx.Outline;
@@ -34,21 +35,26 @@ namespace TargetSystem
             }
         }
 
-        protected virtual Color GetTargetColor()
+        public virtual Color targetColor => targetType switch
         {
-            return targetType switch
-            {
-                TargetType.Neutral => GameAsset.instance.outlineNeutral,
-                TargetType.Enemy => GameAsset.instance.outlineEnemy,
-                TargetType.Talkative => GameAsset.instance.outlineInteractable,
-                TargetType.Collectible => Color.white,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+            TargetType.Neutral => GameAsset.instance.outlineNeutral,
+            TargetType.Enemy => GameAsset.instance.outlineEnemy,
+            TargetType.Talkative => GameAsset.instance.outlineInteractable,
+            TargetType.Collectible => Color.white,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        public virtual bool isValid => true;
 
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
-            OutlineSettings.currentColor = GetTargetColor();
+            if (!isValid)
+            {
+                OnPointerExit(eventData);
+                return;
+            }
+            
+            OutlineSettings.currentColor = targetColor;
             
             foreach (var r in _renderers.Where(r => r.enabled && r.gameObject.activeInHierarchy))
             {

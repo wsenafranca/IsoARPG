@@ -8,7 +8,7 @@ namespace Damage
         public CharacterBase source;
         public DamageFlags flags;
         public DamageType damageType;
-        public float attackBonus;
+        public float skillDamage;
         public Vector3 worldPosition;
     }
 }

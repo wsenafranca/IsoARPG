@@ -77,10 +77,7 @@ namespace Item
             GetComponent<Collider>().enabled = false;
         }
 
-        protected override Color GetTargetColor()
-        {
-            return _itemInstance.itemColor;
-        }
+        public override Color targetColor => _itemInstance.itemColor;
 
         public override void OnPointerEnter(PointerEventData eventData)
         {
