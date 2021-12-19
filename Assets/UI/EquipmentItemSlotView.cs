@@ -60,7 +60,7 @@ namespace UI
         public bool OnDraggedSlot(ItemSlotView slot, DragDropEventData eventData, ISlotViewHandler source)
         {
             _slotTelegraph.gameObject.SetActive(false);
-            return inventoryController != null && inventoryController.UnEquip(thisSlot);
+            return inventoryController != null && inventoryController.UnEquip(thisSlot, out _);
         }
 
         public override void CancelDrag()
@@ -76,11 +76,11 @@ namespace UI
             if (inventoryController == null) return;
             
             var item = GetItem();
-            if (!InputController.instance.GetGroundPosition(eventData.position, out var worldPosition)) return;
+            if (!WorldRaycaster.GetGroundPosition(eventData.position, out var worldPosition, inventoryController.gameObject)) return;
                 
             var itemDrop = Instantiate(item.itemBase.itemSlotPrefab);
             itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPosition);
-            inventoryController.UnEquip(thisSlot);
+            inventoryController.UnEquip(thisSlot, out _);
         }
 
         public InventoryController GetInventoryController()

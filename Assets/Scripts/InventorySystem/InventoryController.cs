@@ -49,7 +49,7 @@ namespace InventorySystem
             _items = new InventoryContainer(this.rows, this.columns);
         }
         
-        private void Awake()
+        protected virtual void Awake()
         {
             var len = Enum.GetNames(typeof(EquipmentSlot)).Length;
             _slots = new IInventoryEquipmentItem[len];
@@ -79,7 +79,7 @@ namespace InventorySystem
             return AddItem(item);
         }
         
-        public bool AddItem(IInventoryItem item, int x, int y)
+        public virtual bool AddItem(IInventoryItem item, int x, int y)
         {
             if (_items == null || !_items.AddItem(item, x, y)) return false;
 
@@ -87,7 +87,7 @@ namespace InventorySystem
             return true;
         }
 
-        public bool RemoveItem(IInventoryItem item)
+        public virtual bool RemoveItem(IInventoryItem item)
         {
             if (_items == null || !_items.RemoveItem(item, out var x, out var y)) return false;
 
@@ -100,7 +100,7 @@ namespace InventorySystem
             return _items != null && _items.MoveItem(item, x, y);
         }
 
-        public bool Equip(EquipmentSlot slot, IInventoryEquipmentItem item)
+        public virtual bool Equip(EquipmentSlot slot, IInventoryEquipmentItem item)
         {
             if (!CheckEquipSlot(slot, item.equipmentType)) return false;
 
@@ -124,12 +124,13 @@ namespace InventorySystem
             return true;
         }
 
-        public bool UnEquip(EquipmentSlot slot)
+        public virtual bool UnEquip(EquipmentSlot slot, out IInventoryEquipmentItem item)
         {
+            item = null;
             var slotIndex = (int)slot;
             if (_slots[slotIndex] == null) return false;
 
-            var item = _slots[slotIndex];
+            item = _slots[slotIndex];
             _slots[slotIndex] = null;
             
             foreach (var entry in item.visualItemPrefab)

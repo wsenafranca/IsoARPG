@@ -3,7 +3,6 @@ using System.Linq;
 using AttributeSystem;
 using InventorySystem;
 using Item;
-using Player;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -17,6 +16,7 @@ namespace UI
         public static ItemTooltipView instance { get; private set; }
 
         public Canvas canvas;
+        public GameObject player;
         
         private TextMeshProUGUI _itemName;
         private RawImage _itemIcon;
@@ -61,7 +61,7 @@ namespace UI
             _itemInstanceInfo.text = GetItemInstanceInfo(item as EquipmentItemInstance);
             _equipmentStatsModifier.text = GetEquipmentStatsModifier(item as EquipmentItemInstance);
             _equipmentBonusModifier.text = GetEquipmentBonusModifier(item as EquipmentItemInstance);
-            _equipmentRequirements.text = GetEquipmentsRequirements(item, PlayerController.current.GetComponent<PrimaryAttributeSet>());
+            _equipmentRequirements.text = GetEquipmentsRequirements(item, player.GetComponent<PrimaryAttributeSet>());
             _itemEffects.text = "";
             _itemDescription.text = GetItemDescription(item);
 

@@ -2,8 +2,8 @@
 {
     public interface IState
     {
-        public void OnStateEnter();
-        public void OnStateUpdate();
-        public void OnStateExit();
+        public void OnStateEnter(StateMachine stateMachine);
+        public void OnStateUpdate(StateMachine stateMachine, float elapsedTime);
+        public void OnStateExit(StateMachine stateMachine);
     }
 }

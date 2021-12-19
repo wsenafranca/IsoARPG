@@ -19,6 +19,8 @@ namespace Item
             targetType = TargetType.Collectible;
         }
 
+        public override bool isValid => item != null && _itemInstance != null;
+
         public void Collect(GameObject collector)
         {
             ItemTooltipView.instance.HideTooltip();
@@ -26,10 +28,11 @@ namespace Item
             if (!item || !collector) return;
             
             var inventory = collector.GetComponent<InventoryController>();
-            if (inventory && inventory.EquipOrAddItem(_itemInstance))
-            {
-                Destroy(gameObject);
-            }
+            if (!inventory || !inventory.EquipOrAddItem(_itemInstance)) return;
+            
+            item = null;
+            _itemInstance = null;
+            Destroy(gameObject);
         }
 
         public void SetAsDrop(ItemBase itemBase, ItemInstance itemInstance, Vector3 position)

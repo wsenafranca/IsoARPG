@@ -10,12 +10,12 @@ using Attribute = AttributeSystem.Attribute;
 namespace Character
 {
     [RequireComponent(typeof(AttributeSet))]
-    [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(CharacterAnimator))]
     public class CharacterBase : MonoBehaviour
     {
         public string displayName;
         
-        private Animator _animator;
+        private CharacterAnimator _animator;
         
         [HideInInspector]
         public AttributeSet attributeSet;
@@ -67,17 +67,13 @@ namespace Character
                 currentEnergyShieldChanged?.Invoke(this, _energyShield, attributeSet.GetAttributeValueOrDefault(Attribute.MaxEnergyShield));
             }
         }
-        
-        public bool isPlayingAnimation { get; private set; }
         public bool isAlive => currentHealth > 0;
 
         public float animSpeed => Mathf.Clamp(0.7f + attributeSet.GetAttributeValueOrDefault(Attribute.AttackSpeed) / 300.0f, 0.8f, 3.0f);
-        
-        private static readonly int AnimSpeedHash = Animator.StringToHash("animSpeed");
 
         private void Awake()
         {
-            _animator = GetComponent<Animator>();
+            _animator = GetComponent<CharacterAnimator>();
             attributeSet = GetComponent<AttributeSet>();
         }
 
@@ -93,7 +89,7 @@ namespace Character
 
         private void Update()
         {
-            _animator.SetFloat(AnimSpeedHash, animSpeed);
+            _animator.animSpeed = animSpeed;
         }
 
         private IEnumerator ApplyDamage_()
@@ -138,19 +134,6 @@ namespace Character
         {
             // damages are applied on LateUpdate
             _damages.Enqueue(DamageCalculator.CalculateDamage(intent, this));
-        }
-
-        public void TriggerAnimation(string stateName)
-        {
-            if (isPlayingAnimation) return;
-        
-            _animator.SetTrigger(stateName);
-            isPlayingAnimation = true;
-        }
-
-        public void StopAnimation()
-        {
-            isPlayingAnimation = false;
         }
     }
 }

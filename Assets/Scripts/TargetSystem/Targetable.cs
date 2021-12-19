@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Player;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityFx.Outline;
@@ -25,14 +23,6 @@ namespace TargetSystem
         protected virtual void Awake()
         {
             _renderers = GetComponentsInChildren<Renderer>(true).Where(r => r is MeshRenderer or SkinnedMeshRenderer).ToArray();
-        }
-
-        protected virtual void OnDisable()
-        {
-            if (InputController.instance.currentTarget == this)
-            {
-                InputController.instance.currentTarget = null;
-            }
         }
 
         public virtual Color targetColor => targetType switch
@@ -60,8 +50,6 @@ namespace TargetSystem
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOn.index;
             }
-
-            InputController.instance.currentTarget = this;
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
@@ -70,8 +58,6 @@ namespace TargetSystem
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
-        
-            InputController.instance.currentTarget = null;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace UI
 
         public void OnCharacterValueChanged(CharacterBase character, int currentValue, int maxValue)
         {
-            _meterBar.fillAmount = Mathf.Clamp01(((float)currentValue) / maxValue);
+            if(_meterBar) _meterBar.fillAmount = Mathf.Clamp01(((float)currentValue) / maxValue);
         }
     }
 }

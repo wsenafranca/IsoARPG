@@ -10,7 +10,7 @@ namespace Player
 {
     public class InputController : MonoBehaviour
     {
-        public static InputController instance { get; private set; }
+        //public static InputController instance { get; private set; }
 
         private bool _isPressing;
         private readonly List<RaycastResult> _results = new();
@@ -38,7 +38,6 @@ namespace Player
 
         private void Awake()
         {
-            instance = this;
         }
 
         private void Update()
@@ -58,13 +57,11 @@ namespace Player
 
             if (currentTarget)
             {
-                PlayerController.current.MoveToTarget(currentTarget);
                 pointerClickTarget?.Invoke(currentTarget);
                 _lastClickTime = Time.time;
             }
             else if (GetGroundPosition(Input.mousePosition, out var destination))
             {
-                PlayerController.current.MoveToHit(destination);
                 pointerClickGround?.Invoke(destination);
             }
         }
@@ -81,7 +78,7 @@ namespace Player
 
             if (_results.Count == 0) return false;
 
-            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject != PlayerController.current.gameObject))
+            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject))
             {
                 _results.Clear();
                 return false;

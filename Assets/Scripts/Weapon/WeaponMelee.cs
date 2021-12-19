@@ -8,7 +8,7 @@ namespace Weapon
 {
     public interface IWeaponMeleeHandler
     {
-        public WeaponMelee GetWeaponMeleeController(int weaponIndex);
+        public WeaponMelee GetWeaponMelee(int weaponIndex);
     }
     
     [Serializable]

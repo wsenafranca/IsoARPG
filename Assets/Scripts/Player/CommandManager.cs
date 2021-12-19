@@ -15,7 +15,7 @@ namespace Player
             
             var item = genItems[Random.Range(0, genItems.Length)];
             var itemDrop = Instantiate(item.itemSlotPrefab);
-            InputController.instance.GetGroundPosition(Input.mousePosition, out var pos);
+            WorldRaycaster.GetGroundPosition(Input.mousePosition, out var pos);
             itemDrop.GetComponent<Collectible>().SetAsDrop(item, null, pos);
         }
     }
