@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityFx.Outline;
@@ -50,6 +51,8 @@ namespace TargetSystem
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOn.index;
             }
+
+            PlayerController.instance.input.currentTarget = this;
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
@@ -58,6 +61,8 @@ namespace TargetSystem
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
+        
+            PlayerController.instance.input.currentTarget = null;
         }
     }
 }

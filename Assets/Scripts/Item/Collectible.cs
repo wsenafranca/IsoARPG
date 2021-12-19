@@ -21,6 +21,14 @@ namespace Item
 
         public override bool isValid => item != null && _itemInstance != null;
 
+        private void Start()
+        {
+            if (item != null && _itemInstance == null)
+            {
+                _itemInstance = item.CreateItemInstance();
+            }
+        }
+
         public void Collect(GameObject collector)
         {
             ItemTooltipView.instance.HideTooltip();
@@ -63,7 +71,7 @@ namespace Item
             var delta = Random.insideUnitCircle;
             position.x += delta.x;
             position.z += delta.y;
-            transform.SetPositionAndRotation(position, Quaternion.Euler(-90, 0.0f, 0.0f));
+            transform.SetPositionAndRotation(position, Quaternion.Euler(90, 0.0f, 0.0f));
         }
         
         public void SetAsItemSlot(ItemInstance itemInstance)

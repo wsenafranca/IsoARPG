@@ -1,21 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using TargetSystem;
+﻿using TargetSystem;
 using UI;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 
 namespace Player
 {
     public class InputController : MonoBehaviour
     {
-        //public static InputController instance { get; private set; }
-
         private bool _isPressing;
-        private readonly List<RaycastResult> _results = new();
         private Targetable _target;
         private float _lastClickTime;
+        private Vector2 _lastMousePosition;
         
         public Targetable currentTarget
         {
@@ -36,22 +31,11 @@ namespace Player
         public UnityEvent<Targetable> pointerExitTarget;
         public UnityEvent<Targetable> pointerClickTarget;
 
-        private void Awake()
-        {
-        }
-
         private void Update()
         {
             if (DragAndDropManager.instance.dragging) return;
-        
-            if (Input.GetMouseButton(0))
-            {
-                _isPressing = true;
-            }
-            else if (_isPressing)
-            {
-                _isPressing = false;
-            }
+
+            _isPressing = Input.GetMouseButton(0);
             
             if (!_isPressing || Time.time - _lastClickTime < 0.5f) return;
 
@@ -60,34 +44,10 @@ namespace Player
                 pointerClickTarget?.Invoke(currentTarget);
                 _lastClickTime = Time.time;
             }
-            else if (GetGroundPosition(Input.mousePosition, out var destination))
+            else if (WorldRaycaster.GetGroundPosition(Input.mousePosition, out var worldPosition))
             {
-                pointerClickGround?.Invoke(destination);
+                pointerClickGround?.Invoke(worldPosition);
             }
-        }
-        
-        public bool GetGroundPosition(Vector2 mousePosition, out Vector3 worldPosition)
-        {
-            var eventData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePosition
-            };
-            EventSystem.current.RaycastAll(eventData, _results);
-            
-            worldPosition = Vector3.zero;
-
-            if (_results.Count == 0) return false;
-
-            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject))
-            {
-                _results.Clear();
-                return false;
-            }
-
-            worldPosition = _results.First().worldPosition;
-            _results.Clear();
-            
-            return true;
         }
     }
 }

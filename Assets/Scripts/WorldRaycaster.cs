@@ -9,11 +9,11 @@ public class WorldRaycaster : PhysicsRaycaster
     public override int sortOrderPriority => orderPriority;
     public override int renderOrderPriority => orderPriority;
     
-    public static bool GetGroundPosition(Vector2 mousePosition, out Vector3 worldPosition, GameObject ignoreObject = null)
+    public static bool GetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)
     {
         var eventData = new PointerEventData(EventSystem.current)
         {
-            position = mousePosition
+            position = screenPosition
         };
 
         var results = new List<RaycastResult>();
@@ -23,7 +23,7 @@ public class WorldRaycaster : PhysicsRaycaster
 
         if (results.Count == 0) return false;
 
-        if (results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index && result.gameObject != ignoreObject))
+        if (results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index))
         {
             return false;
         }

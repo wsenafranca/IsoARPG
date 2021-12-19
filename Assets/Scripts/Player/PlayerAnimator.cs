@@ -44,7 +44,8 @@ namespace Player
         public bool PlayNormalAttackAnimation()
         {
             if (isPlayingAnimation) return false;
-
+            
+            LockAnimation();
             animator.SetTrigger(NormalAttackID);
             return true;
         }

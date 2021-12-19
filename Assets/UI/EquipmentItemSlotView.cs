@@ -76,7 +76,7 @@ namespace UI
             if (inventoryController == null) return;
             
             var item = GetItem();
-            if (!WorldRaycaster.GetGroundPosition(eventData.position, out var worldPosition, inventoryController.gameObject)) return;
+            if (!WorldRaycaster.GetGroundPosition(eventData.position, out var worldPosition)) return;
                 
             var itemDrop = Instantiate(item.itemBase.itemSlotPrefab);
             itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPosition);

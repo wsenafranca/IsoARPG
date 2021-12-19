@@ -40,7 +40,7 @@ namespace Weapon
         {
             if (!_isAttacking) return;
 
-            var layerMask = GameAsset.instance.characterLayer.mask;
+            var layerMask = LayerMask.GetMask("Character", "Player");
             var step = 1.0f / collisionSteps;
             for (var alpha = 0.0f; alpha <= 1.0f; alpha += step)
             {

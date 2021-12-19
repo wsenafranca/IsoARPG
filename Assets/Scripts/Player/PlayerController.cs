@@ -8,17 +8,21 @@ using UnityEngine;
 
 namespace Player
 {
-    public class PlayerStateMachine : StateMachine, IInputHandler
+    public class PlayerController : StateMachine
     {
+        public static PlayerController instance { get; private set; }
+        
         private CharacterBase _character;
         private CharacterMovement _characterMovement;
         private PlayerAnimator _animator;
         private PlayerInventoryController _inventory;
+        public InputController input { get; private set; }
         
-        private Targetable _currentTarget;
         private PlayerAction _action;
         private int _hitNumber;
         private float _lastAttack;
+        private bool _isPressing;
+        private Targetable _lastTarget;
 
         private void Awake()
         {
@@ -26,6 +30,7 @@ namespace Player
             _characterMovement = GetComponent<CharacterMovement>();
             _animator = GetComponent<PlayerAnimator>();
             _inventory = GetComponent<PlayerInventoryController>();
+            input = GetComponent<InputController>();
 
             var wait = StateMachineManager.GetState<WaitState>();
             var moveDestination = StateMachineManager.GetState<MoveDestinationState>();
@@ -41,9 +46,28 @@ namespace Player
             AddTransition(normalAttack, wait, () => !_animator.isPlayingAnimation);
 
             currentState = wait;
+
+            instance = this;
+        }
+
+        private void OnEnable()
+        {
+            input.pointerClickGround?.AddListener(OnClickGround);
+            input.pointerClickTarget?.AddListener(OnClickTarget);
+        }
+
+        private void OnDisable()
+        {
+            input.pointerClickGround?.RemoveListener(OnClickGround);
+            input.pointerClickTarget?.RemoveListener(OnClickTarget);
         }
 
         public void SetDestination(Vector3 target, float acceptableDistance)
+        {
+            _characterMovement.SetDestination(target, acceptableDistance);
+        }
+        
+        public void SetDestination(Transform target, float acceptableDistance)
         {
             _characterMovement.SetDestination(target, acceptableDistance);
         }
@@ -51,15 +75,15 @@ namespace Player
         public void Collect()
         {
             _action = PlayerAction.None;
-            if (_currentTarget == null || _currentTarget is not Collectible collectible) return;
+            if (_lastTarget == null || _lastTarget is not Collectible collectible) return;
             collectible.Collect(gameObject);
         }
 
         public void BeginNormalAttack()
         {
-            if (_currentTarget == null) return;
+            if (_lastTarget == null) return;
             
-            _characterMovement.LookAt(_currentTarget.transform);
+            _characterMovement.LookAt(_lastTarget.transform);
             
             _hitNumber = Time.time - _lastAttack < 2.0f ? (_hitNumber + 1) % 2 : 0;
 
@@ -91,12 +115,12 @@ namespace Player
             _action = PlayerAction.None;
         }
 
-        public void OnClickGround(Vector3 worldPoint)
+        private void OnClickGround(Vector3 worldPoint)
         {
             GetCurrentState<IPlayerState>()?.OnClickGround(this, worldPoint);
         }
 
-        public void OnClickTarget(Targetable target)
+        private void OnClickTarget(Targetable target)
         {
             GetCurrentState<IPlayerState>()?.OnClickTarget(this, target);
         }
@@ -116,8 +140,8 @@ namespace Player
 
         private interface IPlayerState : IState
         {
-            public void OnClickGround(PlayerStateMachine stateMachine, Vector3 worldPoint);
-            public void OnClickTarget(PlayerStateMachine stateMachine, Targetable target);
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint);
+            public void OnClickTarget(PlayerController stateMachine, Targetable target);
         }
 
         private class WaitState : IPlayerState
@@ -136,38 +160,42 @@ namespace Player
             
             }
 
-            public void OnClickGround(PlayerStateMachine stateMachine, Vector3 worldPoint)
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
                 stateMachine._action = PlayerAction.None;
                 stateMachine.SetDestination(worldPoint, 0.0f);
             }
 
-            public void OnClickTarget(PlayerStateMachine stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target)
             {
-                if (target == null || !target.isValid)
+                if (target != null && target.isValid)
                 {
-                    stateMachine._currentTarget = null;
+                    stateMachine._lastTarget = target;
+                }
+
+                if (stateMachine._lastTarget == null || !stateMachine._lastTarget.isValid)
+                {
+                    stateMachine._lastTarget = null;
                     return;
                 }
                 
-                stateMachine._currentTarget = target;
-                switch (target.targetType)
+                switch (stateMachine._lastTarget.targetType)
                 {
                     case TargetType.Neutral:
                         stateMachine._action = PlayerAction.None;
-                        stateMachine.SetDestination(target.transform.position, 1.0f);
+                        stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
                         break;
                     case TargetType.Enemy:
                         stateMachine._action = PlayerAction.NormalAttack;
-                        stateMachine.SetDestination(target.transform.position, 1.5f);
+                        stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
                         break;
                     case TargetType.Talkative:
                         stateMachine._action = PlayerAction.Talk;
-                        stateMachine.SetDestination(target.transform.position, 1.0f);
+                        stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
                         break;
                     case TargetType.Collectible:
                         stateMachine._action = PlayerAction.Collect;
-                        stateMachine.SetDestination(target.transform.position, 1.0f);
+                        stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -189,15 +217,15 @@ namespace Player
 
             public void OnStateExit(StateMachine stateMachine)
             {
-                (stateMachine as PlayerStateMachine)?._characterMovement.StopMovement();
+                (stateMachine as PlayerController)?._characterMovement.StopMovement();
             }
 
-            public void OnClickGround(PlayerStateMachine stateMachine, Vector3 worldPoint)
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
                 stateMachine._characterMovement.SetDestination(worldPoint);
             }
 
-            public void OnClickTarget(PlayerStateMachine stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target)
             {
                 
             }
@@ -207,7 +235,7 @@ namespace Player
         {
             public void OnStateEnter(StateMachine stateMachine)
             {
-                (stateMachine as PlayerStateMachine)?.BeginNormalAttack();
+                (stateMachine as PlayerController)?.BeginNormalAttack();
             }
 
             public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
@@ -217,15 +245,15 @@ namespace Player
 
             public void OnStateExit(StateMachine stateMachine)
             {
-                (stateMachine as PlayerStateMachine)?.EndNormalAttack();
+                (stateMachine as PlayerController)?.EndNormalAttack();
             }
 
-            public void OnClickGround(PlayerStateMachine stateMachine, Vector3 worldPoint)
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
                 
             }
 
-            public void OnClickTarget(PlayerStateMachine stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target)
             {
                 
             }
@@ -235,7 +263,7 @@ namespace Player
         {
             public void OnStateEnter(StateMachine stateMachine)
             {
-                (stateMachine as PlayerStateMachine)?.Collect();
+                (stateMachine as PlayerController)?.Collect();
                 stateMachine.currentState = StateMachineManager.GetState<WaitState>();
             }
 
@@ -246,15 +274,15 @@ namespace Player
 
             public void OnStateExit(StateMachine stateMachine)
             {
-                (stateMachine as PlayerStateMachine)?.Collect();
+                (stateMachine as PlayerController)?.Collect();
             }
 
-            public void OnClickGround(PlayerStateMachine stateMachine, Vector3 worldPoint)
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
                 
             }
 
-            public void OnClickTarget(PlayerStateMachine stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target)
             {
                 
             }
