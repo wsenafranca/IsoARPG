@@ -26,6 +26,16 @@ namespace TargetSystem
             _renderers = GetComponentsInChildren<Renderer>(true).Where(r => r is MeshRenderer or SkinnedMeshRenderer).ToArray();
         }
 
+        protected virtual void OnDisable()
+        {
+            foreach (var r in _renderers.Where(r => r.enabled && r.gameObject.activeInHierarchy))
+            {
+                r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
+            }
+        
+            PlayerController.instance.input.currentTarget = null;
+        }
+
         public virtual Color targetColor => targetType switch
         {
             TargetType.Neutral => GameAsset.instance.outlineNeutral,
@@ -35,16 +45,8 @@ namespace TargetSystem
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        public virtual bool isValid => true;
-
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isValid)
-            {
-                OnPointerExit(eventData);
-                return;
-            }
-            
             OutlineSettings.currentColor = targetColor;
             
             foreach (var r in _renderers.Where(r => r.enabled && r.gameObject.activeInHierarchy))

@@ -6,9 +6,10 @@ namespace Damage
     public struct DamageIntent
     {
         public CharacterBase source;
-        public DamageFlags flags;
+        public DamageFlags damageFlags;
+        public DamageTargetType damageTargetType;
         public DamageType damageType;
-        public float skillDamage;
+        public float skillDamageBonus;
         public Vector3 worldPosition;
     }
 }

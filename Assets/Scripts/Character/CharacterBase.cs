@@ -37,8 +37,8 @@ namespace Character
                 if (value == _health) return;
                 _health = value;
                 currentHealthChanged?.Invoke(this, _health, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
-                
-                if(!isAlive) death?.Invoke(this);
+
+                if (!isAlive) OnDeath();
             }
         }
 
@@ -92,6 +92,12 @@ namespace Character
             _animator.animSpeed = animSpeed;
         }
 
+        private void OnDeath()
+        {
+            _animator.TriggerDeath();
+            death?.Invoke(this);
+        }
+
         private IEnumerator ApplyDamage_()
         {
             while (enabled)
@@ -105,8 +111,6 @@ namespace Character
                         _damages.Clear();
                         break;
                     }
-                    
-                    if (damage.value <= 0) continue;
                     
                     switch (damage.damageType)
                     {

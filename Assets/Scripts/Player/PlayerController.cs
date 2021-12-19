@@ -1,8 +1,8 @@
 ﻿using System;
 using Character;
-using Damage;
 using FiniteStateMachine;
 using Item;
+using SkillSystem;
 using TargetSystem;
 using UnityEngine;
 
@@ -16,6 +16,7 @@ namespace Player
         private CharacterMovement _characterMovement;
         private PlayerAnimator _animator;
         private PlayerInventoryController _inventory;
+        private SkillSet _skillSet;
         public InputController input { get; private set; }
         
         private PlayerAction _action;
@@ -23,6 +24,7 @@ namespace Player
         private float _lastAttack;
         private bool _isPressing;
         private Targetable _lastTarget;
+        private SkillInstance _currentSkill;
 
         private void Awake()
         {
@@ -30,20 +32,21 @@ namespace Player
             _characterMovement = GetComponent<CharacterMovement>();
             _animator = GetComponent<PlayerAnimator>();
             _inventory = GetComponent<PlayerInventoryController>();
+            _skillSet = GetComponent<SkillSet>();
             input = GetComponent<InputController>();
 
             var wait = StateMachineManager.GetState<WaitState>();
             var moveDestination = StateMachineManager.GetState<MoveDestinationState>();
             var collect = StateMachineManager.GetState<CollectState>();
-            var normalAttack = StateMachineManager.GetState<NormalAttackState>();
+            var useSkill = StateMachineManager.GetState<UseSkillState>();
             
             AddTransition(wait, moveDestination, ()=> _characterMovement.isNavigating);
             AddTransition(wait, collect, ()=> _action == PlayerAction.Collect);
-            AddTransition(wait, normalAttack, ()=> _action == PlayerAction.NormalAttack);
+            AddTransition(wait, useSkill, ()=> _action == PlayerAction.UseSkill);
             
             AddTransition(moveDestination, wait, ()=> _characterMovement.hasReachDestination);
             
-            AddTransition(normalAttack, wait, () => !_animator.isPlayingAnimation);
+            AddTransition(useSkill, wait, () => !_animator.isPlayingAnimation);
 
             currentState = wait;
 
@@ -79,11 +82,24 @@ namespace Player
             collectible.Collect(gameObject);
         }
 
-        public void BeginNormalAttack()
+        public bool BeginUseSkill()
         {
-            if (_lastTarget == null) return;
-            
-            _characterMovement.LookAt(_lastTarget.transform);
+            if (_animator.isPlayingAnimation || _currentSkill == null || !_currentSkill.CanUseSkill(_character))
+            {
+                EndUseSkill();
+                return false;
+            }
+
+            if (_currentSkill.skillBase.needTarget)
+            {
+                if (_lastTarget == null)
+                {
+                    EndUseSkill();
+                    return false;
+                }
+                
+                _characterMovement.LookAt(_lastTarget.transform);
+            }
             
             _hitNumber = Time.time - _lastAttack < 2.0f ? (_hitNumber + 1) % 2 : 0;
 
@@ -91,25 +107,32 @@ namespace Player
 
             var weaponIndex = _hitNumber == 1 && _inventory.GetWeaponMelee(1) ? _hitNumber : 0;
             _animator.weaponIndex = weaponIndex;
-            
-            var weapon = _inventory.GetWeaponMelee(weaponIndex);
-            if (weapon == null)
-            {
-                EndNormalAttack();
-                return;
-            }
 
-            var damageIntent = new DamageIntent
+            if (!_currentSkill.TryUseSkill(_character, out var damageIntent))
             {
-                source =  _character,
-                damageType = DamageType.Health,
-            };
-            weapon.SetDamageIntent(damageIntent);
-            _action = PlayerAction.NormalAttack;
-            _animator.PlayNormalAttackAnimation();
+                EndUseSkill();
+                return false;
+            }
+            
+            if (_currentSkill.skillBase.requirements.HasFlag(SkillRequirements.MeleeWeapon))
+            {
+                var weapon = _inventory.GetWeaponMelee(weaponIndex);
+                if (weapon == null)
+                {
+                    EndUseSkill();
+                    return false;
+                }
+                
+                weapon.SetDamageIntent(damageIntent);
+            }
+            
+            _action = PlayerAction.UseSkill;
+            _animator.PlaySkillAnimation(_currentSkill.skillBase.animatorTrigger);
+            
+            return true;
         }
 
-        public void EndNormalAttack()
+        private void EndUseSkill()
         {
             _lastAttack = Time.time;
             _action = PlayerAction.None;
@@ -120,9 +143,9 @@ namespace Player
             GetCurrentState<IPlayerState>()?.OnClickGround(this, worldPoint);
         }
 
-        private void OnClickTarget(Targetable target)
+        private void OnClickTarget(Targetable target, int button)
         {
-            GetCurrentState<IPlayerState>()?.OnClickTarget(this, target);
+            GetCurrentState<IPlayerState>()?.OnClickTarget(this, target, button);
         }
 
         private void OnGUI()
@@ -133,7 +156,7 @@ namespace Player
         private enum PlayerAction
         {
             None,
-            NormalAttack,
+            UseSkill,
             Talk,
             Collect
         }
@@ -141,7 +164,7 @@ namespace Player
         private interface IPlayerState : IState
         {
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint);
-            public void OnClickTarget(PlayerController stateMachine, Targetable target);
+            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button);
         }
 
         private class WaitState : IPlayerState
@@ -166,14 +189,14 @@ namespace Player
                 stateMachine.SetDestination(worldPoint, 0.0f);
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
-                if (target != null && target.isValid)
+                if (target != null && target.enabled)
                 {
                     stateMachine._lastTarget = target;
                 }
 
-                if (stateMachine._lastTarget == null || !stateMachine._lastTarget.isValid)
+                if (stateMachine._lastTarget == null || !stateMachine._lastTarget.enabled)
                 {
                     stateMachine._lastTarget = null;
                     return;
@@ -186,8 +209,15 @@ namespace Player
                         stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
                         break;
                     case TargetType.Enemy:
-                        stateMachine._action = PlayerAction.NormalAttack;
-                        stateMachine.SetDestination(stateMachine._lastTarget.transform, 1.0f);
+                        if (stateMachine._skillSet.TryGetSkillFromMouseButton(button, out stateMachine._currentSkill) && stateMachine._currentSkill.CanUseSkill(stateMachine._character))
+                        {
+                            stateMachine._action = PlayerAction.UseSkill;
+                            stateMachine.SetDestination(stateMachine._lastTarget.transform, stateMachine._currentSkill.skillBase.range);
+                        }
+                        else
+                        {
+                            stateMachine._action = PlayerAction.None;
+                        }
                         break;
                     case TargetType.Talkative:
                         stateMachine._action = PlayerAction.Talk;
@@ -225,17 +255,17 @@ namespace Player
                 stateMachine._characterMovement.SetDestination(worldPoint);
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
                 
             }
         }
 
-        private class NormalAttackState : IPlayerState
+        private class UseSkillState : IPlayerState
         {
             public void OnStateEnter(StateMachine stateMachine)
             {
-                (stateMachine as PlayerController)?.BeginNormalAttack();
+                (stateMachine as PlayerController)?.BeginUseSkill();
             }
 
             public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
@@ -245,7 +275,7 @@ namespace Player
 
             public void OnStateExit(StateMachine stateMachine)
             {
-                (stateMachine as PlayerController)?.EndNormalAttack();
+                (stateMachine as PlayerController)?.EndUseSkill();
             }
 
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
@@ -253,7 +283,7 @@ namespace Player
                 
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
                 
             }
@@ -282,7 +312,7 @@ namespace Player
                 
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target)
+            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
                 
             }

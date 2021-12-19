@@ -10,6 +10,7 @@ namespace Character
         private static readonly int SpeedID = Animator.StringToHash("speed");
         private static readonly int MovingID = Animator.StringToHash("moving");
         private static readonly int AnimSpeedID = Animator.StringToHash("animSpeed");
+        private static readonly int DeathID = Animator.StringToHash("Death");
 
         protected virtual void Awake()
         {
@@ -44,6 +45,11 @@ namespace Character
         public void UnlockAnimation()
         {
             _lockAnimation = false;
+        }
+
+        public void TriggerDeath()
+        {
+            animator.SetTrigger(DeathID);
         }
         
         private void FootR()

@@ -6,7 +6,7 @@ namespace Damage
 {
     public static class DamageCalculator
     {
-        public static DamageInfo CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.flags, intent.damageType, intent.skillDamage, intent.worldPosition);
+        public static DamageInfo CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.damageFlags, intent.damageType, intent.skillDamageBonus, intent.worldPosition);
         
         public static DamageInfo CalculateDamage(CharacterBase source, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float skillDamage, Vector3 worldPosition)
         {

@@ -11,7 +11,6 @@ namespace Player
         private static readonly int EquipSwordAndShieldID = Animator.StringToHash("EquipSwordAndShield");
         private static readonly int EquipTwoHandSwordID = Animator.StringToHash("EquipTwoHandSword");
         private static readonly int UnEquipID = Animator.StringToHash("UnEquip");
-        private static readonly int NormalAttackID = Animator.StringToHash("NormalAttack");
         private static readonly int WeaponIndexID = Animator.StringToHash("weaponIndex");
         private static readonly int HitNumberID = Animator.StringToHash("hitNumber");
 
@@ -41,12 +40,12 @@ namespace Player
             animator.SetTrigger(UnEquipID);
         }
         
-        public bool PlayNormalAttackAnimation()
+        public bool PlaySkillAnimation(string skillName)
         {
             if (isPlayingAnimation) return false;
             
             LockAnimation();
-            animator.SetTrigger(NormalAttackID);
+            animator.SetTrigger(skillName);
             return true;
         }
         

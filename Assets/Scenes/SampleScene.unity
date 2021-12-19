@@ -1076,7 +1076,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7777778, y: 1}
+    m_SensorSize: {x: 1.7792706, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -4718,6 +4718,7 @@ GameObject:
   m_Component:
   - component: {fileID: 946529414}
   - component: {fileID: 946529413}
+  - component: {fileID: 946529415}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -4755,6 +4756,25 @@ Transform:
   m_Father: {fileID: 838536355}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &946529415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946529411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -9369,6 +9389,7 @@ GameObject:
   - component: {fileID: 2061347265}
   - component: {fileID: 2061347266}
   - component: {fileID: 2061347267}
+  - component: {fileID: 2061347268}
   m_Layer: 7
   m_Name: Big Orc
   m_TagString: Untagged
@@ -11355,6 +11376,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4458f4180a214a3ab3301cd98f6997c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2061347268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690118997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871dc097988c475ca6d352a635dce012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &2067928254
@@ -15055,6 +15088,7 @@ GameObject:
   - component: {fileID: 2617942292310742617}
   - component: {fileID: 2617942292310742618}
   - component: {fileID: 2617942292310742619}
+  - component: {fileID: 2617942292310742620}
   m_Layer: 7
   m_Name: Goblin
   m_TagString: Untagged
@@ -15232,6 +15266,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4458f4180a214a3ab3301cd98f6997c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2617942292310742620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2617942292310742609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871dc097988c475ca6d352a635dce012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2617942292310742625
@@ -15819,6 +15865,7 @@ GameObject:
   - component: {fileID: 4794858102986121157}
   - component: {fileID: 4794858102986121158}
   - component: {fileID: 4794858102986121160}
+  - component: {fileID: 4794858102986121161}
   m_Layer: 10
   m_Name: Player
   m_TagString: Player
@@ -15911,7 +15958,7 @@ MonoBehaviour:
       baseValue: 0
   - attribute: 7
     value:
-      baseValue: 0
+      baseValue: 70
   - attribute: 8
     value:
       baseValue: 0
@@ -16197,6 +16244,23 @@ MonoBehaviour:
   pointerClickTarget:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4794858102986121161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794858102986083213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 844d99f69a8f4b4996229c7f8d07fd1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skills:
+  - {fileID: 11400000, guid: 268c1b72acf49654da10ec2a78ae55e0, type: 2}
+  skillMouseSlot:
+  - {fileID: 11400000, guid: 268c1b72acf49654da10ec2a78ae55e0, type: 2}
+  - {fileID: 0}
 --- !u!222 &5350386508571903283
 CanvasRenderer:
   m_ObjectHideFlags: 0

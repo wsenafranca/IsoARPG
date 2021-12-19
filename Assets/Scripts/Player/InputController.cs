@@ -7,7 +7,8 @@ namespace Player
 {
     public class InputController : MonoBehaviour
     {
-        private bool _isPressing;
+        private bool _isPressingLeft;
+        private bool _isPressingRight;
         private Targetable _target;
         private float _lastClickTime;
         private Vector2 _lastMousePosition;
@@ -29,22 +30,23 @@ namespace Player
         public UnityEvent<Vector3> pointerClickGround;
         public UnityEvent<Targetable> pointerEnterTarget;
         public UnityEvent<Targetable> pointerExitTarget;
-        public UnityEvent<Targetable> pointerClickTarget;
+        public UnityEvent<Targetable, int> pointerClickTarget;
 
         private void Update()
         {
             if (DragAndDropManager.instance.dragging) return;
 
-            _isPressing = Input.GetMouseButton(0);
+            _isPressingLeft = Input.GetMouseButton(0);
+            _isPressingRight = Input.GetMouseButton(1);
             
-            if (!_isPressing || Time.time - _lastClickTime < 0.5f) return;
+            if (Time.time - _lastClickTime < 0.5f) return;
 
-            if (currentTarget)
+            if (currentTarget && _isPressingLeft || _isPressingRight)
             {
-                pointerClickTarget?.Invoke(currentTarget);
+                pointerClickTarget?.Invoke(currentTarget, _isPressingRight ? 1 : 0);
                 _lastClickTime = Time.time;
             }
-            else if (WorldRaycaster.GetGroundPosition(Input.mousePosition, out var worldPosition))
+            else if (_isPressingLeft && WorldRaycaster.GetGroundPosition(Input.mousePosition, out var worldPosition))
             {
                 pointerClickGround?.Invoke(worldPosition);
             }
