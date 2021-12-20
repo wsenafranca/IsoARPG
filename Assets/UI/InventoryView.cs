@@ -80,10 +80,10 @@ namespace UI
             slot.CancelDrag();
             
             var item = slot.GetItem();
-            if (!WorldRaycaster.GetGroundPosition(eventData.position, out var worldPosition)) return;
+            var worldPoint = inventoryController.transform.position;
                 
             var itemDrop = Instantiate(item.itemBase.itemSlotPrefab);
-            itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPosition);
+            itemDrop.GetComponent<Collectible>().SetAsDrop(item.itemBase, item, worldPoint);
             inventoryController.RemoveItem(item);
         }
 

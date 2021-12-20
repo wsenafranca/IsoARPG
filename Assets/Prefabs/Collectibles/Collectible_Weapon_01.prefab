@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6583293414850529943}
   - component: {fileID: 3929145319364056108}
-  - component: {fileID: 368952299271492565}
-  m_Layer: 9
+  - component: {fileID: 1210549529544476284}
+  - component: {fileID: 3544226353664605195}
+  m_Layer: 0
   m_Name: Collectible_Weapon_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,8 +50,24 @@ MonoBehaviour:
   targetType: 3
   item: {fileID: 11400000, guid: f7d35f3c04e749e4aa7c6000458e3a3e, type: 2}
   duration: 600
---- !u!136 &368952299271492565
-CapsuleCollider:
+--- !u!54 &1210549529544476284
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2654632086693795933}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &3544226353664605195
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -59,9 +76,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.2
-  m_Height: 1.54
-  m_Direction: 1
+  serializedVersion: 2
+  m_Size: {x: 0.41, y: 1.5, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &2448683888197614084
 PrefabInstance:

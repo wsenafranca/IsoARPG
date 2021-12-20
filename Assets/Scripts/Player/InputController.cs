@@ -1,7 +1,10 @@
-﻿using TargetSystem;
+﻿using System.Collections.Generic;
+using System.Linq;
+using TargetSystem;
 using UI;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace Player
 {
@@ -12,6 +15,7 @@ namespace Player
         private Targetable _target;
         private float _lastClickTime;
         private Vector2 _lastMousePosition;
+        private readonly List<RaycastResult> _results = new();
         
         public Targetable currentTarget
         {
@@ -46,10 +50,36 @@ namespace Player
                 pointerClickTarget?.Invoke(currentTarget, _isPressingRight ? 1 : 0);
                 _lastClickTime = Time.time;
             }
-            else if (_isPressingLeft && WorldRaycaster.GetGroundPosition(Input.mousePosition, out var worldPosition))
+            else if (_isPressingLeft && GetGroundPosition(Input.mousePosition, out var worldPosition))
             {
                 pointerClickGround?.Invoke(worldPosition);
             }
+        }
+        
+        private bool GetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)
+        {
+            var eventData = new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+            _results.Clear();
+            EventSystem.current.RaycastAll(eventData, _results);
+            
+            worldPosition = Vector3.zero;
+
+            if (_results.Count == 0) return false;
+
+            if (_results.Any(result => result.gameObject.layer != GameAsset.instance.groundLayer.index))
+            {
+                _results.Clear();
+                return false;
+            }
+
+            worldPosition = _results.First().worldPosition;
+            _results.Clear();
+            
+            return true;
         }
     }
 }

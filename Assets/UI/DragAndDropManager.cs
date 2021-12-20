@@ -7,6 +7,7 @@ namespace UI
     {
         public GameObject pointerDrag;
         public bool dragging;
+        public Canvas canvas;
         public Camera eventCamera;
         public Vector2 position;
         public Vector2 delta;
@@ -34,6 +35,8 @@ namespace UI
     {
         public static DragAndDropManager instance { get; private set; }
 
+        private Canvas _canvas;
+        
         public GameObject pointerDrag { get; private set; }
         
         public DropArea currentArea { get; private set; }
@@ -41,7 +44,7 @@ namespace UI
         public bool dragging { get; private set; }
 
         private Vector2 _lastMousePosition;
-
+        
         public void BeginDrag(GameObject target)
         {
             if (dragging || pointerDrag != null) return;
@@ -115,6 +118,7 @@ namespace UI
         
         private void Awake()
         {
+            _canvas = GetComponent<Canvas>();
             instance = this;
         }
 
@@ -151,7 +155,8 @@ namespace UI
             {
                 pointerDrag = pointerDrag,
                 dragging = dragging,
-                eventCamera = GetComponent<Canvas>()?.worldCamera,
+                canvas =  _canvas,
+                eventCamera = _canvas.worldCamera,
                 position = mousePosition,
                 delta = delta,
                 area = currentArea

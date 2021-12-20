@@ -65,11 +65,16 @@ namespace Item
             }
             
             GetComponent<Collider>().enabled = true;
+            if (!gameObject.TryGetComponent<Rigidbody>(out _))
+            {
+                gameObject.AddComponent<Rigidbody>();
+            }
+            
+            var spherePoint = Random.insideUnitSphere * 0.25f;
+            position.x += spherePoint.x;
+            position.y += Mathf.Max(0, spherePoint.y) + 1;
+            position.z += spherePoint.z;
 
-            position.y += 0.1f;
-            var delta = Random.insideUnitCircle;
-            position.x += delta.x;
-            position.z += delta.y;
             transform.SetPositionAndRotation(position, Quaternion.Euler(90, 0.0f, 0.0f));
         }
         
@@ -85,6 +90,10 @@ namespace Item
             }
             
             GetComponent<Collider>().enabled = false;
+            if (gameObject.TryGetComponent<Rigidbody>(out var rb))
+            {
+                Destroy(rb);
+            }
         }
 
         public override Color targetColor => _itemInstance.itemColor;

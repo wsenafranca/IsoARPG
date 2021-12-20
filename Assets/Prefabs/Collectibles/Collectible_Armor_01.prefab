@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3870449665704532601}
-  - component: {fileID: 3870449665704532580}
   - component: {fileID: 3870449665704532581}
-  m_Layer: 9
+  - component: {fileID: -5158754787048687145}
+  - component: {fileID: 5359343435638667936}
+  m_Layer: 0
   m_Name: Collectible_Armor_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36,19 +37,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &3870449665704532580
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3870449665704532578}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.57
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3870449665704532581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,6 +52,35 @@ MonoBehaviour:
   targetType: 3
   item: {fileID: 11400000, guid: dc84bb392a828bd4dae274595f53f7f1, type: 2}
   duration: 600
+--- !u!54 &-5158754787048687145
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3870449665704532578}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &5359343435638667936
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3870449665704532578}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.66, z: 0.34}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3870449664399214933
 PrefabInstance:
   m_ObjectHideFlags: 0
