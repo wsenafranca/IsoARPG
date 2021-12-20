@@ -127,9 +127,11 @@ namespace Player
             }
             
             _action = PlayerAction.UseSkill;
-            _animator.PlaySkillAnimation(_currentSkill.skillBase.animatorTrigger);
             
-            return true;
+            if (_animator.TriggerSkillAnimation(_currentSkill.skillBase.animatorTrigger)) return true;
+
+            EndUseSkill();
+            return false;
         }
 
         private void EndUseSkill()
@@ -146,6 +148,16 @@ namespace Player
         private void OnClickTarget(Targetable target, int button)
         {
             GetCurrentState<IPlayerState>()?.OnClickTarget(this, target, button);
+        }
+        
+        private void OnWeaponBeginAttack(int index)
+        {
+            if(_inventory) _inventory.GetWeaponMelee(index)?.BeginAttack(gameObject);
+        }
+
+        private void OnWeaponEndAttack(int index)
+        {
+            if(_inventory) _inventory.GetWeaponMelee(index)?.EndAttack();
         }
 
         private void OnGUI()

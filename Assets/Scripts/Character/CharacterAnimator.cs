@@ -46,10 +46,24 @@ namespace Character
         {
             _lockAnimation = false;
         }
+        
+        public bool TriggerSkillAnimation(string skillName)
+        {
+            if (isPlayingAnimation) return false;
+            
+            LockAnimation();
+            animator.SetTrigger(skillName);
+            return true;
+        }
 
         public void TriggerDeath()
         {
             animator.SetTrigger(DeathID);
+        }
+
+        private void Hit()
+        {
+            
         }
         
         private void FootR()

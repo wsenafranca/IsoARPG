@@ -45,7 +45,7 @@ namespace Damage
 
             var defensePower = damageFlags.HasFlag(DamageFlags.IgnoreDefense) ? 0 : target.attributeSet.GetAttributeValueOrDefault(Attribute.DefensePower);
 
-            outDamage.value = 1 + Mathf.FloorToInt(attackPower * (1 + skillDamage) - defensePower);
+            outDamage.value = Mathf.Max(1, Mathf.FloorToInt(attackPower * (1 + skillDamage) - defensePower));
 
             if (Random.value < source.attributeSet.GetAttributeValueOrDefault(Attribute.CriticalHitRate) / 100.0f)
             {

@@ -6,8 +6,7 @@ namespace SkillSystem
 {
     public class SkillSet : MonoBehaviour
     {
-        [SerializeField]
-        private List<Skill> skills;
+        public List<Skill> skills;
 
         private readonly Dictionary<Type, SkillInstance> _skillInstances = new();
         

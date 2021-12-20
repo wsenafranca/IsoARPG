@@ -37,5 +37,12 @@ namespace SkillSystem
         {
             return isReady && character.currentHealth >= skillBase.healthCost && character.currentMana >= skillBase.manaCost;
         }
+
+        public bool CanUseSkillAtTarget(CharacterBase character, CharacterBase target)
+        {
+            if (!CanUseSkill(character) || target == null || !target.isAlive) return false;
+
+            return Vector3.Distance(character.transform.position, target.transform.position) <= skillBase.range;
+        }
     }
 }

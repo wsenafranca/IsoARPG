@@ -5,8 +5,6 @@ namespace Player
 {
     public class PlayerAnimator : CharacterAnimator
     {
-        private PlayerInventoryController _inventory;
-        
         private static readonly int EquipOneHandSwordID = Animator.StringToHash("EquipOneHandSword");
         private static readonly int EquipSwordAndShieldID = Animator.StringToHash("EquipSwordAndShield");
         private static readonly int EquipTwoHandSwordID = Animator.StringToHash("EquipTwoHandSword");
@@ -17,7 +15,6 @@ namespace Player
         protected override void Awake()
         {
             base.Awake();
-            _inventory = GetComponent<PlayerInventoryController>();
         }
 
         public void EquipOneHandSword()
@@ -40,15 +37,6 @@ namespace Player
             animator.SetTrigger(UnEquipID);
         }
         
-        public bool PlaySkillAnimation(string skillName)
-        {
-            if (isPlayingAnimation) return false;
-            
-            LockAnimation();
-            animator.SetTrigger(skillName);
-            return true;
-        }
-        
         public int weaponIndex
         {
             set => animator.SetInteger(WeaponIndexID, value);
@@ -59,16 +47,6 @@ namespace Player
         {
             set => animator.SetInteger(HitNumberID, value);
             get => animator.GetInteger(HitNumberID);
-        }
-        
-        private void OnWeaponBeginAttack(int index)
-        {
-            if(_inventory) _inventory.GetWeaponMelee(index)?.BeginAttack(gameObject);
-        }
-
-        private void OnWeaponEndAttack(int index)
-        {
-            if(_inventory) _inventory.GetWeaponMelee(index)?.EndAttack();
         }
     }
 }
