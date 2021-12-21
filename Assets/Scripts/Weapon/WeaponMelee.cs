@@ -79,6 +79,7 @@ namespace Weapon
         public void SetDamageIntent(DamageIntent intent)
         {
             _damageIntent = intent;
+            _damageIntent.causer = gameObject;
         }
 
         public void BeginAttack(GameObject instigator)

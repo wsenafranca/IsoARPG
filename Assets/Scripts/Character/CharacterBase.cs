@@ -27,10 +27,11 @@ namespace Character
         
         private readonly Queue<DamageHit> _damages = new(30);
 
-        public UnityEvent<CharacterBase> death;
+        public UnityEvent<CharacterBase> dead;
         public UnityEvent<CharacterBase, int, int> currentHealthChanged;
         public UnityEvent<CharacterBase, int, int> currentManaChanged;
         public UnityEvent<CharacterBase, int, int> currentEnergyShieldChanged;
+        public UnityEvent<CharacterBase, DamageHit> damageReceived;
 
         [NonSerialized]
         private int _health;
@@ -101,7 +102,7 @@ namespace Character
         private void OnDeath()
         {
             _animator.TriggerDeath();
-            death?.Invoke(this);
+            dead?.Invoke(this);
         }
 
         private IEnumerator ApplyDamage_()
@@ -139,6 +140,7 @@ namespace Character
                             throw new ArgumentOutOfRangeException();
                     }
                     
+                    damageReceived?.Invoke(this, damage);
                     DamageOutputManager.instance.ShowDamage(damage);
                 }
             }

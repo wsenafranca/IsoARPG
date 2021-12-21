@@ -25,7 +25,7 @@ namespace SkillSystem
 
             _useTime = DateTime.Now;
 
-            damageIntent.source = character;
+            damageIntent.instigator = character;
             damageIntent.damageTargetType = skillBase.damageTargetType;
             damageIntent.damageType = skillBase.damageType;
             damageIntent.skillDamageBonus = skillBase.skillDamageBonus;

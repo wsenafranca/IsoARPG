@@ -33,7 +33,7 @@ namespace TargetSystem
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
         
-            PlayerController.instance.input.currentTarget = null;
+            PlayerController.instance.input.RemoveTarget(this);
         }
 
         public virtual Color targetColor => targetType switch
@@ -54,7 +54,7 @@ namespace TargetSystem
                 r.gameObject.layer = GameAsset.instance.outlineLayerOn.index;
             }
 
-            PlayerController.instance.input.currentTarget = this;
+            PlayerController.instance.input.AddTarget(this);
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
@@ -64,10 +64,7 @@ namespace TargetSystem
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
 
-            if (PlayerController.instance.input.currentTarget == this)
-            {
-                PlayerController.instance.input.currentTarget = null;
-            }
+            PlayerController.instance.input.RemoveTarget(this);
         }
     }
 }

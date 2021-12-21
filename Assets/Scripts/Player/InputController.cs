@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Character;
 using SkillSystem;
 using TargetSystem;
 using UI;
@@ -15,25 +16,13 @@ namespace Player
         
         private bool _isPressingLeft;
         private bool _isPressingRight;
-        private Targetable _target;
+        private readonly List<Targetable> _targets = new();
         private float _lastClickTime;
         private Vector2 _lastMousePosition;
         private readonly List<RaycastResult> _results = new();
 
-        public Targetable currentTarget
-        {
-            get => _target;
-            set
-            {
-                if (_target == value) return;
-                
-                if (value == null) pointerExitTarget?.Invoke(_target);
+        public Targetable currentTarget { get; private set; }
 
-                _target = value;
-                if(_target != null) pointerEnterTarget?.Invoke(_target);
-            }
-        }
-        
         public UnityEvent<Vector3> pointerClickGround;
         public UnityEvent<Targetable> pointerEnterTarget;
         public UnityEvent<Targetable> pointerExitTarget;
@@ -48,7 +37,7 @@ namespace Player
             
             if (Time.time - _lastClickTime < 0.5f) return;
 
-            if (currentTarget && _isPressingLeft || _isPressingRight)
+            if (currentTarget && currentTarget.enabled && (_isPressingLeft || _isPressingRight))
             {
                 pointerClickTarget?.Invoke(currentTarget, _isPressingRight ? 1 : 0);
                 _lastClickTime = Time.time;
@@ -58,7 +47,46 @@ namespace Player
                 pointerClickGround?.Invoke(worldPosition);
             }
         }
-        
+
+        public void AddTarget(Targetable target)
+        {
+            if (!_targets.Contains(target))
+            {
+                _targets.Add(target);
+                var character = target.GetComponent<CharacterBase>();
+                if(character) character.dead.AddListener(OnTargetDead);
+            }
+
+            if (currentTarget != null) return;
+            
+            currentTarget = target;
+            if(currentTarget) pointerEnterTarget?.Invoke(currentTarget);
+        }
+
+        public void RemoveTarget(Targetable target)
+        {
+            if (target == null) return;
+            
+            _targets.Remove(target);
+            var character = target.GetComponent<CharacterBase>();
+            if(character) character.dead.RemoveListener(OnTargetDead);
+
+            if (target != currentTarget) return;
+
+            if (target != null)
+            {
+                pointerExitTarget?.Invoke(target);
+            }
+            
+            currentTarget = _targets.FirstOrDefault();
+            if(currentTarget) pointerEnterTarget?.Invoke(currentTarget);
+        }
+
+        private void OnTargetDead(CharacterBase character)
+        {
+            RemoveTarget(character.GetComponent<Targetable>());
+        }
+
         private bool TryGetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)
         {
             var eventData = new PointerEventData(EventSystem.current)

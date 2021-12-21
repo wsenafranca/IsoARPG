@@ -19,6 +19,7 @@ namespace AI
         private AISensing _sensing;
         private SkillSet _skillSet;
         private WeaponMelee[] _weapons;
+        private AIAggro _aggro;
 
         private CharacterBase _currentTarget;
         private Vector3 _initialPosition;
@@ -40,6 +41,7 @@ namespace AI
             _sensing = GetComponentInChildren<AISensing>();
             _skillSet = GetComponent<SkillSet>();
             _weapons = GetComponentsInChildren<WeaponMelee>();
+            _aggro = GetComponent<AIAggro>();
 
             var wait = StateMachineManager.GetState<WaitState>();
             var alert = StateMachineManager.GetState<AlertState>();
@@ -73,17 +75,24 @@ namespace AI
         
         private void OnEnable()
         {
-            _character.death?.AddListener(OnDeath);
+            _character.dead?.AddListener(OnDead);
 
-            if (_sensing != null)
+            if (_sensing)
             {
-                _sensing.targetEnter.AddListener(OnTargetEnter);
+                _sensing.targetUpdate.AddListener(OnTargetUpdate);
                 _sensing.targetExit.AddListener(OnTargetExit);
+                _sensing.enabled = true;
+            }
+
+            if (_aggro)
+            {
+                _aggro.aggroChanged.AddListener(OnAggroChanged);
+                _aggro.enabled = true;
             }
 
             _targetable.enabled = true;
         }
-        
+
         private void Start()
         {
             _initialPosition = transform.position;
@@ -92,14 +101,19 @@ namespace AI
 
         private void OnDisable()
         {
-            _character.death?.RemoveListener(OnDeath);
+            _character.dead?.RemoveListener(OnDead);
             _currentTarget = null;
             _currentSkill = null;
 
-            if (_sensing != null)
+            if (_sensing)
             {
-                _sensing.targetEnter.RemoveListener(OnTargetEnter);
+                _sensing.targetUpdate.RemoveListener(OnTargetUpdate);
                 _sensing.targetExit.RemoveListener(OnTargetExit);
+            }
+
+            if (_aggro)
+            {
+                _aggro.aggroChanged.RemoveListener(OnAggroChanged);
             }
         }
         
@@ -121,24 +135,34 @@ namespace AI
             return false;
         }
 
-        private void OnDeath(CharacterBase character)
+        private void OnDead(CharacterBase character)
         {
             _targetable.enabled = false;
             
             if (_sensing != null) _sensing.enabled = false;
+            if (_aggro != null) _aggro.enabled = false;
+        }
+
+        private void OnTargetUpdate(CharacterBase target)
+        {
+            _currentTarget = target;
+        }
+
+        private void OnTargetExit(CharacterBase target)
+        {
+            if(_aggro) _aggro.RemoveTarget(target);
         }
         
-        private void OnTargetEnter(Collider other)
+        private void OnAggroChanged(CharacterBase target)
         {
-            if (other.gameObject == gameObject) return;
-            _currentTarget = other.GetComponent<CharacterBase>();
-            
-        }
-        
-        private void OnTargetExit(Collider other)
-        {
-            if (other.gameObject == gameObject) return;
-            _currentTarget = null;
+            if (_sensing != null)
+            {
+                if(_sensing.IsSensing(target)) _sensing.currentTarget = target;
+            }
+            else
+            {
+                _currentTarget = target;
+            }
         }
         
         private void BeginUseSkill()

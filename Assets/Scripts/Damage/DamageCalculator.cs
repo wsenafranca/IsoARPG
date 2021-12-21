@@ -6,12 +6,14 @@ namespace Damage
 {
     public static class DamageCalculator
     {
-        public static DamageHit CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.source, target, intent.damageFlags, intent.damageType, intent.skillDamageBonus, intent.worldPosition, intent.normal);
+        public static DamageHit CalculateDamage(DamageIntent intent, CharacterBase target) => CalculateDamage(intent.instigator, intent.causer, target, intent.damageFlags, intent.damageType, intent.skillDamageBonus, intent.worldPosition, intent.normal);
         
-        public static DamageHit CalculateDamage(CharacterBase source, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float skillDamage, Vector3 worldPosition, Vector3 normal)
+        public static DamageHit CalculateDamage(CharacterBase source, GameObject causer, CharacterBase target, DamageFlags damageFlags, DamageType damageType, float skillDamage, Vector3 worldPosition, Vector3 normal)
         {
             var outDamage = new DamageHit
             {
+                instigator = source,
+                causer = causer,
                 flags = damageFlags,
                 damageType = damageType,
                 worldPosition =  worldPosition,

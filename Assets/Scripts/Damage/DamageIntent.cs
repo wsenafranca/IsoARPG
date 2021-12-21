@@ -5,7 +5,8 @@ namespace Damage
 {
     public struct DamageIntent
     {
-        public CharacterBase source;
+        public CharacterBase instigator;
+        public GameObject causer;
         public DamageFlags damageFlags;
         public DamageTargetType damageTargetType;
         public DamageType damageType;

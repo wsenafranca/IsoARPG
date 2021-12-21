@@ -1206,6 +1206,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetUpdate:
+    m_PersistentCalls:
+      m_Calls: []
   targetEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -3897,6 +3900,7 @@ GameObject:
   - component: {fileID: 608397754}
   - component: {fileID: 608397753}
   - component: {fileID: 608397752}
+  - component: {fileID: 608397764}
   m_Layer: 7
   m_Name: Goblin (1)
   m_TagString: Untagged
@@ -4013,7 +4017,7 @@ MonoBehaviour:
   bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
-  death:
+  dead:
     m_PersistentCalls:
       m_Calls: []
   currentHealthChanged:
@@ -4023,6 +4027,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   currentEnergyShieldChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  damageReceived:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &608397760
@@ -4110,6 +4117,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
+--- !u!114 &608397764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 608397751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71e899be356a467dbf59abb27445f304, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aggroChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &616763273
 GameObject:
   m_ObjectHideFlags: 0
@@ -6767,6 +6789,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetUpdate:
+    m_PersistentCalls:
+      m_Calls: []
   targetEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -13461,7 +13486,7 @@ MonoBehaviour:
   bloodEffect: {fileID: 0}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
-  death:
+  dead:
     m_PersistentCalls:
       m_Calls: []
   currentHealthChanged:
@@ -13471,6 +13496,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   currentEnergyShieldChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  damageReceived:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &2061347268
@@ -17275,6 +17303,7 @@ GameObject:
   - component: {fileID: 2617942292310742621}
   - component: {fileID: 2617942292310742622}
   - component: {fileID: 2617942292310742623}
+  - component: {fileID: 2617942292310742624}
   m_Layer: 7
   m_Name: Goblin
   m_TagString: Untagged
@@ -17326,7 +17355,7 @@ MonoBehaviour:
   bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
-  death:
+  dead:
     m_PersistentCalls:
       m_Calls: []
   currentHealthChanged:
@@ -17336,6 +17365,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   currentEnergyShieldChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  damageReceived:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &2617942292310742613
@@ -17498,6 +17530,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6473e24e48e74aa7bd0a14b62f6ef9b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2617942292310742624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2617942292310742609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71e899be356a467dbf59abb27445f304, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aggroChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2617942292310742625
 GameObject:
   m_ObjectHideFlags: 0
@@ -18255,7 +18302,7 @@ MonoBehaviour:
   bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
-  death:
+  dead:
     m_PersistentCalls:
       m_Calls: []
   currentHealthChanged:
@@ -18277,6 +18324,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   currentEnergyShieldChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  damageReceived:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &4794858102986121156

@@ -287,12 +287,16 @@ namespace Player
 
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
-                stateMachine.MoveToDestination(worldPoint);
+                if (!stateMachine.isCurrentTargetValid ||
+                    Vector3.Distance(worldPoint, stateMachine._currentTarget.transform.position) > 2)
+                {
+                    stateMachine.MoveToDestination(worldPoint);
+                }
             }
 
             public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
-                //stateMachine.MoveToTarget(target, button);
+                if(target.targetType == TargetType.Enemy) stateMachine.MoveToTarget(target, button);
             }
         }
 
@@ -324,7 +328,7 @@ namespace Player
 
             public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
             {
-                //stateMachine.MoveToTarget(target, button);
+                if(target.targetType == TargetType.Enemy) stateMachine.MoveToTarget(target, button);
             }
         }
 

@@ -24,7 +24,7 @@ namespace UI
             if (!character || !character.isAlive) return;
 
             character.currentHealthChanged.AddListener(_healthBar.OnCharacterValueChanged);
-            character.death.AddListener(OnCharacterDeath);
+            character.dead.AddListener(OnCharacterDeath);
             
             _healthBar.OnCharacterValueChanged(character, character.currentHealth, character.attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
             
@@ -42,14 +42,14 @@ namespace UI
             if (!character) return;
             
             character.currentHealthChanged.RemoveListener(_healthBar.OnCharacterValueChanged);
-            character.death.RemoveListener(OnCharacterDeath);
+            character.dead.RemoveListener(OnCharacterDeath);
         }
 
         private void OnCharacterDeath(CharacterBase character)
         {
             gameObject.SetActive(false);
             character.currentHealthChanged.RemoveListener(_healthBar.OnCharacterValueChanged);
-            character.death.RemoveListener(OnCharacterDeath);
+            character.dead.RemoveListener(OnCharacterDeath);
         }
     }
 }
