@@ -36,12 +36,12 @@ namespace UI
             _textMesh.enableVertexGradient = true;
 
             _rect = GetComponent<RectTransform>();
-            _rect.anchoredPosition = position;
+            _rect.localPosition = position;
             
             _rect.localScale = Vector3.one * 0.1f;
             DOTween.Sequence()
                 .Join(DOTween.Sequence().AppendInterval(0.5f).Append(_textMesh.DOFade(0.0f, 0.5f)))
-                .Join(_rect.DOAnchorPosY(position.y + 32, 0.3f))
+                .Join(_rect.DOAnchorPosY(_rect.anchoredPosition.y + 32, 0.3f))
                 .Join(_rect.DOScale(Vector3.one, 0.4f))
                 .AppendCallback(()=>finishedCallback(gameObject));
         }

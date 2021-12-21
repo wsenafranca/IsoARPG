@@ -12,7 +12,7 @@ public class DamageOutputManager : MonoBehaviour
     public static DamageOutputManager instance { get; private set; }
     
     public GameObject damagePrefab;
-    public float duration = 1.0f;
+    public Camera worldCamera;
     public Canvas canvas;
     
     private ObjectPool<GameObject> _pool;
@@ -49,18 +49,19 @@ public class DamageOutputManager : MonoBehaviour
                 obj.SetActive(false);
                 
                 obj.transform.SetParent(canvas.transform, false);
+
+                var canvasRect = canvas.GetComponent<RectTransform>();
+                var viewportPoint = worldCamera.WorldToViewportPoint(entry.worldPosition) - new Vector3(0.5f, 0.5f, 0.0f);
                 
                 var damage = obj.GetComponent<DamageView>();
                 damage.text = entry.text;
                 damage.color = entry.color;
-                damage.finishedCallback = (damageObject) => _pool.Release(damageObject);
-                var cam = canvas.worldCamera;
-                var screenPosition = cam.WorldToScreenPoint(entry.worldPosition);
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, screenPosition, cam, out damage.position);
+                damage.finishedCallback = _pool.Release;
+                damage.position = Vector2.Scale(viewportPoint, canvasRect.sizeDelta);
                 
                 obj.SetActive(true);
-
-                if(_queue.Count > 0) yield return new WaitForSeconds(0.2f);
+                
+                if(_queue.Count > 0) yield return new WaitForSeconds(0.1f);
             }
         }
     }
