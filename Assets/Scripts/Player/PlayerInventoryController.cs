@@ -6,7 +6,7 @@ using Weapon;
 
 namespace Player
 {
-    public class PlayerInventoryController : InventoryController, IWeaponMeleeHandler
+    public class PlayerInventoryController : InventoryController
     {
         private PlayerAnimator _animator;
         private AttributeSet _attributeSet;

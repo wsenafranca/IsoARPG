@@ -64,16 +64,10 @@ namespace Character
             _agent.SetDestination(target);
             _agent.isStopped = false;
         }
-        
-        public void SetDestination(Transform target, float acceptableDistance = 0.0f)
-        {
-            var targetActor = target.GetComponent<NavMeshAgent>();
-            if (targetActor)
-            {
-                acceptableDistance = Mathf.Max(acceptableDistance, targetActor.radius);
-            }
 
-            SetDestination(target.position, acceptableDistance);
+        public float Distance(CharacterMovement character)
+        {
+            return Mathf.Max(0, Vector3.Distance(transform.position, character.transform.position) - _agent.radius - (character != null ? character._agent.radius : 0));
         }
 
         public void StopMovement()

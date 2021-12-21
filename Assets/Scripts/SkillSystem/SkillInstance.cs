@@ -1,4 +1,5 @@
-﻿using Character;
+﻿using System;
+using Character;
 using Damage;
 using UnityEngine;
 
@@ -8,11 +9,11 @@ namespace SkillSystem
     {
         public Skill skillBase;
 
-        private float _useTime;
+        private DateTime _useTime;
 
-        public float remainingCooldown => Mathf.Max(0, skillBase.cooldown - (Time.time - _useTime));
+        public double remainingCooldown => Math.Max(0.0, skillBase.cooldown - (DateTime.Now - _useTime).TotalSeconds);
 
-        public bool isReady => Time.time - _useTime > skillBase.cooldown;
+        public bool isReady => (DateTime.Now - _useTime).Seconds > skillBase.cooldown;
 
         public bool TryUseSkill(CharacterBase character, out DamageIntent damageIntent)
         {
@@ -22,7 +23,7 @@ namespace SkillSystem
             character.currentHealth -= skillBase.healthCost;
             character.currentMana -= skillBase.manaCost;
 
-            _useTime = Time.time;
+            _useTime = DateTime.Now;
 
             damageIntent.source = character;
             damageIntent.damageTargetType = skillBase.damageTargetType;
@@ -36,13 +37,6 @@ namespace SkillSystem
         public bool CanUseSkill(CharacterBase character)
         {
             return isReady && character.currentHealth >= skillBase.healthCost && character.currentMana >= skillBase.manaCost;
-        }
-
-        public bool CanUseSkillAtTarget(CharacterBase character, CharacterBase target)
-        {
-            if (!CanUseSkill(character) || target == null || !target.isAlive) return false;
-
-            return Vector3.Distance(character.transform.position, target.transform.position) <= skillBase.range;
         }
     }
 }

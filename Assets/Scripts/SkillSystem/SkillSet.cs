@@ -9,9 +9,6 @@ namespace SkillSystem
         public List<Skill> skills;
 
         private readonly Dictionary<Type, SkillInstance> _skillInstances = new();
-        
-        [SerializeField]
-        private Skill[] skillMouseSlot = new Skill[2];
 
         private void Awake()
         {
@@ -30,12 +27,11 @@ namespace SkillSystem
 
         public bool TryGetSkillInstance(Skill skill, out SkillInstance instance)
         {
-            return _skillInstances.TryGetValue(skill.GetType(), out instance);
-        }
+            if (skill != null) return _skillInstances.TryGetValue(skill.GetType(), out instance);
+            
+            instance = null;
+            return false;
 
-        public bool TryGetSkillFromMouseButton(int button, out SkillInstance instance)
-        {
-            return _skillInstances.TryGetValue(skillMouseSlot[button].GetType(), out instance);
         }
     }
 }

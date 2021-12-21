@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SkillSystem;
 using TargetSystem;
 using UI;
 using UnityEngine;
@@ -10,13 +11,15 @@ namespace Player
 {
     public class InputController : MonoBehaviour
     {
+        public Skill[] skillSlot;
+        
         private bool _isPressingLeft;
         private bool _isPressingRight;
         private Targetable _target;
         private float _lastClickTime;
         private Vector2 _lastMousePosition;
         private readonly List<RaycastResult> _results = new();
-        
+
         public Targetable currentTarget
         {
             get => _target;
@@ -50,13 +53,13 @@ namespace Player
                 pointerClickTarget?.Invoke(currentTarget, _isPressingRight ? 1 : 0);
                 _lastClickTime = Time.time;
             }
-            else if (_isPressingLeft && GetGroundPosition(Input.mousePosition, out var worldPosition))
+            else if (_isPressingLeft && TryGetGroundPosition(Input.mousePosition, out var worldPosition))
             {
                 pointerClickGround?.Invoke(worldPosition);
             }
         }
         
-        private bool GetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)
+        private bool TryGetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)
         {
             var eventData = new PointerEventData(EventSystem.current)
             {

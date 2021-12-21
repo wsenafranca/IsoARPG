@@ -21,9 +21,14 @@ namespace AI
         private WeaponMelee[] _weapons;
 
         private CharacterBase _currentTarget;
-        private Vector3 _currentDestination;
         private Vector3 _initialPosition;
         private SkillInstance _currentSkill;
+
+        private bool isCurrentTargetValid => _currentTarget != null && _currentTarget.isAlive;
+
+        private bool isCurrentSkillValid => _currentSkill != null;
+        
+        private bool isInSkillRange => isCurrentSkillValid && isCurrentTargetValid && _characterMovement.Distance(_currentTarget.characterMovement) < _currentSkill.skillBase.range;
 
         private void Awake()
         {
@@ -36,46 +41,31 @@ namespace AI
             _weapons = GetComponentsInChildren<WeaponMelee>();
 
             var wait = StateMachineManager.GetState<WaitState>();
+            var alert = StateMachineManager.GetState<AlertState>();
             var chase = StateMachineManager.GetState<ChaseState>();
             var moveBack = StateMachineManager.GetState<MoveBackState>();
             var useSkill = StateMachineManager.GetState<UseSkillState>();
             var dead = StateMachineManager.GetState<DeadState>();
             
             AddTransition(wait, dead, () => !_character.isAlive);
-            AddTransition(wait, chase, () => isCurrentTargetValid);
+            AddTransition(wait, alert, () => isCurrentTargetValid);
+            
+            AddTransition(alert, dead, () => !_character.isAlive);
+            AddTransition(alert, wait, () => !isCurrentTargetValid);
+            AddTransition(alert, chase, () => isCurrentTargetValid && TryGetFirstAvailableSkill(out _currentSkill));
             
             AddTransition(chase, dead, () => !_character.isAlive);
             AddTransition(chase, moveBack, () => !isCurrentTargetValid);
-            AddTransition(chase, useSkill, () => GetFirstAvailableSkill(out _currentSkill));
-            
+            AddTransition(chase, alert, () => !isCurrentSkillValid);
+            AddTransition(chase, useSkill, () => isInSkillRange);
+
+            AddTransition(moveBack, dead, () => !_character.isAlive);
             AddTransition(moveBack, wait, () => _characterMovement.hasReachDestination);
-            AddTransition(moveBack, chase, () => isCurrentTargetValid);
+            AddTransition(moveBack, alert, () => isCurrentTargetValid);
             
-            AddTransition(useSkill, chase, () => !_animator.isPlayingAnimation);
-
-            currentState = wait;
+            AddTransition(useSkill, alert, () => !_animator.isPlayingAnimation);
         }
-
-        private bool isCurrentTargetValid => _currentTarget != null && _currentTarget.isAlive;
-
-        private bool GetFirstAvailableSkill(out SkillInstance skillInstance)
-        {
-            skillInstance = null;
-            if (_skillSet == null) return false;
-
-            foreach (var skill in _skillSet.skills)
-            {
-                if(!_skillSet.TryGetSkillInstance(skill, out skillInstance)) continue;
-
-                if (skillInstance.CanUseSkillAtTarget(_character, _currentTarget))
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-
+        
         private void OnEnable()
         {
             _character.death?.AddListener(OnDeath);
@@ -87,6 +77,12 @@ namespace AI
             }
 
             _targetable.enabled = true;
+        }
+        
+        private void Start()
+        {
+            _initialPosition = transform.position;
+            currentState = StateMachineManager.GetState<WaitState>();
         }
 
         private void OnDisable()
@@ -102,6 +98,24 @@ namespace AI
             }
         }
         
+        private bool TryGetFirstAvailableSkill(out SkillInstance skillInstance)
+        {
+            skillInstance = null;
+            if (_skillSet == null) return false;
+
+            foreach (var skill in _skillSet.skills)
+            {
+                if(!_skillSet.TryGetSkillInstance(skill, out skillInstance)) continue;
+
+                if (skillInstance.CanUseSkill(_character))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
         private void OnDeath(CharacterBase character)
         {
             _targetable.enabled = false;
@@ -122,12 +136,12 @@ namespace AI
             _currentTarget = null;
         }
         
-        private bool BeginUseSkill()
+        private void BeginUseSkill()
         {
             if (_animator.isPlayingAnimation || _currentSkill == null || !_currentSkill.CanUseSkill(_character))
             {
                 EndUseSkill();
-                return false;
+                return;
             }
 
             if (_currentSkill.skillBase.needTarget)
@@ -135,7 +149,7 @@ namespace AI
                 if (_currentTarget == null)
                 {
                     EndUseSkill();
-                    return false;
+                    return;
                 }
                 
                 _characterMovement.LookAt(_currentTarget.transform);
@@ -144,7 +158,7 @@ namespace AI
             if (!_currentSkill.TryUseSkill(_character, out var damageIntent))
             {
                 EndUseSkill();
-                return false;
+                return;
             }
             
             if (_currentSkill.skillBase.requirements.HasFlag(SkillRequirements.MeleeWeapon))
@@ -153,13 +167,13 @@ namespace AI
                 if (weapon == null)
                 {
                     EndUseSkill();
-                    return false;
+                    return;
                 }
                 
                 weapon.SetDamageIntent(damageIntent);
             }
 
-            return _animator.TriggerSkillAnimation(_currentSkill.skillBase.animatorTrigger);
+            _animator.TriggerSkillAnimation(_currentSkill.skillBase.animatorTrigger);
         }
 
         private void EndUseSkill()
@@ -182,7 +196,7 @@ namespace AI
         {
             public void OnStateEnter(StateMachine stateMachine)
             {
-                if (stateMachine is not AIController aiController || aiController._animator == null) return;
+                if (stateMachine is not AIController aiController) return;
                 aiController._animator.chasing = false;
             }
 
@@ -196,35 +210,40 @@ namespace AI
                 
             }
         }
+
+        private class AlertState : IState
+        {
+            public void OnStateEnter(StateMachine stateMachine)
+            {
+                if (stateMachine is not AIController aiController) return;
+                aiController._animator.chasing = true;
+
+                if (aiController._currentTarget != null) aiController._characterMovement.LookAt(aiController._currentTarget.transform);
+            }
+
+            public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
+            {
+            }
+
+            public void OnStateExit(StateMachine stateMachine)
+            {
+            }
+        }
         
         private class ChaseState : IState
         {
             public void OnStateEnter(StateMachine stateMachine)
             {
-                if (stateMachine is not AIController aiController) return;
-
-                var target = aiController._currentTarget;
-                if (target == null) return;
                 
-                var destination = target.transform.position;
-                aiController._initialPosition = aiController.transform.position;
-                aiController._currentDestination = destination;
-                aiController._characterMovement.SetDestination(destination, 1.0f);
-                aiController._animator.chasing = true;
             }
 
             public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
             {
                 if (stateMachine is not AIController aiController) return;
                 var target = aiController._currentTarget;
-                if (target == null) return;
-
-                var destination = target.transform.position;
-
-                if (Vector3.Distance(destination, aiController._currentDestination) < 0.1f) return;
+                if (target == null || aiController._currentSkill == null) return;
                 
-                aiController._currentDestination = destination;
-                aiController._characterMovement.SetDestination(destination, 1.0f);
+                aiController._characterMovement.SetDestination(target.transform.position, aiController._currentSkill.skillBase.range);
             }
 
             public void OnStateExit(StateMachine stateMachine)

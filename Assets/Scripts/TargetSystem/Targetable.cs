@@ -63,8 +63,11 @@ namespace TargetSystem
             {
                 r.gameObject.layer = GameAsset.instance.outlineLayerOff.index;
             }
-        
-            PlayerController.instance.input.currentTarget = null;
+
+            if (PlayerController.instance.input.currentTarget == this)
+            {
+                PlayerController.instance.input.currentTarget = null;
+            }
         }
     }
 }

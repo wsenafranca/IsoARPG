@@ -19,6 +19,9 @@ namespace Character
         
         [HideInInspector]
         public AttributeSet attributeSet;
+
+        [HideInInspector] 
+        public CharacterMovement characterMovement;
         
         private readonly Queue<DamageInfo> _damages = new(30);
 
@@ -75,6 +78,7 @@ namespace Character
         {
             _animator = GetComponent<CharacterAnimator>();
             attributeSet = GetComponent<AttributeSet>();
+            characterMovement = GetComponent<CharacterMovement>();
         }
 
         private void OnEnable()

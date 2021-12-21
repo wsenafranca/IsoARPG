@@ -6,11 +6,6 @@ using UnityEngine;
 
 namespace Weapon
 {
-    public interface IWeaponMeleeHandler
-    {
-        public WeaponMelee GetWeaponMelee(int weaponIndex);
-    }
-    
     [Serializable]
     public class WeaponMeleeContactPoint
     {
@@ -48,6 +43,8 @@ namespace Weapon
                 var point2 = Vector3.Lerp(_lastContactPoint2, contactPoint.point2.position, alpha);
                 var dir = (point2 - point1).normalized;
                 var len = Vector3.Distance(point1, point2);
+                
+                Debug.DrawRay(point1, dir, Color.red, 1.0f);
                 
                 var count = Physics.SphereCastNonAlloc(point1, contactPoint.radius, dir, _results, len, layerMask, QueryTriggerInteraction.Ignore);
                 for (var i = 0; i < count; i++)
