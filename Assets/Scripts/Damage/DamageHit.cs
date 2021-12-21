@@ -2,7 +2,7 @@
 
 namespace Damage
 {
-    public struct DamageInfo
+    public struct DamageHit
     {
         public int value;
         public DamageFlags flags;
@@ -11,5 +11,6 @@ namespace Damage
         public bool missedHit;
         public bool blockedHit;
         public Vector3 worldPosition;
+        public Vector3 normal;
     }
 }

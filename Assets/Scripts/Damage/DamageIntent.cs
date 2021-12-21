@@ -11,5 +11,6 @@ namespace Damage
         public DamageType damageType;
         public float skillDamageBonus;
         public Vector3 worldPosition;
+        public Vector3 normal;
     }
 }

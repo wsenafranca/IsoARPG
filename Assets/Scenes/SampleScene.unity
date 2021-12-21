@@ -2146,37 +2146,6 @@ Transform:
   m_Father: {fileID: 608397763}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &219555531
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 219555532}
-  m_Layer: 7
-  m_Name: Point2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &219555532
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 219555531}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.215, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1302051505}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &223948997
 GameObject:
   m_ObjectHideFlags: 0
@@ -4041,6 +4010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayName: Goblin
+  bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
   death:
@@ -4101,7 +4071,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 1
+  m_ObstacleAvoidanceType: 0
 --- !u!95 &608397762
 Animator:
   serializedVersion: 4
@@ -6458,9 +6428,7 @@ Transform:
   m_LocalPosition: {x: -8.363236, y: -3.6060038, z: -3.417388}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2108087071}
-  - {fileID: 1121143422}
+  m_Children: []
   m_Father: {fileID: 394519}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6476,11 +6444,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6f3b6ac9ad544be9679a11feeda2bc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  contactPoint:
-    point1: {fileID: 2108087071}
-    point2: {fileID: 1121143422}
+  contactPoints:
+  - root: {fileID: 394519}
+    offset: {x: -9.6, y: 0, z: 0}
     radius: 0.1
-  collisionSteps: 4
+  - root: {fileID: 1810434836}
+    offset: {x: 4.33, y: 0, z: 3.96}
+    radius: 0.1
 --- !u!1 &1031386796
 GameObject:
   m_ObjectHideFlags: 0
@@ -7507,37 +7477,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1117630847}
   m_CullTransparentMesh: 1
---- !u!1 &1121143421
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1121143422}
-  m_Layer: 7
-  m_Name: Point2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1121143422
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1121143421}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.215, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 997992450}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1134612690
 GameObject:
   m_ObjectHideFlags: 0
@@ -8189,12 +8128,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1302051504}
   m_LocalRotation: {x: -1, y: 0.000000037563847, z: 0.000000029802319, w: 0.00000011793907}
-  m_LocalPosition: {x: -8.363236, y: -3.6060038, z: -3.417388}
+  m_LocalPosition: {x: -4.7, y: -3.6, z: 1}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1979174644}
-  - {fileID: 219555532}
+  m_Children: []
   m_Father: {fileID: 2617942292310313553}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8210,11 +8147,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6f3b6ac9ad544be9679a11feeda2bc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  contactPoint:
-    point1: {fileID: 1979174644}
-    point2: {fileID: 219555532}
+  contactPoints:
+  - root: {fileID: 2617942292310313553}
+    offset: {x: -9.6, y: 0, z: 0}
     radius: 0.1
-  collisionSteps: 4
+  - root: {fileID: 2617942292310313545}
+    offset: {x: 4.33, y: 0, z: 3.96}
+    radius: 0.1
 --- !u!1 &1310125614
 GameObject:
   m_ObjectHideFlags: 0
@@ -12833,37 +12772,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1977119596}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1979174643
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1979174644}
-  m_Layer: 7
-  m_Name: Point1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1979174644
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979174643}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.264, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1302051505}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1985565310
 GameObject:
   m_ObjectHideFlags: 0
@@ -13550,6 +13458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayName: Big Orc
+  bloodEffect: {fileID: 0}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
   death:
@@ -13913,37 +13822,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2100329574}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &2108087070
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2108087071}
-  m_Layer: 7
-  m_Name: Point1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2108087071
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108087070}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.264, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 997992450}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2116361324
 GameObject:
   m_ObjectHideFlags: 0
@@ -17445,6 +17323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayName: Goblin
+  bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
   death:
@@ -17537,7 +17416,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 1
+  m_ObstacleAvoidanceType: 0
 --- !u!114 &2617942292310742617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18372,7 +18251,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3012cbe8c7e74dff933448c40ca3fb09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayName: 
+  displayName: Player
+  bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
   death:
@@ -18551,6 +18431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillSlot:
   - {fileID: 11400000, guid: 268c1b72acf49654da10ec2a78ae55e0, type: 2}
+  - {fileID: 0}
   pointerClickGround:
     m_PersistentCalls:
       m_Calls: []

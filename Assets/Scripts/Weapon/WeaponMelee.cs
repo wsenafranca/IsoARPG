@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Character;
 using Damage;
 using UnityEngine;
@@ -9,61 +10,70 @@ namespace Weapon
     [Serializable]
     public class WeaponMeleeContactPoint
     {
-        public Transform point1;
-        public Transform point2;
+        public Transform root;
+        public Vector3 offset;
         public float radius = 0.1f;
     }
     
     public class WeaponMelee : MonoBehaviour
     {
-        [SerializeField]
-        private WeaponMeleeContactPoint contactPoint = new();
+        private LayerMask _layerMask;
         
         [SerializeField]
-        private int collisionSteps = 4;
+        private List<WeaponMeleeContactPoint> contactPoints = new();
         
         private bool _isAttacking;
-        private Vector3 _lastContactPoint1;
-        private Vector3 _lastContactPoint2;
+        private Vector3[] _lastPosition;
         private readonly RaycastHit[] _results = new RaycastHit[10];
         private readonly HashSet<GameObject> _hitCharacters = new();
      
         private GameObject _instigator;
         private DamageIntent _damageIntent;
+        
+        private void Awake()
+        {
+            _layerMask = LayerMask.GetMask("Character", "Player");
+            _lastPosition = new Vector3[contactPoints.Count];
+        }
 
         private void Update()
         {
             if (!_isAttacking) return;
-
-            var layerMask = LayerMask.GetMask("Character", "Player");
-            var step = 1.0f / collisionSteps;
-            for (var alpha = 0.0f; alpha <= 1.0f; alpha += step)
+            
+            for (var i = 0; i < contactPoints.Count; i++)
             {
-                var point1  = Vector3.Lerp(_lastContactPoint1, contactPoint.point1.position, alpha);
-                var point2 = Vector3.Lerp(_lastContactPoint2, contactPoint.point2.position, alpha);
-                var dir = (point2 - point1).normalized;
-                var len = Vector3.Distance(point1, point2);
+                var currentPosition = contactPoints[i].root.position + contactPoints[i].root.TransformVector(contactPoints[i].offset);
+                var lastPosition = _lastPosition[i];
                 
-                Debug.DrawRay(point1, dir, Color.red, 1.0f);
-                
-                var count = Physics.SphereCastNonAlloc(point1, contactPoint.radius, dir, _results, len, layerMask, QueryTriggerInteraction.Ignore);
-                for (var i = 0; i < count; i++)
+                var dir = currentPosition - lastPosition;
+                if (dir.magnitude < 0.001f)
                 {
-                    var obj = _results[i].collider.gameObject;
-                    if (_hitCharacters.Contains(obj) || obj == _instigator) continue;
+                    dir = Vector3.forward * 0.0001f;
+                }
+                dir.Normalize();
+                
+                var len = Vector3.Distance(currentPosition, lastPosition);
+            
+                Debug.DrawRay(currentPosition, dir, Color.red, 2.0f);
+
+                var count = Physics.SphereCastNonAlloc(currentPosition, contactPoints[i].radius, dir, _results, len, _layerMask, QueryTriggerInteraction.Ignore);
+                for (var j = 0; j < count; j++)
+                {
+                    var obj = _results[j].collider.gameObject;
+                    if (obj == _instigator || _hitCharacters.Contains(obj)) continue;
 
                     var target = obj.GetComponent<CharacterBase>();
                     if (!target || !target.isAlive) continue;
 
-                    _damageIntent.worldPosition = (point1 + point2) * 0.5f;
+                    _damageIntent.worldPosition = currentPosition;
+                    _damageIntent.normal = dir;
                     target.ApplyDamage(_damageIntent);
                     
                     _hitCharacters.Add(obj);
                 }
+                
+                _lastPosition[i] = currentPosition;
             }
-
-            _lastContactPoint1 = contactPoint.point1.position;
-            _lastContactPoint2 = contactPoint.point2.position;
         }
 
         public void SetDamageIntent(DamageIntent intent)
@@ -75,8 +85,10 @@ namespace Weapon
         {
             _instigator = instigator;
             _isAttacking = true;
-            _lastContactPoint1 = contactPoint.point1.position;
-            _lastContactPoint2 = contactPoint.point2.position;
+            for (var i = 0; i < contactPoints.Count; i++)
+            {
+                _lastPosition[i] = contactPoints[i].root.position + contactPoints[i].root.TransformVector(contactPoints[i].offset);
+            }
             _hitCharacters.Clear();
         }
 
@@ -90,14 +102,12 @@ namespace Weapon
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 1.0f);
-            if (!contactPoint.point1 || !contactPoint.point2) return;
 
-            var point1Position = contactPoint.point1.position;
-            var point2Position = contactPoint.point2.position;
-            Gizmos.DrawLine(point1Position, point2Position);
-            var scale = transform.lossyScale.x;
-            Gizmos.DrawSphere(point1Position, contactPoint.radius * scale);
-            Gizmos.DrawSphere(point2Position, contactPoint.radius * scale);
+            foreach (var point in contactPoints.Where(point => point != null && point.root != null))
+            {
+                var worldPosition = point.root.TransformVector(point.offset);
+                Gizmos.DrawSphere(point.root.position + worldPosition, point.radius * transform.lossyScale.x);
+            }
         }
 #endif
     }

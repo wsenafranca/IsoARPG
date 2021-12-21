@@ -61,12 +61,12 @@ public class DamageOutputManager : MonoBehaviour
                 
                 obj.SetActive(true);
                 
-                if(_queue.Count > 0) yield return new WaitForSeconds(0.1f);
+                if(_queue.Count > 0) yield return new WaitForSeconds(0.2f);
             }
         }
     }
 
-    public void ShowDamage(DamageInfo damage)
+    public void ShowDamage(DamageHit damage)
     {
         if(damage.criticalHit)
         {

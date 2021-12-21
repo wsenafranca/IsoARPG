@@ -14,6 +14,8 @@ namespace Character
     public class CharacterBase : MonoBehaviour
     {
         public string displayName;
+
+        public GameObject bloodEffect;
         
         private CharacterAnimator _animator;
         
@@ -23,7 +25,7 @@ namespace Character
         [HideInInspector] 
         public CharacterMovement characterMovement;
         
-        private readonly Queue<DamageInfo> _damages = new(30);
+        private readonly Queue<DamageHit> _damages = new(30);
 
         public UnityEvent<CharacterBase> death;
         public UnityEvent<CharacterBase, int, int> currentHealthChanged;
@@ -120,6 +122,12 @@ namespace Character
                     {
                         case DamageType.Health:
                             currentHealth = (int)Mathf.Clamp(currentHealth - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxHealth));
+                            if (bloodEffect != null && damage.value > 0)
+                            {
+                                var ps = Instantiate(bloodEffect, damage.worldPosition, Quaternion.LookRotation(-damage.normal)).GetComponent<ParticleSystem>();
+                                Destroy(ps.gameObject, ps.main.duration);
+                            }
+                            
                             break;
                         case DamageType.Mana:
                             currentMana = (int)Mathf.Clamp(currentMana - damage.value, 0.0f, attributeSet.GetAttributeValueOrDefault(Attribute.MaxMana));
@@ -130,7 +138,7 @@ namespace Character
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                        
+                    
                     DamageOutputManager.instance.ShowDamage(damage);
                 }
             }
