@@ -23,6 +23,7 @@ namespace AI
         private CharacterBase _currentTarget;
         private Vector3 _initialPosition;
         private SkillInstance _currentSkill;
+        private float _waitTime;
 
         private bool isCurrentTargetValid => _currentTarget != null && _currentTarget.isAlive;
 
@@ -45,6 +46,7 @@ namespace AI
             var chase = StateMachineManager.GetState<ChaseState>();
             var moveBack = StateMachineManager.GetState<MoveBackState>();
             var useSkill = StateMachineManager.GetState<UseSkillState>();
+            var afterUseSkill = StateMachineManager.GetState<AfterUseSkillState>();
             var dead = StateMachineManager.GetState<DeadState>();
             
             AddTransition(wait, dead, () => !_character.isAlive);
@@ -63,7 +65,10 @@ namespace AI
             AddTransition(moveBack, wait, () => _characterMovement.hasReachDestination);
             AddTransition(moveBack, alert, () => isCurrentTargetValid);
             
-            AddTransition(useSkill, alert, () => !_animator.isPlayingAnimation);
+            AddTransition(useSkill, afterUseSkill, () => !_animator.isPlayingAnimation);
+            
+            AddTransition(afterUseSkill, dead, () => !_character.isAlive);
+            AddTransition(afterUseSkill, alert, () => currentStateElapsedTime > _waitTime);
         }
         
         private void OnEnable()
@@ -102,7 +107,7 @@ namespace AI
         {
             skillInstance = null;
             if (_skillSet == null) return false;
-
+            
             foreach (var skill in _skillSet.skills)
             {
                 if(!_skillSet.TryGetSkillInstance(skill, out skillInstance)) continue;
@@ -175,9 +180,10 @@ namespace AI
 
             _animator.TriggerSkillAnimation(_currentSkill.skillBase.animatorTrigger);
         }
-
+        
         private void EndUseSkill()
         {
+            _currentSkill = null;
         }
         
         private void OnWeaponBeginAttack(int index)
@@ -294,6 +300,23 @@ namespace AI
                 if (stateMachine is not AIController aiController) return;
                 
                 aiController._characterMovement.StopMovement();
+            }
+        }
+
+        private class AfterUseSkillState : IState
+        {
+            public void OnStateEnter(StateMachine stateMachine)
+            {
+                if (stateMachine is not AIController aiController) return;
+                aiController._waitTime = Random.Range(0.5f, 2.0f);
+            }
+
+            public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
+            {
+            }
+
+            public void OnStateExit(StateMachine stateMachine)
+            {
             }
         }
 

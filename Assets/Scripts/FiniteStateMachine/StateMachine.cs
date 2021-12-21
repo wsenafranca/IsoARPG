@@ -13,7 +13,7 @@ namespace FiniteStateMachine
    
         private static readonly List<Transition> EmptyTransitions = new();
 
-        private float _elapsedTime;
+        public float currentStateElapsedTime { get; private set; }
         private IState _currentState;
         public IState currentState
         {
@@ -28,7 +28,7 @@ namespace FiniteStateMachine
                 _transitions.TryGetValue(_currentState.GetType(), out _currentTransitions);
                 _currentTransitions ??= EmptyTransitions;
 
-                _elapsedTime = 0;
+                currentStateElapsedTime = 0;
                 _currentState?.OnStateEnter(this);
             }
         }
@@ -41,8 +41,8 @@ namespace FiniteStateMachine
                 currentState = transition.to;
             }
             
-            _elapsedTime += Time.deltaTime;
-            currentState?.OnStateUpdate(this, _elapsedTime);
+            currentState?.OnStateUpdate(this, currentStateElapsedTime);
+            currentStateElapsedTime += Time.deltaTime;
         }
 
         public T GetCurrentState<T>() where T : IState
