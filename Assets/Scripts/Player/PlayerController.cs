@@ -99,14 +99,10 @@ namespace Player
 
         public void BeginTalk()
         {
-            if (_currentTarget == null || _currentTarget is not Talkative talkative) return;
-            talkative.Talk(this);
         }
 
         public void EndTalk()
         {
-            _currentTarget = null;
-            _action = PlayerAction.None;
         }
 
         private void BeginUseSkill()
@@ -205,11 +201,6 @@ namespace Player
                 case Collectible:
                     _action = PlayerAction.Collect;
                     _currentDestination = target.transform.position;
-                    break;
-                case Talkative:
-                    _action = PlayerAction.Talk;
-                    _currentDestination = target.transform.position;
-                    _currentAcceptableDistance = 1.0f;
                     break;
                 case AITarget characterTarget:
                     if (_skillSet.TryGetSkillInstance(input.skillSlot[button], out _currentSkill)

@@ -6,21 +6,21 @@ namespace AI
 {
     public class AISensing : MonoBehaviour
     {
-        public UnityEvent<CharacterBase> targetEnter;
-        public UnityEvent<CharacterBase> targetExit;
+        public UnityEvent<Collider> targetEnter;
+        public UnityEvent<Collider> targetExit;
         
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject == transform.parent.gameObject) return;
 
-            targetEnter?.Invoke(other.GetComponent<CharacterBase>());
+            targetEnter?.Invoke(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (other.gameObject == transform.parent.gameObject) return;
 
-            targetExit?.Invoke(other.GetComponent<CharacterBase>());
+            targetExit?.Invoke(other);
         }
     }
 }

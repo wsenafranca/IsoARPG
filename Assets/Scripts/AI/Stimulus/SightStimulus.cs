@@ -85,8 +85,10 @@ namespace AI.Stimulus
             _targets.Remove(target);
         }
         
-        private void OnTargetEnter(CharacterBase target)
+        private void OnTargetEnter(Collider other)
         {
+            var target = other.GetComponent<CharacterBase>();
+            
             if (target == null) return;
 
             if (_targets.Contains(target)) return;
@@ -95,9 +97,9 @@ namespace AI.Stimulus
             target.dead.AddListener(OnTargetDead);
         }
 
-        private void OnTargetExit(CharacterBase target)
+        private void OnTargetExit(Collider other)
         {
-            RemoveTarget(target);
+            RemoveTarget(other.GetComponent<CharacterBase>());
         }
         
         private void OnTargetDead(CharacterBase target)

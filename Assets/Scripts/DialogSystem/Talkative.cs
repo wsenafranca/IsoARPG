@@ -1,19 +1,33 @@
-﻿using Player;
+﻿using System;
+using Player;
+using UI;
 using UnityEngine;
 
 namespace DialogSystem
 {
     public class Talkative : TargetBase
     {
-        public string displayName;
+        public Transform messageBoxPosition;
+        
+        [TextArea]
+        public string text;
         
         public override Color outlineColor => GameAsset.instance.outlineTalkative;
 
-        public void Talk(PlayerController player)
+        public void OnPlayerEnter(Collider other)
         {
-            print($"Hello, {player.displayName}! I'm " + displayName);
+            if (other.GetComponent<PlayerController>() == null) return;
+            
+            MessageBox.instance.ShowText(text, messageBoxPosition.position);
         }
-        
+
+        public void OnPlayerExit(Collider other)
+        {
+            if (other.GetComponent<PlayerController>() == null) return;
+            
+            MessageBox.instance.HideText();
+        }
+
         public override bool isTargetValid => true;
     }
 }
