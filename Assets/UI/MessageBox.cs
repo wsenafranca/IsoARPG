@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace UI
         public Camera worldCamera;
         
         private TextMeshProUGUI _textMesh;
+        private Transform _position;
+        private bool _isShowingText;
         
         private void Awake()
         {
@@ -21,18 +24,30 @@ namespace UI
             instance = this;
         }
 
-        public void ShowText(string text, Vector3 worldPosition)
+        private void Update()
         {
-            var canvasRectSize = ((RectTransform) canvas.transform).sizeDelta;
-            var screenPoint = worldCamera.WorldToViewportPoint(worldPosition) * canvasRectSize - canvasRectSize * 0.5f;
+            if (!_isShowingText) return;
             
-            var rect = GetComponent<RectTransform>();
+            var canvasRectSize = ((RectTransform) canvas.transform).sizeDelta;
+            var screenPoint = worldCamera.WorldToViewportPoint(_position.position) * canvasRectSize - canvasRectSize * 0.5f;
+
+            ((RectTransform)transform).anchoredPosition = screenPoint;
+        }
+
+        public void ShowText(string text, Transform position)
+        {
+            _position = position;
+            var canvasRectSize = ((RectTransform) canvas.transform).sizeDelta;
+            var screenPoint = worldCamera.WorldToViewportPoint(_position.position) * canvasRectSize - canvasRectSize * 0.5f;
+            
+            var rect = (RectTransform)transform;
             
             _textMesh.text = text;
             rect.sizeDelta = new Vector2(_textMesh.preferredWidth + 32, _textMesh.preferredHeight + 32);
             rect.anchoredPosition = screenPoint;
 
-            transform.localScale = Vector3.one * 0.1f;
+            _isShowingText = true;
+            rect.localScale = Vector3.one * 0.1f;
             gameObject.SetActive(true);
             DOTween.Sequence()
                 .Append(transform.DOScale(Vector3.one, 0.3f));
@@ -40,6 +55,7 @@ namespace UI
 
         public void HideText()
         {
+            _isShowingText = false;
             transform.localScale = Vector3.one;
             DOTween.Sequence()
                 .Append(transform.DOScale(Vector3.one * 0.1f, 0.1f))

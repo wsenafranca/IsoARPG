@@ -1,5 +1,4 @@
-﻿using System;
-using Player;
+﻿using Player;
 using UI;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ namespace DialogSystem
         {
             if (other.GetComponent<PlayerController>() == null) return;
             
-            MessageBox.instance.ShowText(text, messageBoxPosition.position);
+            MessageBox.instance.ShowText(text, messageBoxPosition);
         }
 
         public void OnPlayerExit(Collider other)
