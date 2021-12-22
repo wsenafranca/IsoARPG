@@ -1,5 +1,4 @@
 ﻿using InventorySystem;
-using TargetSystem;
 using UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,17 +6,12 @@ using UnityEngine.Rendering;
 
 namespace Item
 {
-    public class Collectible : Targetable
+    public class Collectible : TargetBase
     {
         public ItemBase item;
         public float duration = 600.0f;
 
         private ItemInstance _itemInstance;
-
-        public Collectible()
-        {
-            targetType = TargetType.Collectible;
-        }
 
         private void Start()
         {
@@ -95,8 +89,10 @@ namespace Item
                 Destroy(rb);
             }
         }
+        
+        public override Color outlineColor => _itemInstance.itemColor;
 
-        public override Color targetColor => _itemInstance.itemColor;
+        public override bool isTargetValid => item != null && _itemInstance != null;
 
         public override void OnPointerEnter(PointerEventData eventData)
         {

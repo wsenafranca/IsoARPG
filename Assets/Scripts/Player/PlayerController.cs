@@ -1,9 +1,8 @@
-﻿using System;
+﻿using AI;
 using Character;
 using FiniteStateMachine;
 using Item;
 using SkillSystem;
-using TargetSystem;
 using UnityEngine;
 
 namespace Player
@@ -23,7 +22,7 @@ namespace Player
         private int _hitNumber;
         private float _lastAttack;
         private bool _isPressing;
-        private Targetable _currentTarget;
+        private TargetBase _currentTarget;
         private CharacterBase _currentTargetCharacter;
         private Vector3 _currentDestination;
         private SkillInstance _currentSkill;
@@ -59,7 +58,7 @@ namespace Player
             instance = this;
         }
         
-        private bool isCurrentTargetValid => _currentTarget != null && _currentTarget.enabled;
+        private bool isCurrentTargetValid => _currentTarget != null && _currentTarget.isTargetValid;
         
         private bool isCurrentSkillValid => _currentSkill != null;
         
@@ -151,7 +150,7 @@ namespace Player
             GetCurrentState<IPlayerState>()?.OnClickGround(this, worldPoint);
         }
         
-        private void OnClickTarget(Targetable target, int button)
+        private void OnClickTarget(TargetBase target, int button)
         {
             GetCurrentState<IPlayerState>()?.OnClickTarget(this, target, button);
         }
@@ -164,45 +163,41 @@ namespace Player
             _currentTargetCharacter = null;
         }
 
-        private void MoveToTarget(Targetable target, int button)
+        private void MoveToTarget(TargetBase target, int button)
         {
-            if (target != null && target.enabled)
+            if (target != null && target.isTargetValid)
             {
                 _currentTarget = target;
-                _currentTargetCharacter = target.GetComponent<CharacterBase>();
             }
 
-            if (_currentTarget == null || !_currentTarget.enabled)
+            if (_currentTarget == null || !_currentTarget.isTargetValid)
             {
                 _currentTarget = null;
                 _currentTargetCharacter = null;
                 return;
             }
-                
-            switch (_currentTarget.targetType)
+
+            _action = PlayerAction.None;
+            switch (_currentTarget)
             {
-                case TargetType.Neutral:
-                    _action = PlayerAction.None;
-                    break;
-                case TargetType.Enemy:
-                    if (_skillSet.TryGetSkillInstance(input.skillSlot[button], out _currentSkill) && _currentSkill.CanUseSkill(_character))
-                    {
-                        _action = PlayerAction.UseSkill;
-                    }
-                    else
-                    {
-                        _action = PlayerAction.None;
-                    }
-                    break;
-                case TargetType.Talkative:
-                    _action = PlayerAction.Talk;
-                    break;
-                case TargetType.Collectible:
+                case Collectible:
                     _action = PlayerAction.Collect;
                     _currentDestination = target.transform.position;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                case AITarget characterTarget:
+                    if (_skillSet.TryGetSkillInstance(input.skillSlot[button], out _currentSkill)
+                        && _currentSkill.CanUseSkill(_character)
+                        && _currentSkill.IsTargetValid(_character, characterTarget.character))
+                    {
+                        _action = PlayerAction.UseSkill;
+                        _currentTargetCharacter = characterTarget.character;
+                    }
+                    else
+                    {
+                        _currentTarget = null;
+                        _currentTargetCharacter = null;
+                    }
+                    break;
             }
         }
         
@@ -233,7 +228,7 @@ namespace Player
         private interface IPlayerState : IState
         {
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint);
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button);
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button);
         }
 
         private class WaitState : IPlayerState
@@ -257,7 +252,7 @@ namespace Player
                 stateMachine.MoveToDestination(worldPoint);
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
                 stateMachine.MoveToTarget(target, button);
             }
@@ -294,9 +289,9 @@ namespace Player
                 }
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
-                if(target.targetType == TargetType.Enemy) stateMachine.MoveToTarget(target, button);
+                if(target is AITarget) stateMachine.MoveToTarget(target, button);
             }
         }
 
@@ -326,9 +321,9 @@ namespace Player
                 stateMachine._characterMovement.SetDestination(worldPoint);
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
-                if(target.targetType == TargetType.Enemy) stateMachine.MoveToTarget(target, button);
+                if(target is AITarget) stateMachine.MoveToTarget(target, button);
             }
         }
 
@@ -354,7 +349,7 @@ namespace Player
                 
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
                 
             }
@@ -383,7 +378,7 @@ namespace Player
                 
             }
 
-            public void OnClickTarget(PlayerController stateMachine, Targetable target, int button)
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
                 
             }

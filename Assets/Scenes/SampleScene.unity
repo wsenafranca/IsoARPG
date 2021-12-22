@@ -721,6 +721,8 @@ MonoBehaviour:
   outlineEnemy: {r: 1, g: 0, b: 0, a: 1}
   outlineNeutral: {r: 1, g: 1, b: 1, a: 1}
   outlineInteractable: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  outlinePlayer: {r: 0, g: 1, b: 1, a: 1}
+  outlineAlly: {r: 0, g: 1, b: 0, a: 1}
   health: {r: 1, g: 0, b: 0, a: 1}
   mana: {r: 0, g: 0, b: 1, a: 1}
   energyShield: {r: 0, g: 1, b: 1, a: 1}
@@ -3891,13 +3893,13 @@ GameObject:
   - component: {fileID: 608397760}
   - component: {fileID: 608397759}
   - component: {fileID: 608397758}
-  - component: {fileID: 608397757}
   - component: {fileID: 608397756}
   - component: {fileID: 608397755}
   - component: {fileID: 608397754}
   - component: {fileID: 608397753}
   - component: {fileID: 608397752}
   - component: {fileID: 608397764}
+  - component: {fileID: 608397765}
   m_Layer: 7
   m_Name: Goblin (1)
   m_TagString: Untagged
@@ -3973,19 +3975,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &608397757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608397751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5282bd8a1ad748018d36e76fb7080649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetType: 1
 --- !u!114 &608397758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4133,6 +4122,18 @@ MonoBehaviour:
   - priority: 0
     sensing: {fileID: 1058335556}
     filterTarget: 0
+--- !u!114 &608397765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 608397751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf839f4354c34efe83592cf8d6cef6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &616763273
 GameObject:
   m_ObjectHideFlags: 0
@@ -11192,12 +11193,12 @@ GameObject:
   - component: {fileID: 1680627965}
   - component: {fileID: 2061347257}
   - component: {fileID: 2061347261}
-  - component: {fileID: 2061347263}
   - component: {fileID: 2061347265}
   - component: {fileID: 2061347266}
   - component: {fileID: 2061347268}
   - component: {fileID: 2061347269}
   - component: {fileID: 2061347270}
+  - component: {fileID: 2061347271}
   m_Layer: 7
   m_Name: Big Orc
   m_TagString: Untagged
@@ -11546,7 +11547,6 @@ GameObject:
   - component: {fileID: 1700379918}
   - component: {fileID: 1700379917}
   - component: {fileID: 1700379916}
-  - component: {fileID: 1700379920}
   m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
@@ -11632,19 +11632,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1700379920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1700379915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5282bd8a1ad748018d36e76fb7080649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetType: 2
 --- !u!1 &1739841548
 GameObject:
   m_ObjectHideFlags: 0
@@ -13430,19 +13417,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
---- !u!114 &2061347263
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690118997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5282bd8a1ad748018d36e76fb7080649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetType: 1
 --- !u!114 &2061347265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13481,8 +13455,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayName: Big Orc
-  characterType: 0
-  bloodEffect: {fileID: 0}
+  characterType: 3
+  bloodEffect: {fileID: 1407402442211574, guid: 5d31a5b9b348544439d8079453188ecc, type: 3}
   attributeSet: {fileID: 0}
   characterMovement: {fileID: 0}
   dead:
@@ -13534,6 +13508,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6473e24e48e74aa7bd0a14b62f6ef9b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2061347271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690118997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf839f4354c34efe83592cf8d6cef6a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &2067928254
@@ -17296,13 +17282,13 @@ GameObject:
   - component: {fileID: 2617942292310742614}
   - component: {fileID: 2617942292310742612}
   - component: {fileID: 2617942292310742610}
-  - component: {fileID: 2617942292310742617}
   - component: {fileID: 2617942292310742618}
   - component: {fileID: 2617942292310742620}
   - component: {fileID: 2617942292310742621}
   - component: {fileID: 2617942292310742622}
   - component: {fileID: 2617942292310742623}
   - component: {fileID: 2617942292310742624}
+  - component: {fileID: 2617942292310742626}
   m_Layer: 7
   m_Name: Goblin
   m_TagString: Untagged
@@ -17449,19 +17435,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
---- !u!114 &2617942292310742617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2617942292310742609}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5282bd8a1ad748018d36e76fb7080649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetType: 1
 --- !u!136 &2617942292310742618
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -17564,6 +17537,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2617942292310742626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2617942292310742609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf839f4354c34efe83592cf8d6cef6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2617942292310742627
 GameObject:
   m_ObjectHideFlags: 0

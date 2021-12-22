@@ -1,21 +1,18 @@
 ﻿using Character;
 using FiniteStateMachine;
 using SkillSystem;
-using TargetSystem;
 using UnityEngine;
 using Weapon;
 
 namespace AI
 {
     [RequireComponent(typeof(CharacterBase))]
-    [RequireComponent(typeof(Targetable))]
     [RequireComponent(typeof(CharacterMovement))]
     public class AIController : StateMachine
     {
         private CharacterBase _character;
         private CharacterMovement _characterMovement;
         private AIAnimator _animator;
-        private Targetable _targetable;
         private AIPerception _perception;
         private SkillSet _skillSet;
         private WeaponMelee[] _weapons;
@@ -38,7 +35,6 @@ namespace AI
             _character = GetComponent<CharacterBase>();
             _characterMovement = GetComponent<CharacterMovement>();
             _animator = GetComponent<AIAnimator>();
-            _targetable = GetComponent<Targetable>();
             _perception = GetComponentInChildren<AIPerception>();
             _skillSet = GetComponent<SkillSet>();
             _weapons = GetComponentsInChildren<WeaponMelee>();
@@ -72,8 +68,6 @@ namespace AI
         private void OnEnable()
         {
             _character.dead?.AddListener(OnDead);
-
-            _targetable.enabled = true;
             if (_perception != null) _perception.enabled = true;
         }
 
@@ -112,9 +106,7 @@ namespace AI
 
         private void OnDead(CharacterBase character)
         {
-            _targetable.enabled = false;
-            
-            if (_perception != null) _perception.enabled = false;
+            OnDisable();
         }
         
         private void BeginUseSkill()

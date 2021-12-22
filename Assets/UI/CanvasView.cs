@@ -1,5 +1,7 @@
 using System;
-using TargetSystem;
+using AI;
+using Character;
+using Item;
 using UnityEngine;
 
 namespace UI
@@ -18,28 +20,34 @@ namespace UI
             Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
         }
 
-        public void OnPointerEnterTarget(Targetable target)
+        public void OnPointerEnterTarget(TargetBase target)
         {
-            switch (target.targetType)
+            switch (target)
             {
-                case TargetType.Neutral:
+                case Collectible:
                     Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
                     break;
-                case TargetType.Enemy:
-                    Cursor.SetCursor(GameAsset.instance.cursorAttack, Vector2.zero, CursorMode.Auto);
-                    break;
-                case TargetType.Talkative:
-                    Cursor.SetCursor(GameAsset.instance.cursorTalk, Vector2.zero, CursorMode.Auto);
-                    break;
-                case TargetType.Collectible:
-                    Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
+                case AITarget characterTarget:
+                    switch (characterTarget.character.characterType)
+                    {
+                        case CharacterType.None:
+                        case CharacterType.Player:
+                        case CharacterType.Ally:
+                            Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
+                            break;
+                        case CharacterType.Enemy:
+                            Cursor.SetCursor(GameAsset.instance.cursorAttack, Vector2.zero, CursorMode.Auto);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public void OnPointerExitTarget(Targetable target)
+        public void OnPointerExitTarget(TargetBase target)
         {
             Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
         }

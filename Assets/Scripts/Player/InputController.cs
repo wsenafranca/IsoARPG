@@ -2,7 +2,6 @@
 using System.Linq;
 using Character;
 using SkillSystem;
-using TargetSystem;
 using UI;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,17 +15,17 @@ namespace Player
         
         private bool _isPressingLeft;
         private bool _isPressingRight;
-        private readonly List<Targetable> _targets = new();
+        private readonly List<TargetBase> _targets = new();
         private float _lastClickTime;
         private Vector2 _lastMousePosition;
         private readonly List<RaycastResult> _results = new();
 
-        public Targetable currentTarget { get; private set; }
+        private TargetBase _currentTarget;
 
         public UnityEvent<Vector3> pointerClickGround;
-        public UnityEvent<Targetable> pointerEnterTarget;
-        public UnityEvent<Targetable> pointerExitTarget;
-        public UnityEvent<Targetable, int> pointerClickTarget;
+        public UnityEvent<TargetBase> pointerEnterTarget;
+        public UnityEvent<TargetBase> pointerExitTarget;
+        public UnityEvent<TargetBase, int> pointerClickTarget;
 
         private void Update()
         {
@@ -37,9 +36,9 @@ namespace Player
             
             if (Time.time - _lastClickTime < 0.5f) return;
 
-            if (currentTarget && currentTarget.enabled && (_isPressingLeft || _isPressingRight))
+            if (_currentTarget && _currentTarget.isTargetValid && (_isPressingLeft || _isPressingRight))
             {
-                pointerClickTarget?.Invoke(currentTarget, _isPressingRight ? 1 : 0);
+                pointerClickTarget?.Invoke(_currentTarget, _isPressingRight ? 1 : 0);
                 _lastClickTime = Time.time;
             }
             else if (_isPressingLeft && TryGetGroundPosition(Input.mousePosition, out var worldPosition))
@@ -48,7 +47,7 @@ namespace Player
             }
         }
 
-        public void AddTarget(Targetable target)
+        public void AddTarget(TargetBase target)
         {
             if (!_targets.Contains(target))
             {
@@ -57,13 +56,13 @@ namespace Player
                 if(character) character.dead.AddListener(OnTargetDead);
             }
 
-            if (currentTarget != null) return;
+            if (_currentTarget != null) return;
             
-            currentTarget = target;
-            if(currentTarget) pointerEnterTarget?.Invoke(currentTarget);
+            _currentTarget = target;
+            if(_currentTarget) pointerEnterTarget?.Invoke(_currentTarget);
         }
 
-        public void RemoveTarget(Targetable target)
+        public void RemoveTarget(TargetBase target)
         {
             if (target == null) return;
             
@@ -71,20 +70,20 @@ namespace Player
             var character = target.GetComponent<CharacterBase>();
             if(character) character.dead.RemoveListener(OnTargetDead);
 
-            if (target != currentTarget) return;
+            if (target != _currentTarget) return;
 
             if (target != null)
             {
                 pointerExitTarget?.Invoke(target);
             }
             
-            currentTarget = _targets.FirstOrDefault();
-            if(currentTarget) pointerEnterTarget?.Invoke(currentTarget);
+            _currentTarget = _targets.FirstOrDefault();
+            if(_currentTarget) pointerEnterTarget?.Invoke(_currentTarget);
         }
 
         private void OnTargetDead(CharacterBase character)
         {
-            RemoveTarget(character.GetComponent<Targetable>());
+            RemoveTarget(character.GetComponent<TargetBase>());
         }
 
         private bool TryGetGroundPosition(Vector2 screenPosition, out Vector3 worldPosition)

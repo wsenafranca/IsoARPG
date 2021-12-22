@@ -1,6 +1,5 @@
 ﻿using AttributeSystem;
 using Character;
-using TargetSystem;
 using TMPro;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ namespace UI
             gameObject.SetActive(false);
         }
 
-        public void OnPointerEnterTarget(Targetable target)
+        public void OnPointerEnterTarget(TargetBase target)
         {
             var character = target.GetComponent<CharacterBase>();
             if (!character || !character.isAlive) return;
@@ -32,7 +31,7 @@ namespace UI
             gameObject.SetActive(true);
         }
 
-        public void OnPointerExitTarget(Targetable target)
+        public void OnPointerExitTarget(TargetBase target)
         {
             gameObject.SetActive(false);
 

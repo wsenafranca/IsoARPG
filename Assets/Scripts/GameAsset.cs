@@ -23,6 +23,8 @@ public class GameAsset : MonoBehaviour
     public Color outlineEnemy = Color.red;
     public Color outlineNeutral = Color.white;
     public Color outlineInteractable = Color.yellow;
+    public Color outlinePlayer = Color.cyan;
+    public Color outlineAlly = Color.green;
     
     [Header("Attributes")]
     public Color health = Color.red;
