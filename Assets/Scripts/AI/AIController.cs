@@ -46,19 +46,17 @@ namespace AI
             var useSkill = GetState<UseSkillState>();
             var dead = GetState<DeadState>();
             
-            AddTransition(wait, dead, () => !_character.isAlive);
+            AddAnyTransition(dead, ()=>!_character.isAlive);
+            
             AddTransition(wait, alert, () => isSensingOpponent);
             
-            AddTransition(alert, dead, () => !_character.isAlive);
             AddTransition(alert, wait, () => !isSensingOpponent);
             AddTransition(alert, chase, () => currentStateElapsedTime > _waitTime && FindAvailableSkill());
             
-            AddTransition(chase, dead, () => !_character.isAlive);
             AddTransition(chase, moveBack, () => !isCurrentTargetValid);
             AddTransition(chase, alert, () => !isCurrentSkillValid);
             AddTransition(chase, useSkill, () => isInSkillRange);
 
-            AddTransition(moveBack, dead, () => !_character.isAlive);
             AddTransition(moveBack, wait, () => _characterMovement.hasReachDestination);
             AddTransition(moveBack, alert, () => isCurrentTargetValid);
             
@@ -69,6 +67,7 @@ namespace AI
         {
             _character.dead?.AddListener(OnDead);
             if (_perception != null) _perception.enabled = true;
+            if (TryGetComponent<AITarget>(out var aiTarget)) aiTarget.enabled = true;
         }
 
         private void Start()
@@ -82,6 +81,8 @@ namespace AI
             _character.dead?.RemoveListener(OnDead);
             _currentTarget = null;
             _currentSkill = null;
+            if (_perception != null) _perception.enabled = false;
+            if (TryGetComponent<AITarget>(out var aiTarget)) aiTarget.enabled = false;
         }
         
         private bool FindAvailableSkill()

@@ -129,7 +129,7 @@ namespace Character
 
         private void OnDeath()
         {
-            _animator.TriggerDeath();
+            _animator.TriggerDie();
             dead?.Invoke(this);
         }
 

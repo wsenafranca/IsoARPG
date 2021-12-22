@@ -47,6 +47,8 @@ namespace Player
             var useSkill = GetState<UseSkillState>();
             var talk = GetState<TalkState>();
             
+            AddAnyTransition(GetState<DeadState>(), ()=> !_character.isAlive);
+            
             AddTransition(wait, move, ()=> _action == PlayerAction.Move);
             AddTransition(wait, move, ()=> _action == PlayerAction.Collect);
             AddTransition(wait, move, ()=> _action == PlayerAction.Talk);
@@ -427,6 +429,29 @@ namespace Player
             public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
                 stateMachine.EndTalk();
+            }
+        }
+
+        private class DeadState : IPlayerState
+        {
+            public void OnStateEnter(StateMachine stateMachine)
+            {
+            }
+
+            public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
+            {
+            }
+
+            public void OnStateExit(StateMachine stateMachine)
+            {
+            }
+
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
+            {
+            }
+
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
+            {
             }
         }
     }
