@@ -39,12 +39,12 @@ namespace AI
             _skillSet = GetComponent<SkillSet>();
             _weapons = GetComponentsInChildren<WeaponMelee>();
 
-            var wait = StateMachineManager.GetState<WaitState>();
-            var alert = StateMachineManager.GetState<AlertState>();
-            var chase = StateMachineManager.GetState<ChaseState>();
-            var moveBack = StateMachineManager.GetState<MoveBackState>();
-            var useSkill = StateMachineManager.GetState<UseSkillState>();
-            var dead = StateMachineManager.GetState<DeadState>();
+            var wait = GetState<WaitState>();
+            var alert = GetState<AlertState>();
+            var chase = GetState<ChaseState>();
+            var moveBack = GetState<MoveBackState>();
+            var useSkill = GetState<UseSkillState>();
+            var dead = GetState<DeadState>();
             
             AddTransition(wait, dead, () => !_character.isAlive);
             AddTransition(wait, alert, () => isSensingOpponent);

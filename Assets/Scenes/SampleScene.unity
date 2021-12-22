@@ -720,7 +720,7 @@ MonoBehaviour:
   cursorTalk: {fileID: 2800000, guid: 88c059cd43878dd498ef70ddba8f6d48, type: 3}
   outlineEnemy: {r: 1, g: 0, b: 0, a: 1}
   outlineNeutral: {r: 1, g: 1, b: 1, a: 1}
-  outlineInteractable: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  outlineTalkative: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   outlinePlayer: {r: 0, g: 1, b: 1, a: 1}
   outlineAlly: {r: 0, g: 1, b: 0, a: 1}
   health: {r: 1, g: 0, b: 0, a: 1}
@@ -11547,6 +11547,7 @@ GameObject:
   - component: {fileID: 1700379918}
   - component: {fileID: 1700379917}
   - component: {fileID: 1700379916}
+  - component: {fileID: 1700379920}
   m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
@@ -11625,13 +11626,26 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1700379915}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.14, y: 2.5, z: 7.03}
+  m_LocalPosition: {x: -17.81, y: 2.5, z: -22.874}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1700379920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700379915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ebac9b8d6a84decbd63be529499a46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: Master of Chaos
 --- !u!1 &1739841548
 GameObject:
   m_ObjectHideFlags: 0
@@ -18489,11 +18503,35 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 5350386508674628510}
+        m_TargetAssemblyTypeName: UI.CanvasView, Assembly-CSharp
+        m_MethodName: OnPointerEnterTarget
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   pointerExitTarget:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1340865623}
         m_TargetAssemblyTypeName: UI.TargetView, Assembly-CSharp
+        m_MethodName: OnPointerExitTarget
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 5350386508674628510}
+        m_TargetAssemblyTypeName: UI.CanvasView, Assembly-CSharp
         m_MethodName: OnPointerExitTarget
         m_Mode: 0
         m_Arguments:

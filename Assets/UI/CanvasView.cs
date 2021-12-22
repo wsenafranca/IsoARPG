@@ -1,6 +1,7 @@
 using System;
 using AI;
 using Character;
+using DialogSystem;
 using Item;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ namespace UI
             {
                 case Collectible:
                     Cursor.SetCursor(GameAsset.instance.cursorDefault, Vector2.zero, CursorMode.Auto);
+                    break;
+                case Talkative:
+                    Cursor.SetCursor(GameAsset.instance.cursorTalk, Vector2.zero, CursorMode.Auto);
                     break;
                 case AITarget characterTarget:
                     switch (characterTarget.character.characterType)

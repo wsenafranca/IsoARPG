@@ -1,5 +1,6 @@
 ﻿using AI;
 using Character;
+using DialogSystem;
 using FiniteStateMachine;
 using Item;
 using SkillSystem;
@@ -10,6 +11,8 @@ namespace Player
     public class PlayerController : StateMachine
     {
         public static PlayerController instance { get; private set; }
+
+        public string displayName => _character.displayName;
         
         private CharacterBase _character;
         private CharacterMovement _characterMovement;
@@ -25,6 +28,7 @@ namespace Player
         private TargetBase _currentTarget;
         private CharacterBase _currentTargetCharacter;
         private Vector3 _currentDestination;
+        private float _currentAcceptableDistance;
         private SkillInstance _currentSkill;
 
         private void Awake()
@@ -36,17 +40,20 @@ namespace Player
             _skillSet = GetComponent<SkillSet>();
             input = GetComponent<InputController>();
 
-            var wait = StateMachineManager.GetState<WaitState>();
-            var move = StateMachineManager.GetState<MoveState>();
-            var moveToRangeSkill = StateMachineManager.GetState<MoveToRangeSkillState>();
-            var collect = StateMachineManager.GetState<CollectState>();
-            var useSkill = StateMachineManager.GetState<UseSkillState>();
+            var wait = GetState<WaitState>();
+            var move = GetState<MoveState>();
+            var moveToRangeSkill = GetState<MoveToRangeSkillState>();
+            var collect = GetState<CollectState>();
+            var useSkill = GetState<UseSkillState>();
+            var talk = GetState<TalkState>();
             
             AddTransition(wait, move, ()=> _action == PlayerAction.Move);
             AddTransition(wait, move, ()=> _action == PlayerAction.Collect);
+            AddTransition(wait, move, ()=> _action == PlayerAction.Talk);
             AddTransition(wait, moveToRangeSkill, ()=> _action == PlayerAction.UseSkill);
             
             AddTransition(move, collect, ()=> _characterMovement.hasReachDestination && _action == PlayerAction.Collect);
+            AddTransition(move, talk, ()=> _characterMovement.hasReachDestination && _action == PlayerAction.Talk);
             AddTransition(move, wait, ()=> _characterMovement.hasReachDestination);
             AddTransition(move, wait, ()=> !_characterMovement.isNavigating);
             
@@ -54,6 +61,8 @@ namespace Player
             AddTransition(moveToRangeSkill, useSkill, () => isInSkillRange);
             
             AddTransition(useSkill, wait, () => !_animator.isPlayingAnimation);
+            
+            AddTransition(talk, wait, () => !isCurrentTargetValid);
 
             instance = this;
         }
@@ -72,7 +81,7 @@ namespace Player
 
         private void Start()
         {
-            currentState = StateMachineManager.GetState<WaitState>();
+            currentState = GetState<WaitState>();
         }
 
         private void OnDisable()
@@ -86,6 +95,18 @@ namespace Player
             _action = PlayerAction.None;
             if (_currentTarget == null || _currentTarget is not Collectible collectible) return;
             collectible.Collect(gameObject);
+        }
+
+        public void BeginTalk()
+        {
+            if (_currentTarget == null || _currentTarget is not Talkative talkative) return;
+            talkative.Talk(this);
+        }
+
+        public void EndTalk()
+        {
+            _currentTarget = null;
+            _action = PlayerAction.None;
         }
 
         private void BeginUseSkill()
@@ -155,9 +176,10 @@ namespace Player
             GetCurrentState<IPlayerState>()?.OnClickTarget(this, target, button);
         }
 
-        private void MoveToDestination(Vector3 worldPoint)
+        private void MoveToDestination(Vector3 worldPoint, float acceptableDistance)
         {
             _currentDestination = worldPoint;
+            _currentAcceptableDistance = acceptableDistance;
             _action = PlayerAction.Move;
             _currentTarget = null;
             _currentTargetCharacter = null;
@@ -183,6 +205,11 @@ namespace Player
                 case Collectible:
                     _action = PlayerAction.Collect;
                     _currentDestination = target.transform.position;
+                    break;
+                case Talkative:
+                    _action = PlayerAction.Talk;
+                    _currentDestination = target.transform.position;
+                    _currentAcceptableDistance = 1.0f;
                     break;
                 case AITarget characterTarget:
                     if (_skillSet.TryGetSkillInstance(input.skillSlot[button], out _currentSkill)
@@ -249,7 +276,7 @@ namespace Player
 
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
-                stateMachine.MoveToDestination(worldPoint);
+                stateMachine.MoveToDestination(worldPoint, 0.0f);
             }
 
             public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
@@ -285,7 +312,7 @@ namespace Player
                 if (!stateMachine.isCurrentTargetValid ||
                     Vector3.Distance(worldPoint, stateMachine._currentTarget.transform.position) > 2)
                 {
-                    stateMachine.MoveToDestination(worldPoint);
+                    stateMachine.MoveToDestination(worldPoint, 0.0f);
                 }
             }
 
@@ -300,7 +327,7 @@ namespace Player
             public void OnStateEnter(StateMachine stateMachine)
             {
                 if (stateMachine is not PlayerController playerController) return;
-                playerController._characterMovement.SetDestination(playerController._currentDestination);
+                playerController._characterMovement.SetDestination(playerController._currentDestination, playerController._currentAcceptableDistance);
             }
 
             public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
@@ -317,7 +344,7 @@ namespace Player
 
             public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
             {
-                stateMachine.MoveToDestination(worldPoint);
+                stateMachine.MoveToDestination(worldPoint, 0.0f);
                 stateMachine._characterMovement.SetDestination(worldPoint);
             }
 
@@ -381,6 +408,34 @@ namespace Player
             public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
             {
                 
+            }
+        }
+
+        private class TalkState : IPlayerState
+        {
+            public void OnStateEnter(StateMachine stateMachine)
+            {
+                (stateMachine as PlayerController)?.BeginTalk();
+            }
+
+            public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
+            {
+                
+            }
+
+            public void OnStateExit(StateMachine stateMachine)
+            {
+                
+            }
+
+            public void OnClickGround(PlayerController stateMachine, Vector3 worldPoint)
+            {
+                stateMachine.EndTalk();
+            }
+
+            public void OnClickTarget(PlayerController stateMachine, TargetBase target, int button)
+            {
+                stateMachine.EndTalk();
             }
         }
     }

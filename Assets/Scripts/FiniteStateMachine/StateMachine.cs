@@ -45,6 +45,8 @@ namespace FiniteStateMachine
             currentStateElapsedTime += Time.deltaTime;
         }
 
+        public T GetState<T>() where T : IState, new() => StateMachineManager.GetState<T>();
+
         public T GetCurrentState<T>() where T : IState
         {
             return (T)currentState;

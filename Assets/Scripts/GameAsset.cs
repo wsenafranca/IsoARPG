@@ -22,7 +22,7 @@ public class GameAsset : MonoBehaviour
     [Header("Outline Targets")]
     public Color outlineEnemy = Color.red;
     public Color outlineNeutral = Color.white;
-    public Color outlineInteractable = Color.yellow;
+    public Color outlineTalkative = Color.yellow;
     public Color outlinePlayer = Color.cyan;
     public Color outlineAlly = Color.green;
     
