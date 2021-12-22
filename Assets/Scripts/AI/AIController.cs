@@ -16,10 +16,9 @@ namespace AI
         private CharacterMovement _characterMovement;
         private AIAnimator _animator;
         private Targetable _targetable;
-        private AISensing _sensing;
+        private AIPerception _perception;
         private SkillSet _skillSet;
         private WeaponMelee[] _weapons;
-        private AIAggro _aggro;
 
         private CharacterBase _currentTarget;
         private Vector3 _initialPosition;
@@ -32,7 +31,7 @@ namespace AI
         
         private bool isInSkillRange => isCurrentSkillValid && isCurrentTargetValid && _characterMovement.Distance(_currentTarget.characterMovement) < _currentSkill.skillBase.range;
 
-        private bool isSensingOpponent => _sensing != null && _sensing.FindTarget(target => _character.IsOpponent(target), out _);
+        private bool isSensingOpponent => _perception != null && _perception.hasOpponent;
 
         private void Awake()
         {
@@ -40,10 +39,9 @@ namespace AI
             _characterMovement = GetComponent<CharacterMovement>();
             _animator = GetComponent<AIAnimator>();
             _targetable = GetComponent<Targetable>();
-            _sensing = GetComponentInChildren<AISensing>();
+            _perception = GetComponentInChildren<AIPerception>();
             _skillSet = GetComponent<SkillSet>();
             _weapons = GetComponentsInChildren<WeaponMelee>();
-            _aggro = GetComponent<AIAggro>();
 
             var wait = StateMachineManager.GetState<WaitState>();
             var alert = StateMachineManager.GetState<AlertState>();
@@ -75,19 +73,8 @@ namespace AI
         {
             _character.dead?.AddListener(OnDead);
 
-            if (_sensing)
-            {
-                _sensing.targetExit.AddListener(OnTargetExit);
-                _sensing.enabled = true;
-            }
-
-            if (_aggro)
-            {
-                _aggro.aggroChanged.AddListener(OnAggroChanged);
-                _aggro.enabled = true;
-            }
-
             _targetable.enabled = true;
+            if (_perception != null) _perception.enabled = true;
         }
 
         private void Start()
@@ -101,16 +88,6 @@ namespace AI
             _character.dead?.RemoveListener(OnDead);
             _currentTarget = null;
             _currentSkill = null;
-
-            if (_sensing)
-            {
-                _sensing.targetExit.RemoveListener(OnTargetExit);
-            }
-
-            if (_aggro)
-            {
-                _aggro.aggroChanged.RemoveListener(OnAggroChanged);
-            }
         }
         
         private bool FindAvailableSkill()
@@ -123,7 +100,7 @@ namespace AI
 
                 if (!_currentSkill.CanUseSkill(_character)) continue;
 
-                if(_sensing.FindTarget(target => _currentSkill.IsTargetValid(_character, target), out _currentTarget))
+                if(_perception.TryGetTargetForSkill(_currentSkill, out _currentTarget))
                 {
                     return true;
                 }
@@ -137,19 +114,7 @@ namespace AI
         {
             _targetable.enabled = false;
             
-            if (_sensing != null) _sensing.enabled = false;
-            if (_aggro != null) _aggro.enabled = false;
-        }
-
-        private void OnTargetExit(CharacterBase target)
-        {
-            if(_aggro) _aggro.RemoveTarget(target);
-            if (target == _currentTarget) _currentTarget = null;
-        }
-        
-        private void OnAggroChanged(CharacterBase target)
-        {
-            _sensing.AddTarget(target);
+            if (_perception != null) _perception.enabled = false;
         }
         
         private void BeginUseSkill()

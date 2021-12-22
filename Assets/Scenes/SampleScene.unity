@@ -1206,9 +1206,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetUpdate:
-    m_PersistentCalls:
-      m_Calls: []
   targetEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -4051,13 +4048,13 @@ MonoBehaviour:
       baseValue: 100
   - attribute: 4
     value:
-      baseValue: 2
+      baseValue: 5
   - attribute: 5
     value:
-      baseValue: 5
+      baseValue: 7
   - attribute: 8
     value:
-      baseValue: 5
+      baseValue: 4
 --- !u!195 &608397761
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4079,7 +4076,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 0
+  m_ObstacleAvoidanceType: 1
 --- !u!95 &608397762
 Animator:
   serializedVersion: 4
@@ -4127,12 +4124,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 608397751}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71e899be356a467dbf59abb27445f304, type: 3}
+  m_Script: {fileID: 11500000, guid: 1071bafdbee34fbe95b19e6a0bfb3d92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aggroChanged:
-    m_PersistentCalls:
-      m_Calls: []
+  damageStimulusData:
+  - priority: -1
+  sightStimulusData:
+  - priority: 0
+    sensing: {fileID: 1058335556}
+    filterTarget: 0
 --- !u!1 &616763273
 GameObject:
   m_ObjectHideFlags: 0
@@ -6790,9 +6790,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetUpdate:
-    m_PersistentCalls:
-      m_Calls: []
   targetEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -17407,13 +17404,13 @@ MonoBehaviour:
       baseValue: 100
   - attribute: 4
     value:
-      baseValue: 2
+      baseValue: 5
   - attribute: 5
     value:
-      baseValue: 5
+      baseValue: 7
   - attribute: 8
     value:
-      baseValue: 5
+      baseValue: 4
 --- !u!1 &2617942292310742615
 GameObject:
   m_ObjectHideFlags: 0
@@ -17451,7 +17448,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 0
+  m_ObstacleAvoidanceType: 1
 --- !u!114 &2617942292310742617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17542,12 +17539,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 2617942292310742609}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71e899be356a467dbf59abb27445f304, type: 3}
+  m_Script: {fileID: 11500000, guid: 1071bafdbee34fbe95b19e6a0bfb3d92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aggroChanged:
-    m_PersistentCalls:
-      m_Calls: []
+  damageStimulusData:
+  - priority: -1
+  sightStimulusData:
+  - priority: 0
+    sensing: {fileID: 111965328}
+    filterTarget: 0
 --- !u!1 &2617942292310742625
 GameObject:
   m_ObjectHideFlags: 0
