@@ -15,6 +15,8 @@ namespace AI
 
         public UnityEvent<CharacterBase> aggroChanged;
 
+        public bool hasDamage => _damages.Count > 0;
+        
         private void Awake()
         {
             _character = GetComponent<CharacterBase>();

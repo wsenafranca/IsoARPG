@@ -1,7 +1,6 @@
 ﻿using System;
 using Character;
 using Damage;
-using UnityEngine;
 
 namespace SkillSystem
 {
@@ -15,6 +14,19 @@ namespace SkillSystem
 
         public bool isReady => (DateTime.Now - _useTime).Seconds > skillBase.cooldown;
 
+        public bool IsTargetValid(CharacterBase source, CharacterBase target)
+        {
+            if (source == null || !source.isAlive || target == null || !target.isAlive) return false;
+
+            return skillBase.damageTargetType switch
+            {
+                DamageTargetType.Self => source == target,
+                DamageTargetType.Opponent => source.IsOpponent(target),
+                DamageTargetType.Partner => source.IsPartner(target),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        
         public bool TryUseSkill(CharacterBase character, out DamageIntent damageIntent)
         {
             damageIntent = new DamageIntent();
@@ -28,7 +40,7 @@ namespace SkillSystem
             damageIntent.instigator = character;
             damageIntent.damageTargetType = skillBase.damageTargetType;
             damageIntent.damageType = skillBase.damageType;
-            damageIntent.skillDamageBonus = skillBase.skillDamageBonus;
+            damageIntent.skill = this;
             damageIntent.damageFlags = skillBase.damageFlags;
 
             return true;

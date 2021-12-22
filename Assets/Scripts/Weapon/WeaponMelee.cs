@@ -38,7 +38,7 @@ namespace Weapon
 
         private void Update()
         {
-            if (!_isAttacking) return;
+            if (!_isAttacking || _damageIntent.skill == null) return;
             
             for (var i = 0; i < contactPoints.Count; i++)
             {
@@ -63,7 +63,7 @@ namespace Weapon
                     if (obj == _instigator || _hitCharacters.Contains(obj)) continue;
 
                     var target = obj.GetComponent<CharacterBase>();
-                    if (!target || !target.isAlive) continue;
+                    if (!_damageIntent.skill.IsTargetValid(_damageIntent.instigator, target)) continue;
 
                     _damageIntent.worldPosition = currentPosition;
                     _damageIntent.normal = dir;

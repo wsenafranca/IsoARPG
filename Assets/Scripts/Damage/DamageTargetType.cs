@@ -2,8 +2,8 @@
 {
     public enum DamageTargetType
     {
-        Enemy,
-        Ally,
+        Opponent,
+        Partner,
         Self
     }
 }

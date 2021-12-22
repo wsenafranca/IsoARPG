@@ -32,6 +32,8 @@ namespace AI
         
         private bool isInSkillRange => isCurrentSkillValid && isCurrentTargetValid && _characterMovement.Distance(_currentTarget.characterMovement) < _currentSkill.skillBase.range;
 
+        private bool isSensingOpponent => _sensing != null && _sensing.FindTarget(target => _character.IsOpponent(target), out _);
+
         private void Awake()
         {
             _character = GetComponent<CharacterBase>();
@@ -48,15 +50,14 @@ namespace AI
             var chase = StateMachineManager.GetState<ChaseState>();
             var moveBack = StateMachineManager.GetState<MoveBackState>();
             var useSkill = StateMachineManager.GetState<UseSkillState>();
-            var afterUseSkill = StateMachineManager.GetState<AfterUseSkillState>();
             var dead = StateMachineManager.GetState<DeadState>();
             
             AddTransition(wait, dead, () => !_character.isAlive);
-            AddTransition(wait, alert, () => isCurrentTargetValid);
+            AddTransition(wait, alert, () => isSensingOpponent);
             
             AddTransition(alert, dead, () => !_character.isAlive);
-            AddTransition(alert, wait, () => !isCurrentTargetValid);
-            AddTransition(alert, chase, () => isCurrentTargetValid && TryGetFirstAvailableSkill(out _currentSkill));
+            AddTransition(alert, wait, () => !isSensingOpponent);
+            AddTransition(alert, chase, () => currentStateElapsedTime > _waitTime && FindAvailableSkill());
             
             AddTransition(chase, dead, () => !_character.isAlive);
             AddTransition(chase, moveBack, () => !isCurrentTargetValid);
@@ -67,10 +68,7 @@ namespace AI
             AddTransition(moveBack, wait, () => _characterMovement.hasReachDestination);
             AddTransition(moveBack, alert, () => isCurrentTargetValid);
             
-            AddTransition(useSkill, afterUseSkill, () => !_animator.isPlayingAnimation);
-            
-            AddTransition(afterUseSkill, dead, () => !_character.isAlive);
-            AddTransition(afterUseSkill, alert, () => currentStateElapsedTime > _waitTime);
+            AddTransition(useSkill, alert, () => !_animator.isPlayingAnimation);
         }
         
         private void OnEnable()
@@ -79,7 +77,6 @@ namespace AI
 
             if (_sensing)
             {
-                _sensing.targetUpdate.AddListener(OnTargetUpdate);
                 _sensing.targetExit.AddListener(OnTargetExit);
                 _sensing.enabled = true;
             }
@@ -107,7 +104,6 @@ namespace AI
 
             if (_sensing)
             {
-                _sensing.targetUpdate.RemoveListener(OnTargetUpdate);
                 _sensing.targetExit.RemoveListener(OnTargetExit);
             }
 
@@ -117,21 +113,23 @@ namespace AI
             }
         }
         
-        private bool TryGetFirstAvailableSkill(out SkillInstance skillInstance)
+        private bool FindAvailableSkill()
         {
-            skillInstance = null;
             if (_skillSet == null) return false;
             
             foreach (var skill in _skillSet.skills)
             {
-                if(!_skillSet.TryGetSkillInstance(skill, out skillInstance)) continue;
+                if(!_skillSet.TryGetSkillInstance(skill, out _currentSkill)) continue;
 
-                if (skillInstance.CanUseSkill(_character))
+                if (!_currentSkill.CanUseSkill(_character)) continue;
+
+                if(_sensing.FindTarget(target => _currentSkill.IsTargetValid(_character, target), out _currentTarget))
                 {
                     return true;
                 }
             }
-            
+
+            _currentSkill = null;
             return false;
         }
 
@@ -143,26 +141,15 @@ namespace AI
             if (_aggro != null) _aggro.enabled = false;
         }
 
-        private void OnTargetUpdate(CharacterBase target)
-        {
-            _currentTarget = target;
-        }
-
         private void OnTargetExit(CharacterBase target)
         {
             if(_aggro) _aggro.RemoveTarget(target);
+            if (target == _currentTarget) _currentTarget = null;
         }
         
         private void OnAggroChanged(CharacterBase target)
         {
-            if (_sensing != null)
-            {
-                if(_sensing.IsSensing(target)) _sensing.currentTarget = target;
-            }
-            else
-            {
-                _currentTarget = target;
-            }
+            _sensing.AddTarget(target);
         }
         
         private void BeginUseSkill()
@@ -175,7 +162,7 @@ namespace AI
 
             if (_currentSkill.skillBase.needTarget)
             {
-                if (_currentTarget == null)
+                if (!_currentSkill.IsTargetValid(_character, _currentTarget))
                 {
                     EndUseSkill();
                     return;
@@ -208,6 +195,7 @@ namespace AI
         private void EndUseSkill()
         {
             _currentSkill = null;
+            _currentTarget = null;
         }
         
         private void OnWeaponBeginAttack(int index)
@@ -249,6 +237,8 @@ namespace AI
                 aiController._animator.chasing = true;
 
                 if (aiController._currentTarget != null) aiController._characterMovement.LookAt(aiController._currentTarget.transform);
+                
+                aiController._waitTime = Random.Range(0.0f, 1.0f);
             }
 
             public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
@@ -324,23 +314,6 @@ namespace AI
                 if (stateMachine is not AIController aiController) return;
                 
                 aiController._characterMovement.StopMovement();
-            }
-        }
-
-        private class AfterUseSkillState : IState
-        {
-            public void OnStateEnter(StateMachine stateMachine)
-            {
-                if (stateMachine is not AIController aiController) return;
-                aiController._waitTime = Random.Range(0.5f, 2.0f);
-            }
-
-            public void OnStateUpdate(StateMachine stateMachine, float elapsedTime)
-            {
-            }
-
-            public void OnStateExit(StateMachine stateMachine)
-            {
             }
         }
 

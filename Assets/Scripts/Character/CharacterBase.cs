@@ -15,6 +15,8 @@ namespace Character
     {
         public string displayName;
 
+        public CharacterType characterType;
+
         public GameObject bloodEffect;
         
         private CharacterAnimator _animator;
@@ -77,6 +79,32 @@ namespace Character
 
         public float animSpeed => Mathf.Clamp(0.7f + attributeSet.GetAttributeValueOrDefault(Attribute.AttackSpeed) / 300.0f, 0.8f, 3.0f);
 
+        public bool IsOpponent(CharacterBase character)
+        {
+            if(character == null || !character.isAlive) return false;
+
+            return characterType switch
+            {
+                CharacterType.None => false,
+                CharacterType.Player or CharacterType.Ally => character.characterType is CharacterType.Enemy,
+                CharacterType.Enemy => character.characterType is CharacterType.Ally or CharacterType.Player,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        
+        public bool IsPartner(CharacterBase character)
+        {
+            if(character == null || !character.isAlive) return false;
+
+            return characterType switch
+            {
+                CharacterType.None => false,
+                CharacterType.Player or CharacterType.Ally => character.characterType is CharacterType.Ally or CharacterType.Player,
+                CharacterType.Enemy => character.characterType is CharacterType.Enemy,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        
         private void Awake()
         {
             _animator = GetComponent<CharacterAnimator>();

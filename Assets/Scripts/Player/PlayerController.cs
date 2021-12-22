@@ -99,7 +99,7 @@ namespace Player
 
             if (_currentSkill.skillBase.needTarget)
             {
-                if (_currentTarget == null)
+                if (!_currentSkill.IsTargetValid(_character, _currentTargetCharacter))
                 {
                     EndUseSkill();
                     return;

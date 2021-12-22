@@ -1,4 +1,5 @@
 ﻿using Character;
+using SkillSystem;
 using UnityEngine;
 
 namespace Damage
@@ -10,7 +11,7 @@ namespace Damage
         public DamageFlags damageFlags;
         public DamageTargetType damageTargetType;
         public DamageType damageType;
-        public float skillDamageBonus;
+        public SkillInstance skill;
         public Vector3 worldPosition;
         public Vector3 normal;
     }

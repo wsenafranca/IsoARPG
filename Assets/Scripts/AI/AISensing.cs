@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Character;
 using UnityEngine;
@@ -8,57 +9,39 @@ namespace AI
 {
     public class AISensing : MonoBehaviour
     {
-        public UnityEvent<CharacterBase> targetUpdate;
         public UnityEvent<CharacterBase> targetEnter;
         public UnityEvent<CharacterBase> targetExit;
 
         private readonly List<CharacterBase> _targets = new();
 
-        private CharacterBase _currentTarget;
-
-        public CharacterBase currentTarget
-        {
-            get => _currentTarget;
-            set
-            {
-                if (value == _currentTarget) return;
-
-                if (value != null && !_targets.Contains(value))
-                {
-                    AddTarget(value);
-                }
-
-                _currentTarget = value;
-                targetUpdate?.Invoke(_currentTarget);
-            }
-        }
-
         public bool IsSensing(CharacterBase target)
         {
             return target != null && _targets.Contains(target);
+        }
+
+        public bool isSensingAnyCharacter => _targets.Count > 0;
+
+        public bool FindTarget(Func<CharacterBase, bool> pred, out CharacterBase target)
+        {
+            target = _targets.FirstOrDefault(pred);
+            return target != null;
         }
         
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject == transform.parent.gameObject) return;
 
-            var target = other.GetComponent<CharacterBase>();
-            AddTarget(target);
-            
-            if (currentTarget == null) currentTarget = target;
+            AddTarget(other.GetComponent<CharacterBase>());
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (other.gameObject == transform.parent.gameObject) return;
 
-            var target = other.GetComponent<CharacterBase>();
-            RemoveTarget(target);
-            
-            if (currentTarget == target) currentTarget = _targets.FirstOrDefault();
+            RemoveTarget(other.GetComponent<CharacterBase>());
         }
 
-        private void AddTarget(CharacterBase character)
+        public void AddTarget(CharacterBase character)
         {
             if (character == null || _targets.Contains(character)) return;
             
@@ -67,7 +50,7 @@ namespace AI
             targetEnter?.Invoke(character);
         }
 
-        private void RemoveTarget(CharacterBase character)
+        public void RemoveTarget(CharacterBase character)
         {
             if (character == null) return;
 
@@ -79,8 +62,6 @@ namespace AI
         private void OnTargetDead(CharacterBase character)
         {
             RemoveTarget(character);
-            
-            if (currentTarget == null) currentTarget = _targets.FirstOrDefault();
         }
     }
 }
