@@ -58,7 +58,7 @@ namespace AI
             AddTransition(chase, useSkill, () => isInSkillRange);
 
             AddTransition(moveBack, wait, () => _characterMovement.hasReachDestination);
-            AddTransition(moveBack, alert, () => isCurrentTargetValid);
+            AddTransition(moveBack, alert, FindAvailableSkill);
             
             AddTransition(useSkill, alert, () => !_animator.isPlayingAnimation);
         }
@@ -66,7 +66,12 @@ namespace AI
         private void OnEnable()
         {
             _character.dead?.AddListener(OnDead);
-            if (_perception != null) _perception.enabled = true;
+            if (_perception != null)
+            {
+                _perception.characterPerceived.AddListener(OnTargetPerceived);
+                _perception.characterLost.AddListener(OnTargetLost);
+                _perception.enabled = true;
+            }
             if (TryGetComponent<AITarget>(out var aiTarget)) aiTarget.enabled = true;
         }
 
@@ -81,7 +86,12 @@ namespace AI
             _character.dead?.RemoveListener(OnDead);
             _currentTarget = null;
             _currentSkill = null;
-            if (_perception != null) _perception.enabled = false;
+            if (_perception != null)
+            {
+                _perception.characterPerceived.RemoveListener(OnTargetPerceived);
+                _perception.characterLost.RemoveListener(OnTargetLost);
+                _perception.enabled = false;
+            }
             if (TryGetComponent<AITarget>(out var aiTarget)) aiTarget.enabled = false;
         }
         
@@ -154,6 +164,19 @@ namespace AI
         {
             _currentSkill = null;
             _currentTarget = null;
+        }
+
+        private void OnTargetPerceived(CharacterBase character)
+        {
+            
+        }
+
+        private void OnTargetLost(CharacterBase character)
+        {
+            if (character != _currentTarget) return;
+            
+            _currentTarget = null;
+            _currentSkill = null;
         }
         
         private void OnWeaponBeginAttack(int index)

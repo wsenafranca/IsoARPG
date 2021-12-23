@@ -58,6 +58,7 @@ namespace AI.Stimulus
             
             _targets.Remove(target);
             target.dead.RemoveListener(OnTargetDead);
+            NotifyCharacterExit(target);
         }
 
         private void OnDamageReceived(CharacterBase _, DamageHit damage)
@@ -73,6 +74,7 @@ namespace AI.Stimulus
 
             _targets[target] = damage.value;
             target.dead.AddListener(OnTargetDead);
+            NotifyCharacterEnter(target);
         }
 
         private void OnTargetDead(CharacterBase target)

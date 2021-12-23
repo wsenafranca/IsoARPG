@@ -1175,7 +1175,7 @@ GameObject:
   - component: {fileID: 111965329}
   - component: {fileID: 111965328}
   m_Layer: 11
-  m_Name: AISensing
+  m_Name: SightSensing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4101,6 +4101,7 @@ Transform:
   - {fileID: 195994513}
   - {fileID: 213947216}
   - {fileID: 1058335555}
+  - {fileID: 1929100739}
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
@@ -4120,8 +4121,15 @@ MonoBehaviour:
   - priority: -1
   sightStimulusData:
   - priority: 0
-    sensing: {fileID: 1058335556}
+    sightSensing: {fileID: 1058335556}
+    lostSightSensing: {fileID: 1929100737}
     filterTarget: 0
+  characterPerceived:
+    m_PersistentCalls:
+      m_Calls: []
+  characterLost:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &608397765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6846,7 +6854,7 @@ GameObject:
   - component: {fileID: 1058335557}
   - component: {fileID: 1058335556}
   m_Layer: 11
-  m_Name: AISensing
+  m_Name: SightSensing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12046,6 +12054,70 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1745659472}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1762113060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1762113063}
+  - component: {fileID: 1762113062}
+  - component: {fileID: 1762113061}
+  m_Layer: 11
+  m_Name: LostSightSensing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1762113061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762113060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  targetExit:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!135 &1762113062
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762113060}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1762113063
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762113060}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2617942292310313521}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1785573519
 GameObject:
   m_ObjectHideFlags: 0
@@ -12725,6 +12797,70 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1524214928539499609, guid: 66a8e45849c33e842a4c60abd7c3d5ab, type: 3}
   m_PrefabInstance: {fileID: 1893348213}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1929100736
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1929100739}
+  - component: {fileID: 1929100738}
+  - component: {fileID: 1929100737}
+  m_Layer: 11
+  m_Name: LostSightSensing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1929100737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1929100736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b5420a0d074fb9a9fea92468c2e324, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  targetExit:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!135 &1929100738
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1929100736}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1929100739
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1929100736}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 608397763}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1973677211
 GameObject:
   m_ObjectHideFlags: 0
@@ -16603,6 +16739,7 @@ Transform:
   - {fileID: 2617942292310313495}
   - {fileID: 2617942292310313569}
   - {fileID: 111965327}
+  - {fileID: 1762113063}
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
@@ -17660,8 +17797,15 @@ MonoBehaviour:
   - priority: -1
   sightStimulusData:
   - priority: 0
-    sensing: {fileID: 111965328}
+    sightSensing: {fileID: 111965328}
+    lostSightSensing: {fileID: 1762113061}
     filterTarget: 0
+  characterPerceived:
+    m_PersistentCalls:
+      m_Calls: []
+  characterLost:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2617942292310742625
 GameObject:
   m_ObjectHideFlags: 0

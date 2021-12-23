@@ -6,6 +6,7 @@ using Character;
 using Damage;
 using SkillSystem;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AI
 {
@@ -18,6 +19,9 @@ namespace AI
         private readonly List<BaseStimulus> _partnerStimulus = new();
         
         private CharacterBase _character;
+
+        public UnityEvent<CharacterBase> characterPerceived;
+        public UnityEvent<CharacterBase> characterLost;
 
         public bool TryGetOpponentTarget(out CharacterBase target) => TryGetTarget(_opponentStimulus, out target);
         public bool TryGetPartnerTarget(out CharacterBase target) => TryGetTarget(_partnerStimulus, out target);
@@ -53,10 +57,10 @@ namespace AI
                 switch (data.filterTarget)
                 {
                     case DamageTargetType.Opponent:
-                        _opponentStimulus.Add(new SightStimulus(_character, data.priority, data.sensing, data.filterTarget));
+                        _opponentStimulus.Add(new SightStimulus(_character, data.priority, data.sightSensing, data.lostSightSensing, data.filterTarget));
                         break;
                     case DamageTargetType.Partner:
-                        _partnerStimulus.Add(new SightStimulus(_character, data.priority, data.sensing, data.filterTarget));
+                        _partnerStimulus.Add(new SightStimulus(_character, data.priority, data.sightSensing, data.lostSightSensing, data.filterTarget));
                         break;
                     case DamageTargetType.Self:
                         break;
@@ -70,15 +74,19 @@ namespace AI
         {
             foreach (var stimulus in _opponentStimulus)
             {
+                stimulus.CharacterEnter += StimulusOnCharacterEnter;
+                stimulus.CharacterExit += StimulusOnCharacterExit;
                 stimulus.OnEnable();
             }
             
             foreach (var stimulus in _partnerStimulus)
             {
+                stimulus.CharacterEnter -= StimulusOnCharacterEnter;
+                stimulus.CharacterExit -= StimulusOnCharacterExit;
                 stimulus.OnEnable();
             }
         }
-        
+
         private void OnDisable()
         {
             foreach (var stimulus in _opponentStimulus)
@@ -94,6 +102,16 @@ namespace AI
             _partnerStimulus.Clear();
         }
 
+        private void StimulusOnCharacterEnter(BaseStimulus _, CharacterBase character)
+        {
+            characterPerceived?.Invoke(character);
+        }
+        
+        private void StimulusOnCharacterExit(BaseStimulus _, CharacterBase character)
+        {
+            characterLost?.Invoke(character);
+        }
+        
         private static bool TryGetTarget(IReadOnlyCollection<BaseStimulus> list, out CharacterBase target)
         {
             if (list == null)

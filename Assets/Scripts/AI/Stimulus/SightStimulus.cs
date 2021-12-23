@@ -11,19 +11,22 @@ namespace AI.Stimulus
     public struct SightStimulusData
     {
         public int priority;
-        public AISensing sensing;
+        public AISensing sightSensing;
+        public AISensing lostSightSensing;
         public DamageTargetType filterTarget;
     }
     
     public class SightStimulus : BaseStimulus
     {
-        private readonly AISensing _sensing;
+        private readonly AISensing _sightSensing;
+        private readonly AISensing _lostSightSensing;
         private readonly DamageTargetType _filterTarget;
         private readonly HashSet<CharacterBase> _targets = new();
 
-        public SightStimulus(CharacterBase owner, int priority, AISensing sensing, DamageTargetType filterTarget) : base(owner, priority)
+        public SightStimulus(CharacterBase owner, int priority, AISensing sightSensing, AISensing lostSightSensing, DamageTargetType filterTarget) : base(owner, priority)
         {
-            _sensing = sensing;
+            _sightSensing = sightSensing;
+            _lostSightSensing = lostSightSensing;
             _filterTarget = filterTarget;
         }
 
@@ -50,8 +53,8 @@ namespace AI.Stimulus
 
         public override void OnEnable()
         {
-            _sensing.targetEnter.AddListener(OnTargetEnter);
-            _sensing.targetExit.AddListener(OnTargetExit);
+            _sightSensing.targetEnter.AddListener(OnTargetEnter);
+            _lostSightSensing.targetExit.AddListener(OnTargetExit);
         }
 
         public override void OnDisable()
@@ -62,8 +65,8 @@ namespace AI.Stimulus
             }
             _targets.Clear();
             
-            _sensing.targetEnter.RemoveListener(OnTargetEnter);
-            _sensing.targetExit.RemoveListener(OnTargetExit);
+            _sightSensing.targetEnter.RemoveListener(OnTargetEnter);
+            _lostSightSensing.targetExit.RemoveListener(OnTargetExit);
         }
 
         private bool IsTargetValid(CharacterBase target)
@@ -83,6 +86,7 @@ namespace AI.Stimulus
             
             target.dead.RemoveListener(OnTargetDead);
             _targets.Remove(target);
+            NotifyCharacterExit(target);
         }
         
         private void OnTargetEnter(Collider other)
@@ -95,6 +99,7 @@ namespace AI.Stimulus
             
             _targets.Add(target);
             target.dead.AddListener(OnTargetDead);
+            NotifyCharacterEnter(target);
         }
 
         private void OnTargetExit(Collider other)
